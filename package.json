@@ -1,0 +1,8 @@
+{
+    "name": "wasabi",
+    "description": "A realtime game networking library built around WebSockets",
+    "version": "0.1.0",
+    "author": "Bryan Conrad",
+    "dependencies": {},
+    "devDependencies": {}
+}
