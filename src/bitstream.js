@@ -71,7 +71,10 @@ Bitstream.prototype = {
       return this.length;
     }
 
-  , readInt: function (bits) {
+    /**
+     * @brief read an unsigned integer consuming the specified number of bits
+     */
+  , readUInt: function (bits) {
 	  var result = 0;
 	  var i;
 	  for (i = 0; i < bits; i++) {
@@ -82,7 +85,10 @@ Bitstream.prototype = {
 	  return result;
     }
 
-  , writeInt: function (value, bits) {
+    /**
+     * @brief write an unsigned integer using the specified number of bits
+     */
+  , writeUInt: function (value, bits) {
 	  var mask = 1;
 	  var i;
 	  for (i = 0; i < bits; i++) {

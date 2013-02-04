@@ -15,14 +15,13 @@ exports.get_set_clear = function (beforeExit, assert) {
 	delete b;
 }
 
-exports.int = function (beforeExit, assert) {
+exports.uint = function (beforeExit, assert) {
 	var b = new Bitstream;
 	var VALUE = 1337;
-	b.writeInt(VALUE, 16);
+	b.writeUInt(VALUE, 16);
 	assert.equal(b._index, 16);
-	console.log(b.arr);
 
 	b._index = 0;
-	assert.equal(b.readInt(16), VALUE);
+	assert.equal(b.readUInt(16), VALUE);
 	delete b;
 }
