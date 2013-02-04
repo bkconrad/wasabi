@@ -1,3 +1,6 @@
+var InDescription = require('./in_description');
+var OutDescription = require('./out_description');
+
 /**
  * @brief A class for packing/unpacking values as a set number of bits
  */
@@ -100,6 +103,27 @@ Bitstream.prototype = {
 		  this._index += 1;
 		  mask <<= 1;
 	  }
+    }
+
+    /**
+     * @brief pack an object with a .serialize() method into this bitstream
+     */
+    , pack: function (obj) {
+	    var description = new InDescription;
+	    description._bitStream = this;
+	    description._target = obj;
+	    obj.serialize(description);
+    }
+
+    /**
+     * @brief unpack an object with a .serialize() method from this bitstream
+     */
+    , unpack: function (obj) {
+	    var description = new OutDescription;
+	    description._bitStream = this;
+	    description._target = {};
+	    obj.serialize(description);
+	    return description._target;
     }
 };
 

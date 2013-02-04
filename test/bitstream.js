@@ -12,7 +12,6 @@ exports.get_set_clear = function (beforeExit, assert) {
 	assert.ok(b.get(0));
 	assert.ok(!b.get(1));
 	assert.ok(b.get(2));
-	delete b;
 }
 
 exports.uint = function (beforeExit, assert) {
@@ -24,4 +23,23 @@ exports.uint = function (beforeExit, assert) {
 	b._index = 0;
 	assert.equal(b.readUInt(16), VALUE);
 	delete b;
+}
+
+exports.packing = function (beforeExit, assert) {
+	var bs = new Bitstream;
+	var testObj = {
+		foo: 1337,
+		bar: 7331,
+		serialize: function (desc) {
+			desc.uint('foo', 16);
+			desc.uint('bar', 16);
+		}
+	}
+	bs.pack(testObj);
+	console.log(bs);
+
+	bs._index = 0;
+	var resultObj = bs.unpack(testObj);
+	assert.equal(testObj.foo, resultObj.foo);
+	assert.equal(testObj.bar, resultObj.bar);
 }
