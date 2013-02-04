@@ -4,6 +4,7 @@
 function Bitstream (vals) {
   this.arr = [];
   this.length = 0;
+  this._index = 0;
   if (vals) {
     for (var i = vals.length - 1; i >= 0; --i) {
       if (vals [i]) {
@@ -70,6 +71,30 @@ Bitstream.prototype = {
       return this.length;
     }
 
+  , readInt: function (bits) {
+	  var result = 0;
+	  var i;
+	  for (i = 0; i < bits; i++) {
+		  result |= this.get(this._index) << i;
+		  this._index += 1;
+	  }
+
+	  return result;
+    }
+
+  , writeInt: function (value, bits) {
+	  var mask = 1;
+	  var i;
+	  for (i = 0; i < bits; i++) {
+		  if (value & mask) {
+			  this.set(this._index);
+		  } else {
+			  this.clear(this._index);
+		  }
+		  this._index += 1;
+		  mask <<= 1;
+	  }
+    }
 };
 
 Bitstream.POSITIVE_DELIM = ".";
