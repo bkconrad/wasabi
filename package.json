@@ -9,6 +9,6 @@
     "repository":
         { "type" : "git"
 	, "url" : "https://github.com/kaen/wasabi.git"
-        }
+        },
     "main": "src/wasabi"
 }
