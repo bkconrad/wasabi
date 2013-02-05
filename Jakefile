@@ -20,7 +20,7 @@ task('coverage', function () {
 
 
 	var err = '', out = '';
-	var testProcess = require('child_process').spawn('expresso', ['-c']);
+	var testProcess = require('child_process').spawn('mocha', ['--reporter', 'html-cov']);
 	testProcess.stderr.on('data', function (data)
 	{
 		err += data;
@@ -46,7 +46,9 @@ task('coverage', function () {
 			}
 		fs.rmdirSync(dirPath);
 
-		console.log(err, out);
+		fs.writeFileSync('coverage.html', out);
+
+		console.log(err);
 	});
 
 });
