@@ -1,4 +1,6 @@
-var Bitstream = require('../src/bitstream');
+require.paths.push(__dirname + '/../src-cov');
+require.paths.push(__dirname + '/../src');
+var Bitstream = require('bitstream');
 
 exports.sanity = function (beforeExit, assert) {
 	assert.isDefined(Bitstream);
