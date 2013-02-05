@@ -1,6 +1,10 @@
-require.paths.push(__dirname + '/../src-cov');
-require.paths.push(__dirname + '/../src');
-var Bitstream = require('bitstream')
+var SRC_PATH;
+if (process.env.COVERAGE) {
+	SRC_PATH = '/src-cov';
+} else {
+	SRC_PATH = '/src';
+}
+var Bitstream = require(__dirname + '/..' + SRC_PATH + '/bitstream')
   , assert = require('chai').assert
   , WebSocket = require('ws')
   ;
@@ -25,6 +29,23 @@ describe('Bitstream', function () {
 
 			b._index = 0;
 			assert.equal(b.readUInt(16), VALUE);
+		});
+		it('encodes its value as an ArrayBuffer', function () {
+			var b = new Bitstream;
+			b.writeUInt(0, 8);
+			b.writeUInt(32, 8);
+			b.writeUInt(128, 8);
+			b.writeUInt(255, 8);
+			b.writeUInt(256, 8);
+			console.log(b);
+
+			var b2 = new Bitstream(b.toArrayBuffer());
+			console.log(b2);
+			assert.equal(0, b2.readUInt(8));
+			assert.equal(32, b2.readUInt(8));
+			assert.equal(128, b2.readUInt(8));
+			assert.equal(255, b2.readUInt(8));
+			assert.equal(0, b2.readUInt(8));
 		});
 		it('should pack/unpack objects with .serialize methods', function () {
 			var bs = new Bitstream;

@@ -20,7 +20,8 @@ task('coverage', function () {
 
 
 	var err = '', out = '';
-	var testProcess = require('child_process').spawn('mocha', ['--reporter', 'html-cov']);
+	var options = { env: { 'COVERAGE': 'YES' } };
+	var testProcess = require('child_process').spawn('mocha', ['--reporter', 'html-cov'], options);
 	testProcess.stderr.on('data', function (data)
 	{
 		err += data;
