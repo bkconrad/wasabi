@@ -1,5 +1,7 @@
+# Wasabi
+
 A simple replication library using *binary* encoding over WebSockets (no
-fallbacks).
+fallbacks). Released under the MIT License.
 
 	npm install wasabi
 
