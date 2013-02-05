@@ -1,5 +1,5 @@
 task('test', function () {
-	var testProcess = require('child_process').spawn('expresso');
+	var testProcess = require('child_process').spawn('mocha');
 	testProcess.stderr.on('data', function (data)
 	{
 		console.log("" + data);
