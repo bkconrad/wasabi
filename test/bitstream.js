@@ -2,6 +2,7 @@ require.paths.push(__dirname + '/../src-cov');
 require.paths.push(__dirname + '/../src');
 var Bitstream = require('bitstream')
   , assert = require('chai').assert
+  , WebSocket = require('ws')
   ;
 
 
@@ -42,6 +43,43 @@ describe('Bitstream', function () {
 			var resultObj = bs.unpack(testObj);
 			assert.equal(testObj.foo, resultObj.foo);
 			assert.equal(testObj.bar, resultObj.bar);
+		});
+		it('writes and reads objects to websockets', function (done) {
+			function TestObject () {}
+		        TestObject.prototype = {
+				foo: 0,
+				bar: 0,
+				serialize: function (desc) {
+					desc.uint('foo', 16);
+					desc.uint('bar', 16);
+				}
+			};
+
+			var sourceObj = new TestObject;
+			var destObj = new TestObject;
+
+			sourceObj.foo = 1337;
+			sourceObj.bar = 7331;
+
+			var sourceStream = new Bitstream;
+			var destStream = undefined;
+
+			sourceStream.pack(sourceObj);
+
+			var server = new WebSocket.Server({port:31337}, function () {
+				var client = new WebSocket('ws://localhost:31337');
+				client.on('message', function (data) {
+					destStream = Bitstream.deserialize(data);
+					destObj = destStream.unpack(destObj);
+					assert.equal(sourceObj.foo, destObj.foo);
+					assert.equal(sourceObj.bar, destObj.bar);
+					done();
+				});
+			});
+
+			server.on('connection', function (ssock) {
+				ssock.send(sourceStream.serialize());
+			});
 		});
 	});
 });
