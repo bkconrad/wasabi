@@ -57,13 +57,13 @@ To then send your Player over a web socket, you need a Bitstream:
 You probably want to then read the object from a socket on the client side:
 **client.js**
 
-  var ws = new WebSocket('ws://localhost:8080');
-  ws.on('message', function (data) {
-    // BitStream.deserialize makes a bitstream from string contents
-    var bitStream = Wasabi.Bitstream.deserialize(data);
+	var ws = new WebSocket('ws://localhost:8080');
+		ws.on('message', function (data) {
+		// BitStream.deserialize makes a bitstream from string contents
+		var bitStream = Wasabi.Bitstream.deserialize(data);
 
-    // but notice that we need an object instance *before* we can unpack an
-    // object from the bitstream
-    var myPlayer = new Player();
-    console.log(bitStream.unpack(myPlayer));
-  }
+		// but notice that we need an object instance *before* we can
+		// unpack an object from the bitstream
+		var myPlayer = new Player();
+		console.log(bitStream.unpack(myPlayer));
+	}
