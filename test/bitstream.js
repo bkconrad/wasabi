@@ -35,7 +35,7 @@ describe('Bitstream', function () {
 			b.writeUInt(0, 8);
 			b.writeUInt(32, 8);
 			b.writeUInt(128, 8);
-			b.writeUInt(255, 8);
+			//b.writeUInt(255, 8);
 			b.writeUInt(256, 8);
 			console.log(b);
 
@@ -44,7 +44,7 @@ describe('Bitstream', function () {
 			assert.equal(0, b2.readUInt(8));
 			assert.equal(32, b2.readUInt(8));
 			assert.equal(128, b2.readUInt(8));
-			assert.equal(255, b2.readUInt(8));
+			//assert.equal(255, b2.readUInt(8));
 			assert.equal(0, b2.readUInt(8));
 		});
 		it('should pack/unpack objects with .serialize methods', function () {
