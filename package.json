@@ -6,5 +6,9 @@
     "dependencies": {"ws": ""},
     "devDependencies": {"mocha": "", "jake": "", "chai": ""},
     "keywords": ["WebSocket", "binary", "replication"],
+    "repository":
+        { "type" : "git"
+	, "url" : "https://github.com/kaen/wasabi.git"
+        }
     "main": "src/wasabi"
 }
