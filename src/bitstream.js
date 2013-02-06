@@ -30,7 +30,7 @@ function Bitstream (buffer) {
   this.arr = [];
   this.length = 0;
   this._index = 0;
-  if (buffer instanceof Buffer) {
+  if (buffer instanceof ArrayBuffer) {
 	  this.fromArrayBuffer(buffer);
   }
 }Array
@@ -38,27 +38,24 @@ function Bitstream (buffer) {
 Bitstream.prototype = {
     constructor: Bitstream
   , toArrayBuffer: function () {
-	  var arr = new Buffer(this.length / 8);
+	  var buf = new ArrayBuffer(this.length / 8);
+	  var arr = new Uint8Array(buf);
 
 	  var bitOffset;
 	  var val;
 	  for (var i = 0; i < arr.length; i++) {
 		  bitOffset = (8 * (i % 4));
 		  val = (this.arr[Math.floor(i / 4)] & (0xFF << bitOffset)) >> bitOffset;
- 
-		  if (val) {
-		  console.log('encoding: ' + val);
-		  }
 		  arr[i] = val;
 	  }
-	return arr;
+	return arr.buffer;
   }
 
   , fromArrayBuffer: function (buffer) {
 	  this.arr = [];
-	  this.length = Math.ceil(buffer.length / 4);
+	  this.length = Math.ceil(buffer.byteLength / 4);
 	  var myIndex = 0;
-	  for (var i = 0; i < buffer.length; i++) {
+	  for (var i = 0; i < buffer.byteLength; i++) {
 		  myIndex = Math.floor(i / 4);
 		  this.arr[myIndex] =
 			  this.arr[myIndex] |

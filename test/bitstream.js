@@ -37,10 +37,8 @@ describe('Bitstream', function () {
 			b.writeUInt(128, 8);
 			//b.writeUInt(255, 8);
 			b.writeUInt(256, 8);
-			console.log(b);
 
 			var b2 = new Bitstream(b.toArrayBuffer());
-			console.log(b2);
 			assert.equal(0, b2.readUInt(8));
 			assert.equal(32, b2.readUInt(8));
 			assert.equal(128, b2.readUInt(8));
