@@ -22,6 +22,20 @@
 
 var InDescription = require('./in_description');
 var OutDescription = require('./out_description');
+var Base128 = require('base128');
+
+function dumpBits (n) {
+	var res = "";
+	n >>>= 0;
+	var mask = Math.pow(2, 31);
+	for (var i = 0; i < 32; i++) {
+		res += (n & mask) ? '1' : '0';
+		mask >>>= 1;
+		if ((i + 1) % 8 == 0)
+			res += ' ';
+	}
+	return res;
+}
 
 /**
  * @brief A class for packing/unpacking values as a set number of bits
@@ -30,25 +44,49 @@ function Bitstream (buffer) {
   this.arr = [];
   this.length = 0;
   this._index = 0;
-  if (buffer instanceof ArrayBuffer) {
+  if (buffer) {
 	  this.fromArrayBuffer(buffer);
   }
-}Array
+}
 
 Bitstream.prototype = {
     constructor: Bitstream
+  , getBits: function (offset, n) {
+	  var cell, cellOffset, lowMask, lowBits, highMask, highBits, finalMask, result;
+	  var cell = Math.floor(offset / 32);
+	  var cellOffset = offset % 32;
+
+	  highMask = 4294967295 << cellOffset;
+	  highBits = highMask & this.arr[cell];
+	  highBits >>>= cellOffset;
+
+	  if (cellOffset > 0) {
+		  lowMask = 4294967295 >>> (32 - cellOffset);
+		  lowBits = lowMask & this.arr[cell + 1];
+		  lowBits <<= (32 - cellOffset);
+	  }
+
+	  finalMask = (1 << n + 1 >>> 1) - 1;
+	  result = (highBits | lowBits) & finalMask; 
+
+	  console.log();
+	  console.log('mask: ' + dumpBits(highMask) + ' - ' + dumpBits(lowMask));
+	  console.log('cell: ' + dumpBits(this.arr[cell]) + ' - ' + dumpBits(this.arr[cell + 1]));
+	  console.log('bits: ' + dumpBits(highBits) + ' - ' + dumpBits(lowBits));
+	  console.log('fmsk: ' + dumpBits(finalMask));
+	  console.log('res:  ' + dumpBits(result));
+	  return result;
+  }
   , toArrayBuffer: function () {
 	  var buf = new ArrayBuffer(this.length / 8);
 	  var arr = new Uint8Array(buf);
 
-	  var bitOffset;
-	  var val;
+	  var offset = 0;
 	  for (var i = 0; i < arr.length; i++) {
-		  bitOffset = (8 * (i % 4));
-		  val = (this.arr[Math.floor(i / 4)] & (0xFF << bitOffset)) >> bitOffset;
-		  arr[i] = val;
+		  arr[i] = this.getBits(offset, 7);
+		  offset += 7;
 	  }
-	return arr.buffer;
+	return arr;
   }
 
   , fromArrayBuffer: function (buffer) {
@@ -80,7 +118,7 @@ Bitstream.prototype = {
     }
 
   , get: function (i) {
-      return (this.arr [Math.floor (i / 32 | 0)] & 1 << i % 32) > 0;
+      return (this.arr [Math.floor (i / 32)] & 1 << i % 32) > 0;
     }
 
   , serialize: function () {

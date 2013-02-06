@@ -21,6 +21,19 @@ describe('Bitstream', function () {
 			assert.ok(!b.get(1));
 			assert.ok(b.get(2));
 		});
+		it('should get n bits at a time', function () {
+			var b = new Bitstream;
+			var i;
+			for (i = 0; i < 256; i++) {
+				b.writeUInt(i, 8);
+			}
+
+			var offset = 0;
+			for (i = 0; i < 256; i++) {
+				assert.equal(i, b.getBits(offset, 8));
+				offset += 8;
+			}
+		});
 		it('should read/write unsigned integers', function () {
 			var b = new Bitstream;
 			var VALUE = 1337;
