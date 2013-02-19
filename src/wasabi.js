@@ -8,6 +8,10 @@ var Wasabi = (function () {
     Wasabi.prototype = {
         Bitstream: Bitstream
       , Registry: Registry
+      /**
+       * pack the given list of objects (with update data) into bs
+       * @method packObjects
+       */
       , packObjects: function (list, bs) {
           var i;
           for (i = 0; i < list.length; i++) {
@@ -17,6 +21,10 @@ var Wasabi = (function () {
           bs.writeUInt(0, 16);
       }
 
+      /**
+       * unpack the given list of objects (with update data) from bs
+       * @method packObjects
+       */
       , unpackObjects: function (bs) {
           var hash = 0;
           var list = [];
