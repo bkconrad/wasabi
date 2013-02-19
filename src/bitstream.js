@@ -184,6 +184,27 @@ Bitstream.prototype = {
     }
 
     /**
+     * @brief read a signed integer consuming the specified number of bits
+     */
+    , readSInt: function (bits) {
+        var result = this.getBits(this._index, bits);
+        this._index += bits;
+        result *= this.getBits(this._index, 1) ? -1 : 1;
+        this._index++;
+        return result;
+    }
+
+    /**
+     * @brief write a signed integer using the specified number of bits
+     */
+    , writeSInt: function (value, bits) {
+        this.setBits(this._index, bits, Math.abs(value));
+        this._index += bits;
+        this.setBits(this._index, 1, value < 0);
+        this._index++;
+    }
+
+    /**
      * @brief pack an object with a .serialize() method into this bitstream
      */
     , pack: function (obj) {

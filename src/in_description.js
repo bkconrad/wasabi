@@ -32,6 +32,9 @@ InDescription.prototype = {
 	uint: function(name, bits) {
 		this._bitStream.writeUInt(this._target[name], 16);
 	}
+	, sint: function(name, bits) {
+		this._bitStream.writeSInt(this._target[name], 16);
+	}
 }
 
 module.exports = InDescription;
