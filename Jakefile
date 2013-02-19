@@ -1,3 +1,9 @@
+task('doc', {async: true}, function () {
+    jake.exec("yuidoc src -o doc", function () {
+        complete();
+    }, {printStdout: true, printStderr: true});
+});
+
 task('test', {async: true}, function () {
     jake.exec("mocha", function () {
         complete();

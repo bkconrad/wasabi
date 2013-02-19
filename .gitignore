@@ -2,3 +2,4 @@ coverage.html
 node_modules
 .nide
 *.log
+doc/*

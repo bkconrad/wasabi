@@ -24,7 +24,8 @@ var InDescription = require('./in_description');
 var OutDescription = require('./out_description');
 
 /**
- * @brief A class for packing/unpacking values as a set number of bits
+ * Manages the packing/unpacking of values as a set number of bits
+ * @class Bitstream
  */
 function Bitstream (buffer) {
     this.arr = [];
@@ -37,6 +38,10 @@ function Bitstream (buffer) {
 
 Bitstream.prototype = {
     constructor: Bitstream
+    /**
+     * set n bits starting at offset to value
+     * @method setBits
+     */
     , setBits: function (offset, n, value) {
         var bits
             , cell
@@ -72,6 +77,10 @@ Bitstream.prototype = {
         }
     }
 
+    /**
+     * return the value of the first n bits starting at offset
+     * @method getBits
+     */
     , getBits: function (offset, n) {
         var bits
             , cell
@@ -130,6 +139,7 @@ Bitstream.prototype = {
 
     /**
      * Convert the data to a valid UTF-8 string
+     * @method toChars
      */
     , toChars: function () {
         var i, result = "";
@@ -140,7 +150,8 @@ Bitstream.prototype = {
     }
 
     /**
-     * @brief read an unsigned integer consuming the specified number of bits
+     * read an unsigned integer consuming the specified number of bits
+     * @method readUInt
      */
     , readUInt: function (bits) {
         var result = this.getBits(this._index, bits);
@@ -149,7 +160,8 @@ Bitstream.prototype = {
     }
 
     /**
-     * @brief write an unsigned integer using the specified number of bits
+     * write an unsigned integer using the specified number of bits
+     * @method writeUInt
      */
     , writeUInt: function (value, bits) {
         this.setBits(this._index, bits, value);
@@ -157,7 +169,8 @@ Bitstream.prototype = {
     }
 
     /**
-     * @brief read a signed integer consuming the specified number of bits
+     * read a signed integer consuming the specified number of bits
+     * @method readSInt
      */
     , readSInt: function (bits) {
         var result = this.getBits(this._index, bits);
@@ -168,7 +181,8 @@ Bitstream.prototype = {
     }
 
     /**
-     * @brief write a signed integer using the specified number of bits
+     * write a signed integer using the specified number of bits
+     * @method writeSInt
      */
     , writeSInt: function (value, bits) {
         this.setBits(this._index, bits, Math.abs(value));
@@ -178,7 +192,8 @@ Bitstream.prototype = {
     }
 
     /**
-     * @brief pack an object with a .serialize() method into this bitstream
+     * pack an object with a .serialize() method into this bitstream
+     * @method pack
      */
     , pack: function (obj) {
         var description = new InDescription;
@@ -188,7 +203,8 @@ Bitstream.prototype = {
     }
 
     /**
-     * @brief unpack an object with a .serialize() method from this bitstream
+     * unpack an object with a .serialize() method from this bitstream
+     * @method unpack
      */
     , unpack: function (obj) {
         var description = new OutDescription;
@@ -201,6 +217,8 @@ Bitstream.prototype = {
 
 /**
  * Create a bitstream from a valid UTF-8 string
+ * @static
+ * @method fromChars
  */
 Bitstream.fromChars = function (str) {
     var chars = [];
