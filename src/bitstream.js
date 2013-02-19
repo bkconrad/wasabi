@@ -23,19 +23,6 @@
 var InDescription = require('./in_description');
 var OutDescription = require('./out_description');
 
-function dumpBits (n) {
-	var res = "";
-	n >>>= 0;
-	var mask = Math.pow(2, 31);
-	for (var i = 0; i < 32; i++) {
-		res += (n & mask) ? '1' : '0';
-		mask >>>= 1;
-		if ((i + 1) % 8 == 0)
-			res += ' ';
-	}
-	return res;
-}
-
 /**
  * @brief A class for packing/unpacking values as a set number of bits
  */
@@ -137,14 +124,6 @@ Bitstream.prototype = {
         for (i = 0; i < buffer.length; i++) {
             this.arr[i] = buffer.get(i);
         }
-    }
-
-    , toString: function () {
-        vals = [];
-        for (var i = this.length - 1; i >= 0; --i) {
-            vals [i] = this.get (i) ? "1" : "0";
-        }
-        return vals.join ("");
     }
 
     , serialize: function () {
