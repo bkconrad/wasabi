@@ -113,7 +113,7 @@ Bitstream.prototype = {
         var i;
 
         for (i = 0; i < this.arr.length; i++) {
-            arr.set(i, this.arr[i]);
+            arr[i] = this.arr[i];
         }
         return arr;
     }
@@ -122,27 +122,16 @@ Bitstream.prototype = {
         this.arr = [];
         var i;
         for (i = 0; i < buffer.length; i++) {
-            this.arr[i] = buffer.get(i);
+            this.arr[i] = buffer[i];
         }
     }
 
     , serialize: function () {
-        var str = "";
-        for (var i = 0; i < this.arr.length; ++i) {
-            var num = this.arr [i];
-            str += num < 0
-                ? (-num).toString (36) + Bitstream.NEGATIVE_DELIM
-                : num.toString (36) + Bitstream.POSITIVE_DELIM
-                ;
+        var i, result = "";
+        for (i = 0; i < this.arr.length; i++) {
+            result += String.fromCharCode(this.arr[i]);
         }
-        var trailingLength = this.length % 32;
-        if (trailingLength == 0) {
-            trailingLength = 32;
-        }
-        if (this.length == 0) {
-            trailingLength = 0;
-        }
-        return str + trailingLength.toString (36);
+        return result;
     }
 
     /**
@@ -205,29 +194,14 @@ Bitstream.prototype = {
     }
 };
 
-Bitstream.POSITIVE_DELIM = ".";
-Bitstream.NEGATIVE_DELIM = "!"
-
-Bitstream.deserialize = (function () {
-    var MATCH_REGEX = new RegExp (
-        "[A-Za-z0-9]+(?:"
-        + Bitstream.POSITIVE_DELIM
-        + "|"
-        + Bitstream.NEGATIVE_DELIM
-        + ")?"
-        , "g");
-    return function (str) {
-        var bm = new Bitstream ();
-        var arr = str.match (MATCH_REGEX);
-        var trailingLength = parseInt (arr.pop (), 36);
-        for (var i = 0; i < arr.length; ++i) {
-            var str = arr [i];
-            var sign = str.charAt (str.length - 1) == Bitstream.POSITIVE_DELIM ? 1 : -1;
-            bm.arr [i] = parseInt (str, 36) * sign;
-        }
-        bm.length = Math.max ((arr.length - 1) * 32 + trailingLength, 0);
-        return bm;
-    };
-}) ();
+Bitstream.deserialize = function (str) {
+    var chars = [];
+    var i;
+    for (i = 0; i < str.length; i++) {
+        chars.push(str.charCodeAt(i));
+    }
+    var bm = new Bitstream (chars);
+    return bm;
+};
 
 module.exports = Bitstream;
