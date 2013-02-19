@@ -4,7 +4,8 @@
  * @class Registry
  */
 function Registry() {
-    this.klasses = {};
+    this.klassToHash = {};
+    this.hashToKlass = {};
 }
 
 Registry.prototype = {
@@ -15,27 +16,28 @@ Registry.prototype = {
      * @method hash
      */
     , hash: function(klass) {
-        return klass.prototype.constructor.toString();
+        var result = 0, name = klass.prototype.constructor.name;
+        for (var i = 0; i < name.length; i++) {
+            // TODO: just how unique is this hash?
+            result ^= name.charCodeAt(i);
+        }
+        return result;
     }
     /**
      * register a klass
      * @method register
      */
     , register: function(klass) {
-        this.klasses[klass] = this.hash(klass);
+        var hash = this.hash(klass);
+        this.klassToHash[klass] = hash;
+        this.hashToKlass[hash] = klass;
     }
     /**
      * get the function/constructor/klass represented by the given hash
      * @method lookup
      */
     , lookup: function(hash) {
-        for (var k in this.klasses) {
-            if (this.klasses.hasOwnProperty(k)) {
-                if (this.klasses[k] == hash) {
-                    return this.klasses[k];
-                }
-            }
-        }
+        return this.hashToKlass[hash];
     }
 }
 

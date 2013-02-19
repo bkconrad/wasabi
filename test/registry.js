@@ -12,14 +12,25 @@ describe('Class registry', function () {
         };
         assert.notEqual(r.hash(Bar), r.hash(Foo));
     });
-    it('registers classes uniquely by hash', function () {
-        var r = new Registry();
-        function Foo () {
-        };
-        function Bar () {
-        };
-        r.register(Foo);
-        r.register(Bar);
-        assert.notEqual(r.lookup(r.hash(Foo)), r.lookup(r.hash(Bar)));
+    describe('hash', function () {
+        it('is unique to each class', function () {
+            var r = new Registry();
+            function Foo () {
+            };
+            function Bar () {
+            };
+            r.register(Foo);
+            r.register(Bar);
+            assert.notEqual(r.lookup(r.hash(Foo)), r.lookup(r.hash(Bar)));
+        });
+        it('is a valid 32 bit integer', function () {
+            var r = new Registry();
+            function Foo () {
+            };
+            function Bar () {
+            };
+            r.register(Foo);
+            assert.equal(r.hash(Foo), r.hash(Foo) | 0);
+        });
     });
 });
