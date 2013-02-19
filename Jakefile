@@ -1,55 +1,37 @@
-task('test', function () {
-	var testProcess = require('child_process').spawn('mocha');
-	testProcess.stderr.on('data', function (data)
-	{
-		console.log("" + data);
-	});
-
-	testProcess.stdout.on('data', function (data)
-	{
-		console.log("" + data);
-	});
+task('test', {async: true}, function () {
+    jake.exec("mocha", function () {
+        complete();
+    }, {printStdout: true, printStderr: true});
 });
 
-task('coverage', function () {
-	var ChildProcess = require('child_process')
-	  , fs = require('fs')
-	  ;
+task('coverage', {async: true}, function () {
+    var fs = require('fs');
+    process.env.COVERAGE = 'YES';
+    jake.exec("node-jscoverage src src-cov", function () {
+        var ex = jake.createExec("mocha --reporter html-cov");
+        var output = '';
 
-	ChildProcess.spawn('node-jscoverage', ['src', 'src-cov']);
+        ex.addListener('stdout', function (data) {
+            output += data;
+        });
 
+        ex.addListener('cmdEnd', function() {
+            // remove coverage data
+            var dirPath = __dirname + '/src-cov';
+            try { var files = fs.readdirSync(dirPath); }
+            catch(e) { console.log('unable to remove ' + dirPath); return; }
+            if (files.length > 0)
+                for (var i = 0; i < files.length; i++) {
+                    var filePath = dirPath + '/' + files[i];
+                    if (fs.statSync(filePath).isFile())
+                        fs.unlinkSync(filePath);
+                    else
+                        rmDir(filePath);
+                }
+            fs.rmdirSync(dirPath);
+            fs.writeFileSync('coverage.html', output);
+        });
 
-	var err = '', out = '';
-	var options = { env: { 'COVERAGE': 'YES' } };
-	var testProcess = require('child_process').spawn('mocha', ['--reporter', 'html-cov'], options);
-	testProcess.stderr.on('data', function (data)
-	{
-		err += data;
-	});
-
-	testProcess.stdout.on('data', function (data)
-	{
-		out += data;
-	});
-
-	testProcess.on('exit', function (result) {
-		// remove the coverage stuff
-		var dirPath = __dirname + '/src-cov';
-		try { var files = fs.readdirSync(dirPath); }
-		catch(e) { console.log('unable to remove ' + dirPath); return; }
-		if (files.length > 0)
-			for (var i = 0; i < files.length; i++) {
-				var filePath = dirPath + '/' + files[i];
-				if (fs.statSync(filePath).isFile())
-					fs.unlinkSync(filePath);
-				else
-					rmDir(filePath);
-			}
-		fs.rmdirSync(dirPath);
-
-		fs.writeFileSync('coverage.html', out);
-
-		console.log(err);
-	});
-
+        ex.run();
+    }, {printStdout: true, printStderr: true});
 });
