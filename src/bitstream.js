@@ -199,7 +199,7 @@ Bitstream.prototype = {
     , unpack: function (obj) {
         var description = new OutDescription;
         description._bitStream = this;
-        description._target = {};
+        description._target = obj;
         obj.serialize(description);
         return description._target;
     }
