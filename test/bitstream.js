@@ -1,10 +1,4 @@
-var SRC_PATH;
-if (process.env.COVERAGE) {
-	SRC_PATH = '/src-cov';
-} else {
-	SRC_PATH = '/src';
-}
-var Bitstream = require(__dirname + '/..' + SRC_PATH + '/bitstream')
+var Bitstream = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/bitstream')
   , assert = require('chai').assert
   , WebSocket = require('ws')
   ;
