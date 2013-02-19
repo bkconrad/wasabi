@@ -27,23 +27,23 @@ var OutDescription = require('./out_description');
  * @brief A class for packing/unpacking values as a set number of bits
  */
 function Bitstream (buffer) {
-  this.arr = [];
-  this.length = 0;
-  this._index = 0;
-  if (buffer) {
-	  this.fromArrayBuffer(buffer);
-  }
+    this.arr = [];
+    this.length = 0;
+    this._index = 0;
+    if (buffer) {
+        this.fromArrayBuffer(buffer);
+    }
 }
 
 Bitstream.prototype = {
     constructor: Bitstream
     , setBits: function (offset, n, value) {
         var bits
-          , cell
-          , cellOffset
-          , mask
-          , nbits
-          ;
+            , cell
+            , cellOffset
+            , mask
+            , nbits
+            ;
         cell = Math.floor(offset / 7);
         cellOffset = offset % 7;
 
@@ -71,15 +71,16 @@ Bitstream.prototype = {
             cell++;
         }
     }
+
     , getBits: function (offset, n) {
         var bits
-          , cell
-          , cellOffset
-          , mask
-          , nbits
-          , value
-          , valueOffset
-          ;
+            , cell
+            , cellOffset
+            , mask
+            , nbits
+            , value
+            , valueOffset
+            ;
         cell = Math.floor(offset / 7);
         cellOffset = offset % 7;
         value = 0;
@@ -106,6 +107,7 @@ Bitstream.prototype = {
         }
         return value;
     }
+
     , toArrayBuffer: function () {
         // TODO: handle CELLSIZE > 8
         var buf = new ArrayBuffer(this.arr.length);
