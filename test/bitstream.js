@@ -12,15 +12,6 @@ var Bitstream = require(__dirname + '/..' + SRC_PATH + '/bitstream')
 
 describe('Bitstream', function () {
 	describe('bit buffer', function () {
-		it('should get/set by index', function () {
-			var b = new Bitstream;
-			b.set(0);
-			b.clear(1);
-			b.set(2);
-			assert.ok(b.get(0));
-			assert.ok(!b.get(1));
-			assert.ok(b.get(2));
-		});
 		it('should set n bits at a time', function () {
 			var b = new Bitstream;
             b.setBits(0, 7, 127);
@@ -50,18 +41,14 @@ describe('Bitstream', function () {
 		});
 		it('encodes its value as an ArrayBuffer', function () {
 			var b = new Bitstream;
-			b.writeUInt(0, 8);
-			b.writeUInt(32, 8);
-			b.writeUInt(128, 8);
-			//b.writeUInt(255, 8);
-			b.writeUInt(256, 8);
+			b.writeUInt(1337, 16);
+			b.writeUInt(1, 2);
+			b.writeUInt(127, 7);
 
 			var b2 = new Bitstream(b.toArrayBuffer());
-			assert.equal(0, b2.readUInt(8));
-			assert.equal(32, b2.readUInt(8));
-			assert.equal(128, b2.readUInt(8));
-			//assert.equal(255, b2.readUInt(8));
-			assert.equal(0, b2.readUInt(8));
+			assert.equal(1337, b2.readUInt(16));
+			assert.equal(1, b2.readUInt(2));
+			assert.equal(127, b2.readUInt(7));
 		});
 		it('should pack/unpack objects with .serialize methods', function () {
 			var bs = new Bitstream;

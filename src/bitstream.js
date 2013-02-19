@@ -120,26 +120,22 @@ Bitstream.prototype = {
         return value;
     }
     , toArrayBuffer: function () {
-        var buf = new ArrayBuffer(this.length / 8);
+        // TODO: handle CELLSIZE > 8
+        var buf = new ArrayBuffer(this.arr.length);
         var arr = new Uint8Array(buf);
+        var i;
 
-        var offset = 0;
-        for (var i = 0; i < arr.length; i++) {
-            arr[i] = this.getBits(offset, 7);
-            offset += 7;
+        for (i = 0; i < this.arr.length; i++) {
+            arr.set(i, this.arr[i]);
         }
         return arr;
     }
 
     , fromArrayBuffer: function (buffer) {
         this.arr = [];
-        this.length = Math.ceil(buffer.byteLength / 4);
-        var myIndex = 0;
-        for (var i = 0; i < buffer.byteLength; i++) {
-            myIndex = Math.floor(i / 4);
-            this.arr[myIndex] =
-                this.arr[myIndex] |
-                (buffer[i] << 8 * (i % 4));
+        var i;
+        for (i = 0; i < buffer.length; i++) {
+            this.arr[i] = buffer.get(i);
         }
     }
 
@@ -149,18 +145,6 @@ Bitstream.prototype = {
             vals [i] = this.get (i) ? "1" : "0";
         }
         return vals.join ("");
-    }
-
-    , clear: function (i) {
-        if (i >= this.length) {
-            this.length = i + 1;
-        }
-        var pos = i / 32 | 0;
-        this.arr [pos] = this.arr [pos] & ~(1 << i % 32);
-    }
-
-    , get: function (i) {
-        return (this.arr [Math.floor (i / 32)] & 1 << i % 32) > 0;
     }
 
     , serialize: function () {
@@ -182,29 +166,12 @@ Bitstream.prototype = {
         return str + trailingLength.toString (36);
     }
 
-    , set: function (i) {
-        if (i >= this.length) {
-            this.length = i + 1;
-        }
-        var pos = i / 32 | 0;
-        this.arr [pos] = this.arr [pos] | 1 << i % 32;
-    }
-
-    , size: function () {
-        return this.length;
-    }
-
     /**
      * @brief read an unsigned integer consuming the specified number of bits
      */
     , readUInt: function (bits) {
-        var result = 0;
-        var i;
-        for (i = 0; i < bits; i++) {
-            result |= this.get(this._index) << i;
-            this._index += 1;
-        }
-
+        var result = this.getBits(this._index, bits);
+        this._index += bits;
         return result;
     }
 
@@ -212,17 +179,8 @@ Bitstream.prototype = {
      * @brief write an unsigned integer using the specified number of bits
      */
     , writeUInt: function (value, bits) {
-        var mask = 1;
-        var i;
-        for (i = 0; i < bits; i++) {
-            if (value & mask) {
-                this.set(this._index);
-            } else {
-                this.clear(this._index);
-            }
-            this._index += 1;
-            mask <<= 1;
-        }
+        this.setBits(this._index, bits, value);
+        this._index += bits;
     }
 
     /**
