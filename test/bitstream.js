@@ -21,18 +21,23 @@ describe('Bitstream', function () {
 			assert.ok(!b.get(1));
 			assert.ok(b.get(2));
 		});
+		it('should set n bits at a time', function () {
+			var b = new Bitstream;
+            b.setBits(0, 7, 127);
+            assert.equal(b.arr[0], 127);
+		});
+
+		it('should correctly overflow large values', function () {
+			var b = new Bitstream;
+            b.setBits(0, 8, 129);
+            assert.equal(b.arr[0], 1);
+            assert.equal(b.arr[1], 1);
+		});
+
 		it('should get n bits at a time', function () {
 			var b = new Bitstream;
-			var i;
-			for (i = 0; i < 256; i++) {
-				b.writeUInt(i, 8);
-			}
-
-			var offset = 0;
-			for (i = 0; i < 256; i++) {
-				assert.equal(i, b.getBits(offset, 8));
-				offset += 8;
-			}
+            b.setBits(0, 16, 1337);
+            assert.equal(b.getBits(0, 16), 1337);
 		});
 		it('should read/write unsigned integers', function () {
 			var b = new Bitstream;
