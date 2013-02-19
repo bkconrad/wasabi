@@ -2,15 +2,34 @@ var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/
   , assert = require('chai').assert
   , WebSocket = require('ws')
   ;
+
 describe('Wasabi', function () {
     it('sends lists of objects through a bitstream', function () {
         var w = new Wasabi;
         var bs = new w.Bitstream;
 
-        function Foo () {};
-        Foo.prototype.constructor = Foo;
-        function Bar () {};
-        Bar.prototype.constructor = Bar;
+        function Foo () { this.foobar = 1; };
+        Foo.prototype = {
+            constructor: Foo
+          , serialize: function(desc) {
+              desc.uint('foobar', 8);
+          }
+          , check: function(that) {
+              assert.equal(this.foobar, that.foobar);
+          }
+        };
+        function Bar () { this.foobar = 2; this.barbaz = 3};
+        Bar.prototype = {
+            constructor: Bar
+          , serialize: function(desc) {
+              desc.uint('foobar', 8);
+              desc.uint('barbaz', 8);
+          }
+          , check: function(that) {
+              assert.equal(this.foobar, that.foobar);
+              assert.equal(this.barbaz, that.barbaz);
+          }
+        };
         w.registry.register(Foo);
         w.registry.register(Bar);
         var foo1 = new Foo, foo2 = new Foo, bar1 = new Bar, bar2 = new Bar;
@@ -23,6 +42,7 @@ describe('Wasabi', function () {
         assert.notEqual(0, newList.length);
         for (var i = 0; i < newList.length; i++) {
             assert.equal(newList[i].constructor, objList[i].constructor);
+            newList[i].check(objList[i]);
         }
     });
 });

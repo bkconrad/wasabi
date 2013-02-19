@@ -12,6 +12,7 @@ var Wasabi = (function () {
           var i;
           for (i = 0; i < list.length; i++) {
               bs.writeUInt(this.registry.hash(list[i].constructor), 16);
+              bs.pack(list[i]);
           }
           bs.writeUInt(0, 16);
       }
@@ -26,6 +27,7 @@ var Wasabi = (function () {
                   break;
               }
               list.push(new type);
+              bs.unpack(list[list.length - 1]);
           }
           return list;
       }
