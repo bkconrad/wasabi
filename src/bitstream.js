@@ -128,7 +128,10 @@ Bitstream.prototype = {
         }
     }
 
-    , serialize: function () {
+    /**
+     * Convert the data to a valid UTF-8 string
+     */
+    , toChars: function () {
         var i, result = "";
         for (i = 0; i < this.arr.length; i++) {
             result += String.fromCharCode(this.arr[i]);
@@ -196,7 +199,10 @@ Bitstream.prototype = {
     }
 };
 
-Bitstream.deserialize = function (str) {
+/**
+ * Create a bitstream from a valid UTF-8 string
+ */
+Bitstream.fromChars = function (str) {
     var chars = [];
     var i;
     for (i = 0; i < str.length; i++) {

@@ -111,7 +111,7 @@ describe('Bitstream', function () {
 			var server = new WebSocket.Server({port:31337}, function () {
 				var client = new WebSocket('ws://localhost:31337');
 				client.on('message', function (data) {
-					destStream = Bitstream.deserialize(data);
+					destStream = Bitstream.fromChars(data);
 					destObj = destStream.unpack(destObj);
 					assert.equal(sourceObj.foo, destObj.foo);
 					assert.equal(sourceObj.bar, destObj.bar);
@@ -120,7 +120,7 @@ describe('Bitstream', function () {
 			});
 
 			server.on('connection', function (ssock) {
-				ssock.send(sourceStream.serialize());
+				ssock.send(sourceStream.toChars());
 			});
 		});
 	});
