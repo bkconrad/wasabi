@@ -2,6 +2,10 @@ var Bitstream = require('./bitstream');
 var Registry = require('./registry');
 var Rpc = require('./rpc');
 var Wasabi = (function() {
+    /**
+     * facade class for interacting with Wasabi
+     * @class Wasabi
+     */
     function Wasabi() {
         this.registry = new Registry;
     }
@@ -12,33 +16,54 @@ var Wasabi = (function() {
     Wasabi.prototype = {
         constructor: Wasabi
         /**
+         * packs data needed to instantiate a replicated version of obj
+         * @method packGhost
+         */
+        , packGhost: function(obj, bs) {
+            bs.writeUInt(this.registry.hash(obj.constructor), 16);
+            bs.pack(obj);
+        }
+        /**
+         * unpacks a newly replicated object from bs
+         * @method unpackGhost
+         */
+        , unpackGhost: function(bs) {
+            var obj, type;
+            type = this.registry.getClass(bs.readUInt(16));
+            if (!type) {
+                return;
+            }
+            obj = new type;
+            bs.unpack(obj);
+            return obj;
+        }
+        /**
          * pack the given list of objects (with update data) into bs
          * @method packObjects
          */
         , packObjects: function(list, bs) {
             var i;
             for (i = 0; i < list.length; i++) {
-                bs.writeUInt(this.registry.hash(list[i].constructor), 16);
-                bs.pack(list[i]);
+                this.packGhost(list[i], bs);
             }
             bs.writeUInt(0, 16);
         }
 
         /**
          * unpack the given list of objects (with update data) from bs
-         * @method packObjects
+         * @method unpackObjects
          */
         , unpackObjects: function(bs) {
             var hash = 0;
             var list = [];
-            var type = undefined;
+            var obj;
             while (true) {
-                type = this.registry.getClass(bs.readUInt(16));
-                if (!type) {
+                obj = this.unpackGhost(bs);
+                if (!obj) {
                     break;
                 }
-                list.push(new type);
-                bs.unpack(list[list.length - 1]);
+
+                list.push(obj);
             }
             return list;
         }
