@@ -4,9 +4,21 @@ var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/
   ;
 
 describe('Wasabi', function () {
+    it('sends rpcs through a bitstream', function(done) {
+        var w = new Wasabi;
+        var bs = new Wasabi.Bitstream;
+        function rpcFoo() { assert.equal(arguments.bar, 123); done(); }
+        w.registry.addRpc(rpcFoo, function(desc) {
+            desc.uint('bar', 8);
+        });
+
+        w.packRpc(rpcFoo, {bar: 123}, bs);
+        bs._index = 0;
+        w.unpackRpc(bs);
+    });
     it('sends lists of objects through a bitstream', function () {
         var w = new Wasabi;
-        var bs = new w.Bitstream;
+        var bs = new Wasabi.Bitstream;
 
         function Foo () { this.foobar = 1; };
         Foo.prototype = {

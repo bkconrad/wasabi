@@ -1,13 +1,16 @@
 var Bitstream = require('./bitstream');
 var Registry = require('./registry');
+var Rpc = require('./rpc');
 var Wasabi = (function() {
     function Wasabi() {
         this.registry = new Registry;
     }
+    Wasabi.Bitstream = Bitstream;
+    Wasabi.Registry = Registry;
+    Wasabi.Rpc = Rpc;
 
     Wasabi.prototype = {
-        Bitstream: Bitstream
-        , Registry: Registry
+        constructor: Wasabi
         /**
          * pack the given list of objects (with update data) into bs
          * @method packObjects
@@ -38,6 +41,24 @@ var Wasabi = (function() {
                 bs.unpack(list[list.length - 1]);
             }
             return list;
+        }
+
+        /**
+         * pack a call to a registered RP and the supplied arguments into bs
+         * @method packRpc
+         */
+        , packRpc: function(rpc, args, bs) {
+            bs.writeUInt(this.registry.hash(rpc), 8);
+        }
+
+        /**
+         * unpack and execute a call to a registered RP using the supplied
+         * arguments from bs
+         * @method unpackRpc
+         */
+        , unpackRpc: function(bs) {
+            var hash = bs.readUInt(8);
+            this.registry.getRpc(hash)();
         }
     };
 
