@@ -114,6 +114,29 @@ var Wasabi = (function() {
 
             rpc(args);
         }
+
+        // passthrough functions
+        /**
+         * register a klass instance
+         * @method addObject
+         */
+        , addObject: function(obj) {
+            this.registry.addObject(obj);
+        }
+        /**
+         * register a klass
+         * @method addClass
+         */
+        , addClass: function(klass) {
+            this.registry.addClass(klass);
+        }
+        /**
+         * register an RP
+         * @method addRpc
+         */
+        , addRpc: function(rpc, serialize) {
+            this.registry.addRpc(rpc, serialize);
+        }
     };
 
     return Wasabi;

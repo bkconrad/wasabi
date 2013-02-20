@@ -28,13 +28,13 @@ describe('Wasabi', function () {
           assert.equal(this.barbaz, that.barbaz);
       }
     };
-    w.registry.addClass(Foo);
-    w.registry.addClass(Bar);
+    w.addClass(Foo);
+    w.addClass(Bar);
     var foo1 = new Foo, foo2 = new Foo, bar1 = new Bar, bar2 = new Bar;
     var objList = [foo1, bar1, foo2, bar2];
 
     for (var i = 0; i < objList.length; i++) {
-        w.registry.addObject(objList[i]);
+        w.addObject(objList[i]);
     }
 
     it('packs and unpacks ghost data', function () {
@@ -81,7 +81,7 @@ describe('Wasabi', function () {
         var bs = new Wasabi.Bitstream;
         var done = false;
         function rpcFoo(args) { assert.equal(args.bar, 123); done = true; }
-        w.registry.addRpc(rpcFoo, function(desc) {
+        w.addRpc(rpcFoo, function(desc) {
             desc.uint('bar', 8);
         });
 
