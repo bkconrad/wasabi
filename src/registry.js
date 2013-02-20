@@ -31,6 +31,9 @@ Registry.prototype = {
      */
     , addClass: function(klass) {
         var hash = this.hash(klass);
+        if (this.hashToKlass[hash] !== undefined) {
+            throw "Invalid attempt to redefine class " + klass.name + " with hash " + hash;
+        }
         this.klassToHash[klass] = hash;
         this.hashToKlass[hash] = klass;
     }
@@ -40,6 +43,9 @@ Registry.prototype = {
      */
     , addRpc: function(rpc) {
         var hash = this.hash(rpc);
+        if (this.hashToRpc[hash] !== undefined) {
+            throw "Invalid attempt to redefine RPC " + rpc.name + " with hash " + hash;
+        }
         this.rpcToHash[rpc] = hash;
         this.hashToRpc[hash] = rpc;
     }

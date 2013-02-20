@@ -19,7 +19,12 @@ describe('Class registry', function () {
         assert.notEqual(r.getRpc(r.hash(Foo)), r.getRpc(r.hash(Bar)));
     });
 
-    it('throws an error if redefining RPCs');
+    it('throws an error if redefining RPCs', function() {
+        function Foo() {}
+        r.addRpc(Foo);
+        assert.throws(function() { r.addRpc(Foo); });
+    });
+
     it('registers netobjects');
 
     it('registers classes', function () {
@@ -30,6 +35,12 @@ describe('Class registry', function () {
         r.addClass(Foo);
         r.addClass(Bar);
         assert.notEqual(r.getClass(r.hash(Foo)), r.getClass(r.hash(Bar)));
+    });
+
+    it('throws an error if redefining classes', function() {
+        function Foo() {}
+        r.addClass(Foo);
+        assert.throws(function() { r.addClass(Foo); });
     });
 
     describe('hash', function () {
