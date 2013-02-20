@@ -5,7 +5,7 @@ var OutDescription = require('./out_description');
  * Manages the packing/unpacking of values as a set number of bits
  * @class Bitstream
  */
-function Bitstream (buffer) {
+function Bitstream(buffer) {
     this.arr = [];
     this.length = 0;
     this._index = 0;
@@ -20,13 +20,12 @@ Bitstream.prototype = {
      * set n bits starting at offset to value
      * @method setBits
      */
-    , setBits: function (offset, n, value) {
+    , setBits: function(offset, n, value) {
         var bits
-            , cell
-            , cellOffset
-            , mask
-            , nbits
-            ;
+        , cell
+        , cellOffset
+        , mask
+        , nbits;
         cell = Math.floor(offset / 7);
         cellOffset = offset % 7;
 
@@ -45,7 +44,7 @@ Bitstream.prototype = {
             mask <<= cellOffset;
 
             // set the cells bits
-            this.arr[cell] = (this.arr[cell] & (~mask)) | bits ;
+            this.arr[cell] = (this.arr[cell] & (~mask)) | bits;
 
             // prepare for next iteration
             value >>= nbits;
@@ -59,15 +58,14 @@ Bitstream.prototype = {
      * return the value of the first n bits starting at offset
      * @method getBits
      */
-    , getBits: function (offset, n) {
+    , getBits: function(offset, n) {
         var bits
-            , cell
-            , cellOffset
-            , mask
-            , nbits
-            , value
-            , valueOffset
-            ;
+        , cell
+        , cellOffset
+        , mask
+        , nbits
+        , value
+        , valueOffset;
         cell = Math.floor(offset / 7);
         cellOffset = offset % 7;
         value = 0;
@@ -95,7 +93,8 @@ Bitstream.prototype = {
         return value;
     }
 
-    , toArrayBuffer: function () {
+    ,
+    toArrayBuffer: function() {
         // TODO: handle CELLSIZE > 8
         var buf = new ArrayBuffer(this.arr.length);
         var arr = new Uint8Array(buf);
@@ -107,7 +106,8 @@ Bitstream.prototype = {
         return arr;
     }
 
-    , fromArrayBuffer: function (buffer) {
+    ,
+    fromArrayBuffer: function(buffer) {
         this.arr = [];
         var i;
         for (i = 0; i < buffer.length; i++) {
@@ -119,8 +119,9 @@ Bitstream.prototype = {
      * Convert the data to a valid UTF-8 string
      * @method toChars
      */
-    , toChars: function () {
-        var i, result = "";
+    , toChars: function() {
+        var i
+        , result = "";
         for (i = 0; i < this.arr.length; i++) {
             result += String.fromCharCode(this.arr[i]);
         }
@@ -131,7 +132,7 @@ Bitstream.prototype = {
      * read an unsigned integer consuming the specified number of bits
      * @method readUInt
      */
-    , readUInt: function (bits) {
+    , readUInt: function(bits) {
         var result = this.getBits(this._index, bits);
         this._index += bits;
         return result;
@@ -141,7 +142,7 @@ Bitstream.prototype = {
      * write an unsigned integer using the specified number of bits
      * @method writeUInt
      */
-    , writeUInt: function (value, bits) {
+    , writeUInt: function(value, bits) {
         this.setBits(this._index, bits, value);
         this._index += bits;
     }
@@ -150,7 +151,7 @@ Bitstream.prototype = {
      * read a signed integer consuming the specified number of bits
      * @method readSInt
      */
-    , readSInt: function (bits) {
+    , readSInt: function(bits) {
         var result = this.getBits(this._index, bits);
         this._index += bits;
         result *= this.getBits(this._index, 1) ? -1 : 1;
@@ -162,7 +163,7 @@ Bitstream.prototype = {
      * write a signed integer using the specified number of bits
      * @method writeSInt
      */
-    , writeSInt: function (value, bits) {
+    , writeSInt: function(value, bits) {
         this.setBits(this._index, bits, Math.abs(value));
         this._index += bits;
         this.setBits(this._index, 1, value < 0);
@@ -173,7 +174,7 @@ Bitstream.prototype = {
      * pack an object with a .serialize() method into this bitstream
      * @method pack
      */
-    , pack: function (obj) {
+    , pack: function(obj) {
         var description = new InDescription;
         description._bitStream = this;
         description._target = obj;
@@ -184,7 +185,7 @@ Bitstream.prototype = {
      * unpack an object with a .serialize() method from this bitstream
      * @method unpack
      */
-    , unpack: function (obj) {
+    , unpack: function(obj) {
         var description = new OutDescription;
         description._bitStream = this;
         description._target = obj;
@@ -198,13 +199,13 @@ Bitstream.prototype = {
  * @static
  * @method fromChars
  */
-Bitstream.fromChars = function (str) {
+Bitstream.fromChars = function(str) {
     var chars = [];
     var i;
     for (i = 0; i < str.length; i++) {
         chars.push(str.charCodeAt(i));
     }
-    var bm = new Bitstream (chars);
+    var bm = new Bitstream(chars);
     return bm;
 };
 
