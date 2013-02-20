@@ -4,14 +4,20 @@ var Registry = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : 
   ;
 
 describe('Class registry', function () {
-    it('hashes classes by name', function () {
+    it('registers classes', function () {
         var r = new Registry();
         function Foo () {
         };
         function Bar () {
         };
-        assert.notEqual(r.hash(Bar), r.hash(Foo));
+        r.addClass(Foo);
+        r.addClass(Bar);
+        assert.notEqual(r.lookup(r.hash(Foo)), r.lookup(r.hash(Bar)));
     });
+
+    it('registers RPCs');
+    it('throws an error if redefining RPCs');
+    it('registers netobjects');
     describe('hash', function () {
         it('is unique to each class', function () {
             var r = new Registry();
@@ -19,9 +25,7 @@ describe('Class registry', function () {
             };
             function Bar () {
             };
-            r.register(Foo);
-            r.register(Bar);
-            assert.notEqual(r.lookup(r.hash(Foo)), r.lookup(r.hash(Bar)));
+            assert.notEqual(r.hash(Bar), r.hash(Foo));
         });
         it('is a valid 32 bit integer', function () {
             var r = new Registry();
@@ -29,7 +33,6 @@ describe('Class registry', function () {
             };
             function Bar () {
             };
-            r.register(Foo);
             assert.equal(r.hash(Foo), r.hash(Foo) | 0);
         });
     });

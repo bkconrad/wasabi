@@ -30,8 +30,8 @@ describe('Wasabi', function () {
               assert.equal(this.barbaz, that.barbaz);
           }
         };
-        w.registry.register(Foo);
-        w.registry.register(Bar);
+        w.registry.addClass(Foo);
+        w.registry.addClass(Bar);
         var foo1 = new Foo, foo2 = new Foo, bar1 = new Bar, bar2 = new Bar;
         var objList = [foo1, bar1, foo2, bar2];
 

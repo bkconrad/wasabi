@@ -25,9 +25,9 @@ Registry.prototype = {
     }
     /**
      * register a klass
-     * @method register
+     * @method addClass
      */
-    , register: function(klass) {
+    , addClass: function(klass) {
         var hash = this.hash(klass);
         this.klassToHash[klass] = hash;
         this.hashToKlass[hash] = klass;
