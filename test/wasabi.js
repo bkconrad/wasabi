@@ -96,4 +96,10 @@ describe('Wasabi', function () {
         assert.ok(done);
     });
 
+    it('orchestrates packing/unpacking data automatically in an update function');
+    it('calls RPCs on an associated netobject');
+    it('complains when receiving update data for an unknown object');
+    it('complains when receiving ghost data for an unknown class');
+    it('complains when receiving a call to an unknown RPC');
+    it('complains when receiving invalid arguments a known RPC');
 });
