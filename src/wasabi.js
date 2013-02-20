@@ -1,20 +1,26 @@
 var Bitstream = require('./bitstream');
 var Registry = require('./registry');
 var Rpc = require('./rpc');
-var Wasabi = (function() {
+
+/**
+ * named and exported function that would otherwise be an IIFE. Used to
+ * instantiate a second Wasabi module for use in tests (to simulate a remote
+ * client)
+ * @function makeWasabi
+ */
+function makeWasabi() {
     /**
      * facade class for interacting with Wasabi
      * @class Wasabi
      */
-    function Wasabi() {
-        this.registry = new Registry;
-    }
-    Wasabi.Bitstream = Bitstream;
-    Wasabi.Registry = Registry;
-    Wasabi.Rpc = Rpc;
-
-    Wasabi.prototype = {
+    Wasabi = {
         constructor: Wasabi
+        , Bitstream: Bitstream
+        , Registry: Registry
+        , Rpc: Rpc
+
+        , makeWasabi: makeWasabi
+
         /**
          * packs update data for obj
          * @method packUpdate
@@ -139,7 +145,11 @@ var Wasabi = (function() {
         }
     };
 
+    Wasabi.registry = new Registry;
+
     return Wasabi;
-})();
+}
+
+var Wasabi = makeWasabi();
 
 module.exports = Wasabi;

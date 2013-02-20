@@ -4,7 +4,8 @@ var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/
   ;
 
 describe('Wasabi', function () {
-    var w = new Wasabi;
+    var w = Wasabi;
+    var w2 = Wasabi.makeWasabi();
 
     function Foo () { this.foobar = 1; };
     Foo.prototype = {
@@ -30,6 +31,8 @@ describe('Wasabi', function () {
     };
     w.addClass(Foo);
     w.addClass(Bar);
+    w2.addClass(Foo);
+    w2.addClass(Bar);
     var foo1 = new Foo, foo2 = new Foo, bar1 = new Bar, bar2 = new Bar;
     var objList = [foo1, bar1, foo2, bar2];
 
@@ -48,7 +51,7 @@ describe('Wasabi', function () {
         var newList = [];
         var obj;
         while (true) {
-            obj = w.unpackGhost(bs);
+            obj = w2.unpackGhost(bs);
             if (!obj) {
                 break;
             }
@@ -67,8 +70,7 @@ describe('Wasabi', function () {
         var bs = new Wasabi.Bitstream;
         w.packObjects(objList, bs);
         bs._index = 0;
-        var newList = w.unpackObjects(bs);
-        // TODO write a bitstream function for resetting/clearing
+        var newList = w2.unpackObjects(bs);
 
         assert.notEqual(0, newList.length);
         for (var i = 0; i < newList.length; i++) {
@@ -84,10 +86,13 @@ describe('Wasabi', function () {
         w.addRpc(rpcFoo, function(desc) {
             desc.uint('bar', 8);
         });
+        w2.addRpc(rpcFoo, function(desc) {
+            desc.uint('bar', 8);
+        });
 
         w.packRpc(rpcFoo, {bar: 123}, bs);
         bs._index = 0;
-        w.unpackRpc(bs);
+        w2.unpackRpc(bs);
         assert.ok(done);
     });
 
