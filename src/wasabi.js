@@ -54,6 +54,7 @@ var Wasabi = (function() {
                 return;
             }
             obj = new type;
+            this.registry.addObject(obj);
             this.unpackUpdate(bs);
             return obj;
         }
