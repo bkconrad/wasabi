@@ -5,7 +5,6 @@ var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/
 
 describe('Wasabi', function () {
     var w = new Wasabi;
-    var bs = new Wasabi.Bitstream;
 
     function Foo () { this.foobar = 1; };
     Foo.prototype = {
@@ -34,13 +33,28 @@ describe('Wasabi', function () {
     var foo1 = new Foo, foo2 = new Foo, bar1 = new Bar, bar2 = new Bar;
     var objList = [foo1, bar1, foo2, bar2];
 
-    it('sends lists of objects through a bitstream', function () {
-        w.packObjects(objList, bs);
+    for (var i = 0; i < objList.length; i++) {
+        w.registry.addObject(objList[i]);
+    }
+
+    it('packs and unpacks ghost data', function () {
+        var bs = new Wasabi.Bitstream;
+        var i;
+        for (i = 0; i < objList.length; i++) {
+            w.packGhost(objList[i], bs);
+        }
         bs._index = 0;
-        var newList = w.unpackObjects(bs);
-        bs._index = 0;
-        // TODO write a bitstream function for resetting/clearing
-        bs.arr = [];
+
+        var newList = [];
+        var obj;
+        while (true) {
+            obj = w.unpackGhost(bs);
+            if (!obj) {
+                break;
+            }
+
+            newList.push(obj);
+        }
 
         assert.notEqual(0, newList.length);
         for (var i = 0; i < newList.length; i++) {
@@ -49,7 +63,22 @@ describe('Wasabi', function () {
         }
     });
 
-    it('sends rpcs through a bitstream', function() {
+    it('packs and unpacks updates for lists of objects', function () {
+        var bs = new Wasabi.Bitstream;
+        w.packObjects(objList, bs);
+        bs._index = 0;
+        var newList = w.unpackObjects(bs);
+        // TODO write a bitstream function for resetting/clearing
+
+        assert.notEqual(0, newList.length);
+        for (var i = 0; i < newList.length; i++) {
+            assert.equal(newList[i].constructor, objList[i].constructor);
+            newList[i].check(objList[i]);
+        }
+    });
+
+    it('packs and unpacks rpcs', function() {
+        var bs = new Wasabi.Bitstream;
         var done = false;
         function rpcFoo(args) { assert.equal(args.bar, 123); done = true; }
         w.registry.addRpc(rpcFoo, function(desc) {

@@ -4,10 +4,17 @@
  * @class Registry
  */
 function Registry() {
+    // hash <-> klass
     this.klassToHash = {};
     this.hashToKlass = {};
+
+    // hash <-> RPC
     this.rpcToHash = {};
     this.hashToRpc = {};
+
+    // objects by serial number
+    this.objects = {};
+    this.nextSerialNumber = 1;
 }
 
 Registry.prototype = {
@@ -51,6 +58,22 @@ Registry.prototype = {
         // normal hash <-> rpc mapping
         this.rpcToHash[rpc] = hash;
         this.hashToRpc[hash] = rpc;
+    }
+    /**
+     * register an instance of a klass
+     * @method addObject
+     */
+    , addObject: function(obj) {
+        obj.wabiSerialNumber = this.nextSerialNumber;
+        this.nextSerialNumber += 1;
+        this.objects[obj.wabiSerialNumber] = obj;
+    }
+    /**
+     * get an instance of a klass by serial number
+     * @method getObject
+     */
+    , getObject: function(serial) {
+        return this.objects[serial];
     }
     /**
      * get the function/constructor/klass represented by the given hash

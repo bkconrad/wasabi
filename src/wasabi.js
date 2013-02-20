@@ -16,12 +16,32 @@ var Wasabi = (function() {
     Wasabi.prototype = {
         constructor: Wasabi
         /**
+         * packs update data for obj
+         * @method packUpdate
+         */
+        , packUpdate: function(obj, bs) {
+            bs.writeUInt(obj.wabiSerialNumber, 16);
+            bs.pack(obj);
+        }
+        /**
+         * unpacks update data for an object
+         * @method unpackUpdate
+         */
+        , unpackUpdate: function(bs) {
+            var obj = this.registry.getObject(bs.readUInt(16));
+            if (!obj) {
+                return;
+            }
+            bs.unpack(obj);
+            return obj;
+        }
+        /**
          * packs data needed to instantiate a replicated version of obj
          * @method packGhost
          */
         , packGhost: function(obj, bs) {
             bs.writeUInt(this.registry.hash(obj.constructor), 16);
-            bs.pack(obj);
+            this.packUpdate(obj, bs);
         }
         /**
          * unpacks a newly replicated object from bs
@@ -34,7 +54,7 @@ var Wasabi = (function() {
                 return;
             }
             obj = new type;
-            bs.unpack(obj);
+            this.unpackUpdate(bs);
             return obj;
         }
         /**
@@ -44,7 +64,7 @@ var Wasabi = (function() {
         , packObjects: function(list, bs) {
             var i;
             for (i = 0; i < list.length; i++) {
-                this.packGhost(list[i], bs);
+                this.packUpdate(list[i], bs);
             }
             bs.writeUInt(0, 16);
         }
@@ -58,7 +78,7 @@ var Wasabi = (function() {
             var list = [];
             var obj;
             while (true) {
-                obj = this.unpackGhost(bs);
+                obj = this.unpackUpdate(bs);
                 if (!obj) {
                     break;
                 }
