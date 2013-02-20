@@ -7,7 +7,7 @@ describe('Wasabi', function () {
     it('sends rpcs through a bitstream', function(done) {
         var w = new Wasabi;
         var bs = new Wasabi.Bitstream;
-        function rpcFoo() { assert.equal(arguments.bar, 123); done(); }
+        function rpcFoo(args) { assert.equal(args.bar, 123); done(); }
         w.registry.addRpc(rpcFoo, function(desc) {
             desc.uint('bar', 8);
         });

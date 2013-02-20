@@ -41,11 +41,14 @@ Registry.prototype = {
      * register a global RPC
      * @method addRpc
      */
-    , addRpc: function(rpc) {
+    , addRpc: function(rpc, serialize) {
         var hash = this.hash(rpc);
         if (this.hashToRpc[hash] !== undefined) {
             throw "Invalid attempt to redefine RPC " + rpc.name + " with hash " + hash;
         }
+        // the function used to serialize the arguments object
+        rpc.argSerialize = serialize;
+        // normal hash <-> rpc mapping
         this.rpcToHash[rpc] = hash;
         this.hashToRpc[hash] = rpc;
     }

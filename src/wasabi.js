@@ -49,6 +49,8 @@ var Wasabi = (function() {
          */
         , packRpc: function(rpc, args, bs) {
             bs.writeUInt(this.registry.hash(rpc), 8);
+            args.serialize = rpc.argSerialize;
+            bs.pack(args);
         }
 
         /**
@@ -58,7 +60,13 @@ var Wasabi = (function() {
          */
         , unpackRpc: function(bs) {
             var hash = bs.readUInt(8);
-            this.registry.getRpc(hash)();
+            var rpc = this.registry.getRpc(hash);
+
+            var args = {};
+            args.serialize = rpc.argSerialize;
+            bs.unpack(args);
+
+            rpc(args);
         }
     };
 
