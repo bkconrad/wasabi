@@ -30,7 +30,7 @@ var Wasabi = (function() {
             var list = [];
             var type = undefined;
             while (true) {
-                type = this.registry.lookup(bs.readUInt(16));
+                type = this.registry.getClass(bs.readUInt(16));
                 if (!type) {
                     break;
                 }

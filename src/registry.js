@@ -6,6 +6,8 @@
 function Registry() {
     this.klassToHash = {};
     this.hashToKlass = {};
+    this.rpcToHash = {};
+    this.hashToRpc = {};
 }
 
 Registry.prototype = {
@@ -33,11 +35,27 @@ Registry.prototype = {
         this.hashToKlass[hash] = klass;
     }
     /**
-     * get the function/constructor/klass represented by the given hash
-     * @method lookup
+     * register a global RPC
+     * @method addRpc
      */
-    , lookup: function(hash) {
+    , addRpc: function(rpc) {
+        var hash = this.hash(rpc);
+        this.rpcToHash[rpc] = hash;
+        this.hashToRpc[hash] = rpc;
+    }
+    /**
+     * get the function/constructor/klass represented by the given hash
+     * @method getClass
+     */
+    , getClass: function(hash) {
         return this.hashToKlass[hash];
+    }
+    /**
+     * get the RPC function associated with the hash
+     * @method getRpc
+     */
+    , getRpc: function(hash) {
+        return this.hashToRpc[hash];
     }
 }
 
