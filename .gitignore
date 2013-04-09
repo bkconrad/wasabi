@@ -3,3 +3,4 @@ node_modules
 .nide
 *.log
 doc/*
+*_browser.js

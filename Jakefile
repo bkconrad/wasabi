@@ -4,6 +4,12 @@ task('doc', {async: true}, function () {
     }, {printStdout: true, printStderr: true});
 });
 
+task('build', {async: true}, function () {
+    jake.exec("browserify src/wasabi.js -o src/wasabi_browser.js", function () {
+        complete();
+    }, {printStdout: true, printStderr: true});
+});
+
 task('test', {async: true}, function () {
     jake.exec("mocha", function () {
         complete();
