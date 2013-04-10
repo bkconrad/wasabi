@@ -5,7 +5,7 @@ task('doc', {async: true}, function () {
 });
 
 task('build', {async: true}, function () {
-    jake.exec("browserify src/wasabi.js -o src/wasabi_browser.js", function () {
+    jake.exec("browserify -r ./src/wasabi src/wasabi.js -o src/wasabi_browser.js", function () {
         complete();
     }, {printStdout: true, printStderr: true});
 });
