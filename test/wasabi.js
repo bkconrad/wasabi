@@ -16,6 +16,12 @@ describe('Wasabi', function () {
       , check: function(that) {
           assert.equal(this.foobar, that.foobar);
       }
+      , rpcTest: function(args) {
+        this.foobar = args.val;
+      }
+      , rpcTestArgs: function(desc) {
+        desc.uint('val', 8);
+      }
     };
     function Bar () { this.foobar = 2; this.barbaz = 3};
     Bar.prototype = {
@@ -135,7 +141,20 @@ describe('Wasabi', function () {
         w2.unpackGhost(bs);
         assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
     });
-    it('calls RPCs on an associated netobject');
+
+    it('calls RPCs on an associated netobject', function () {
+        var i, hash, bs = new Wasabi.Bitstream;
+
+        var foo = new Foo;
+        w.addObject(foo);
+        foo.rpcTest(1337);
+        w.pack(bs);
+        bs._index = 0;
+        w2.unpack(bs);
+        assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
+        assert.equal(w2.registry.objects[foo.wabiSerialNumber].foobar, 1337);
+    });
+
     it('complains when receiving update data for an unknown object');
     it('complains when receiving ghost data for an unknown class');
     it('complains when receiving a call to an unknown RPC');

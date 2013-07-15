@@ -41,6 +41,35 @@ Registry.prototype = {
         if (this.hashToKlass[hash] !== undefined) {
             throw "Invalid attempt to redefine class " + klass.name + " with hash " + hash;
         }
+
+        // build the rpc registry for this klass
+        klass.wabiRpcs = { };
+        for (prop in klass.prototype) {
+            var rpc;
+            rpc = klass.prototype[prop];
+            // search for a function property starting with "rpc" and not
+            // ending with "Args"
+            if (typeof rpc === "function" &&
+                prop.indexOf("rpc") === 0 &&
+                prop.indexOf("Args") !== prop.length - 4
+            ) {
+                // find the Args function (for rpcFoo this would be
+                // rpcFooArgs)
+                var args = klass.prototype[prop + "Args"];
+                if (typeof args !== "function") {
+                    throw "No matching args function \"" + prop + "Args\" found for RPC \"" + prop + "\"";
+                }
+
+                rpc.wabiArgs = args;
+                klass.wabiRpcs[this.hash(rpc)] = rpc;
+
+                klass[prop] = function() {
+                    // TODO: replace original rpcFoo with a function to
+                    // pack the RPC into the appropriate bitstream(s)
+                }
+            }
+        }
+
         this.klassToHash[klass] = hash;
         this.hashToKlass[hash] = klass;
     }
