@@ -31,6 +31,10 @@ describe('Bitstream', function () {
 			assert.equal(b._index, 16);
 
 			b._index = 0;
+
+            assert.equal(b.peekUInt(16), VALUE);
+            assert.equal(b._index, 0);
+
 			assert.equal(b.readUInt(16), VALUE);
 		});
 		it('should read/write signed integers', function () {

@@ -139,6 +139,15 @@ Bitstream.prototype = {
     }
 
     /**
+     * read an unsigned integer *without* consuming any bits
+     * @method peekUInt
+     */
+    , peekUInt: function(bits) {
+        var result = this.getBits(this._index, bits);
+        return result;
+    }
+
+    /**
      * write an unsigned integer using the specified number of bits
      * @method writeUInt
      */

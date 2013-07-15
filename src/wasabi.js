@@ -9,6 +9,9 @@ var Rpc = require('./rpc');
  * @function makeWasabi
  */
 function makeWasabi() {
+    // for enums
+    var iota;
+
     /**
      * facade class for interacting with Wasabi
      * @class Wasabi
@@ -20,6 +23,14 @@ function makeWasabi() {
         , Rpc: Rpc
 
         , makeWasabi: makeWasabi
+
+        , WABI_TYPE_RPC: iota = 0
+        , WABI_TYPE_CLASS: ++iota
+        , WABI_TYPE_GHOST: ++iota
+        , WABI_TYPE_UPDATE: ++iota
+        , WABI_TYPE_MAX: ++iota
+        
+        , WABI_SEPARATOR: 0xFFFF
 
         /**
          * packs update data for obj
@@ -47,6 +58,7 @@ function makeWasabi() {
          */
         , packGhost: function(obj, bs) {
             bs.writeUInt(this.registry.hash(obj.constructor), 16);
+            bs.writeUInt(obj.wabiSerialNumber, 16);
             this.packUpdate(obj, bs);
         }
         /**
@@ -54,44 +66,76 @@ function makeWasabi() {
          * @method unpackGhost
          */
         , unpackGhost: function(bs) {
-            var obj, type;
+            var obj, type, serial;
             type = this.registry.getClass(bs.readUInt(16));
             if (!type) {
+                // TODO: Raise an exception when unpacking a ghost with unregistered class
                 return;
             }
+            serial = bs.readUInt(16);
             obj = new type;
-            this.registry.addObject(obj);
+            this.registry.addObject(obj, serial);
             this.unpackUpdate(bs);
             return obj;
         }
+
+        /**
+         * packs ghosts for needed objects into bs
+         * @method packGhosts
+         */
+        , packGhosts: function(bs) {
+            // TODO: take a list of in-scope objects to ghost
+            var serial;
+            for(serial in this.registry.objects) {
+                var obj = this.registry.getObject(serial);
+                if(this._shouldAddGhost(obj)) {
+                    this.packGhost(obj, bs);
+                }
+            }
+
+            bs.writeUInt(this.WABI_SEPARATOR, 16);
+        }
+
+        /**
+         * unpack all needed ghosts from bs
+         * @method unpackGhosts
+         */
+        , unpackGhosts: function(bs) {
+            while(bs.peekUInt(16) != this.WABI_SEPARATOR) {
+                this.unpackGhost(bs);
+            }
+            
+            // burn off the separator
+            bs.readUInt(16);
+        }
         /**
          * pack the given list of objects (with update data) into bs
-         * @method packObjects
+         * @method packUpdates
          */
-        , packObjects: function(list, bs) {
-            var i;
-            for (i = 0; i < list.length; i++) {
-                this.packUpdate(list[i], bs);
+        , packUpdates: function(list, bs) {
+            var k;
+            for (k in list) {
+                this.packUpdate(list[k], bs);
             }
-            bs.writeUInt(0, 16);
+            bs.writeUInt(this.WABI_SEPARATOR, 16);
         }
 
         /**
          * unpack the given list of objects (with update data) from bs
-         * @method unpackObjects
+         * @method unpackUpdates
          */
-        , unpackObjects: function(bs) {
+        , unpackUpdates: function(bs) {
             var hash = 0;
             var list = [];
             var obj;
-            while (true) {
+            while (bs.peekUInt(16) != this.WABI_SEPARATOR) {
                 obj = this.unpackUpdate(bs);
-                if (!obj) {
-                    break;
-                }
-
                 list.push(obj);
             }
+
+            // burn off the separator
+            bs.readUInt(16);
+
             return list;
         }
 
@@ -120,6 +164,26 @@ function makeWasabi() {
 
             rpc(args);
         }
+        
+        /**
+         * pack the data for a single "frame" including all ghosting control,
+         * updates, and rpcs
+         * @method pack
+         */
+        , pack: function(bs) {
+            this.packGhosts(bs);
+            this.packUpdates(this.registry.objects, bs);
+        }
+
+        /**
+         * unpack the data for a single "frame" including all ghosting control,
+         * updates, and rpcs
+         * @method unpack
+         */
+        , unpack: function(bs) {
+            this.unpackGhosts(bs);
+            this.unpackUpdates(bs);
+        }
 
         // passthrough functions
         /**
@@ -142,6 +206,13 @@ function makeWasabi() {
          */
         , addRpc: function(rpc, serialize) {
             this.registry.addRpc(rpc, serialize);
+        }
+        
+        /**
+         * determine if this object needs to be ghosted this frame
+         */
+        , _shouldAddGhost: function(obj) {
+            return true;
         }
     };
 

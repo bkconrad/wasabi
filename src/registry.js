@@ -63,8 +63,8 @@ Registry.prototype = {
      * register an instance of a klass
      * @method addObject
      */
-    , addObject: function(obj) {
-        obj.wabiSerialNumber = this.nextSerialNumber;
+    , addObject: function(obj, serial) {
+        obj.wabiSerialNumber = serial || this.nextSerialNumber;
         this.nextSerialNumber += 1;
         this.objects[obj.wabiSerialNumber] = obj;
     }

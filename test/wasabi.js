@@ -29,10 +29,12 @@ describe('Wasabi', function () {
           assert.equal(this.barbaz, that.barbaz);
       }
     };
+
     w.addClass(Foo);
     w.addClass(Bar);
     w2.addClass(Foo);
     w2.addClass(Bar);
+
     var foo1 = new Foo, foo2 = new Foo, bar1 = new Bar, bar2 = new Bar;
     var objList = [foo1, bar1, foo2, bar2];
 
@@ -68,9 +70,9 @@ describe('Wasabi', function () {
 
     it('packs and unpacks updates for lists of objects', function () {
         var bs = new Wasabi.Bitstream;
-        w.packObjects(objList, bs);
+        w.packUpdates(objList, bs);
         bs._index = 0;
-        var newList = w2.unpackObjects(bs);
+        var newList = w2.unpackUpdates(bs);
 
         assert.notEqual(0, newList.length);
         for (var i = 0; i < newList.length; i++) {
@@ -96,10 +98,49 @@ describe('Wasabi', function () {
         assert.ok(done);
     });
 
-    it('orchestrates packing/unpacking data automatically in an update function');
+    it('orchestrates packing/unpacking data automatically in an update function', function() {
+        var i, hash, bs = new Wasabi.Bitstream;
+
+        var foo = new Foo;
+        w.addObject(foo);
+
+        w.packGhost(foo, bs);
+        w.packUpdates([foo], bs);
+        bs._index = 0;
+        w2.unpackGhost(bs);
+        w2.unpackUpdates(bs);
+        assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
+    });
+
+    it('automatically manages ghosting and updates', function() {
+        var i, hash, bs = new Wasabi.Bitstream;
+
+        var foo = new Foo;
+        w.addObject(foo);
+        w.pack(bs);
+        bs._index = 0;
+        w2.unpack(bs);
+        assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
+    });
+
+    it('packs and unpacks properly to out-of-sync registries', function () {
+        var i, hash, bs = new Wasabi.Bitstream;
+        w.registry.nextSerialNumber += 1;
+
+        var foo = new Foo;
+        w.addObject(foo);
+
+        w.packGhost(foo, bs);
+        bs._index = 0;
+        w2.unpackGhost(bs);
+        assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
+    });
     it('calls RPCs on an associated netobject');
     it('complains when receiving update data for an unknown object');
     it('complains when receiving ghost data for an unknown class');
     it('complains when receiving a call to an unknown RPC');
     it('complains when receiving invalid arguments a known RPC');
+    it('queries a specified scopeobject to determine which netobjects to ghost');
+    it('triggers callbacks when ghosts are added');
+    it('triggers callbacks when ghosts are removed');
 });
