@@ -1,46 +1,15 @@
 var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/wasabi')
   , assert = require('chai').assert
   , WebSocket = require('ws')
-  , MockSocket = require('./mock_socket.js');
+  , MockSocket = require('./mock_socket.js')
+  , MockWasabi = require('./mock_wasabi.js')
   ;
 
 describe('Wasabi', function () {
-    var w = Wasabi;
-    var w2 = Wasabi.makeWasabi();
-
-    function Foo () { this.foobar = 1; };
-    Foo.prototype = {
-        constructor: Foo
-      , serialize: function(desc) {
-          desc.uint('foobar', 8);
-      }
-      , check: function(that) {
-          assert.equal(this.foobar, that.foobar);
-      }
-      , rpcTest: function(args) {
-        this.foobar = args.val;
-      }
-      , rpcTestArgs: function(desc) {
-        desc.uint('val', 8);
-      }
-    };
-    function Bar () { this.foobar = 2; this.barbaz = 3};
-    Bar.prototype = {
-        constructor: Bar
-      , serialize: function(desc) {
-          desc.uint('foobar', 8);
-          desc.uint('barbaz', 8);
-      }
-      , check: function(that) {
-          assert.equal(this.foobar, that.foobar);
-          assert.equal(this.barbaz, that.barbaz);
-      }
-    };
-
-    w.addClass(Foo);
-    w.addClass(Bar);
-    w2.addClass(Foo);
-    w2.addClass(Bar);
+    var w = MockWasabi.make();
+    var w2 = MockWasabi.make();
+    var Foo = MockWasabi.Foo;
+    var Bar = MockWasabi.Bar;
 
     var foo1 = new Foo, foo2 = new Foo, bar1 = new Bar, bar2 = new Bar;
     var objList = [foo1, bar1, foo2, bar2];
@@ -119,17 +88,6 @@ describe('Wasabi', function () {
         assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
     });
 
-    it('automatically manages ghosting and updates', function() {
-        var i, hash, bs = new Wasabi.Bitstream;
-
-        var foo = new Foo;
-        w.addObject(foo);
-        w.pack(bs);
-        bs._index = 0;
-        w2.unpack(bs);
-        assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
-    });
-
     it('packs and unpacks properly to out-of-sync registries', function () {
         var i, hash, bs = new Wasabi.Bitstream;
         w.registry.nextSerialNumber += 1;
@@ -156,7 +114,7 @@ describe('Wasabi', function () {
         assert.equal(w2.registry.objects[foo.wabiSerialNumber].foobar, 1337);
     });
 
-    it('keeps a list of servers and clients to transmit to', function() {
+    it('automatically manages ghosting and updates', function() {
         var sent = false
           , received = false;
 
@@ -164,7 +122,9 @@ describe('Wasabi', function () {
         var client = new MockSocket();
         server.link(client);
 
-        w.addClient(client);
+        w.addClient(client, function() {
+            return w.registry.objects;
+        });
         w2.addServer(server);
 
         foo1.foobar = 1337;
@@ -181,7 +141,8 @@ describe('Wasabi', function () {
     it('complains when receiving ghost data for an unknown class');
     it('complains when receiving a call to an unknown RPC');
     it('complains when receiving invalid arguments a known RPC');
-    it('queries a specified scopeobject to determine which netobjects to ghost');
+    it('complains when ghosting to a connection without a scope callback');
+    it('queries a callback to determine which netobjects to ghost');
     it('triggers callbacks when ghosts are added');
     it('triggers callbacks when ghosts are removed');
 });

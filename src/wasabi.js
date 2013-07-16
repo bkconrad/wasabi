@@ -10,9 +10,6 @@ var Rpc = require('./rpc');
  * @function makeWasabi
  */
 function makeWasabi() {
-    // for enums
-    var iota;
-
     /**
      * facade class for interacting with Wasabi
      * @class Wasabi
@@ -25,13 +22,6 @@ function makeWasabi() {
         , Rpc: Rpc
 
         , makeWasabi: makeWasabi
-
-        , WABI_TYPE_RPC: iota = 0
-        , WABI_TYPE_CLASS: ++iota
-        , WABI_TYPE_GHOST: ++iota
-        , WABI_TYPE_UPDATE: ++iota
-        , WABI_TYPE_MAX: ++iota
-        
         , WABI_SEPARATOR: 0xFFFF
 
         , servers: []
@@ -88,14 +78,11 @@ function makeWasabi() {
          * packs ghosts for needed objects into bs
          * @method packGhosts
          */
-        , packGhosts: function(bs) {
-            // TODO: take a list of in-scope objects to ghost
+        , packGhosts: function(objects, bs) {
             var serial;
-            for(serial in this.registry.objects) {
+            for(serial in objects) {
                 var obj = this.registry.getObject(serial);
-                if(this._shouldAddGhost(obj)) {
-                    this.packGhost(obj, bs);
-                }
+                this.packGhost(obj, bs);
             }
 
             bs.writeUInt(this.WABI_SEPARATOR, 16);
@@ -169,26 +156,6 @@ function makeWasabi() {
 
             rpc(args);
         }
-        
-        /**
-         * pack the data for a single "frame" including all ghosting control,
-         * updates, and rpcs
-         * @method pack
-         */
-        , pack: function(bs) {
-            this.packGhosts(bs);
-            this.packUpdates(this.registry.objects, bs);
-        }
-
-        /**
-         * unpack the data for a single "frame" including all ghosting control,
-         * updates, and rpcs
-         * @method unpack
-         */
-        , unpack: function(bs) {
-            this.unpackGhosts(bs);
-            this.unpackUpdates(bs);
-        }
 
         // passthrough functions
         /**
@@ -218,46 +185,70 @@ function makeWasabi() {
          * @method addServer
          */
         , addServer: function(server) {
-            this.servers.push(server);
+            this.servers.push(new Wasabi.Connection(server, true, false));
         }
 
         /**
          * attach a client connected through the client object
          * @method addClient
          */
-        , addClient: function(client) {
-            this.clients.push(client);
+        , addClient: function(client, scopeCallback) {
+            this.clients.push(new Wasabi.Connection(client, false, true, scopeCallback));
         }
 
+        /**
+         * Receive, process, and transmit data as needed for this connection
+         * @method processConnection
+         */
+        , processConnection: function(conn) {
+            if(conn._ghostTo) {
+                var k;
+                // get list of objects which have come into scope
+                var oldObjects = conn._scopeObjects;
+                var newObjects = conn._scopeCallback();
+                var newlyInScopeObjects = {};
+                for(k in newObjects) {
+                    if(newObjects.hasOwnProperty(k) && !(k in oldObjects)) {
+                        newlyInScopeObjects[k] = newObjects[k];
+                    }
+                }
+
+                // pack ghosts for those objects
+                this.packGhosts(newlyInScopeObjects, conn._sendBitstream);
+
+                // pack updates for all objects
+                this.packUpdates(newObjects, conn._sendBitstream);
+            }
+
+            if(conn._ghostFrom) {
+                this.unpackGhosts(conn._receiveBitstream);
+                this.unpackUpdates(conn._receiveBitstream);
+            }
+
+            conn._socket.send(conn._sendBitstream.toChars());
+
+            // TODO: pack/unpack rpc calls?
+        }
         /**
          * process the incoming and outgoing data for all connected clients and
          * servers
          */
         , processConnections: function() {
             var k;
-            // For each server
+
+            // process server connections
             for (k in this.servers) {
                 if (this.servers.hasOwnProperty(k)) {
-                    // TODO: handle servers
+                    this.processConnection(this.servers[k]);
                 }
             }
-            //   Receive data as needed
-            //   Send data as needed
+
+            // process client connections
             for (k in this.clients) {
                 if (this.clients.hasOwnProperty(k)) {
-                    // TODO: handle clients
+                    this.processConnection(this.clients[k]);
                 }
             }
-            // For each client
-            //   Receive data as needed
-            //   Send data as needed
-        }
-        
-        /**
-         * determine if this object needs to be ghosted this frame
-         */
-        , _shouldAddGhost: function(obj) {
-            return true;
         }
     };
 
