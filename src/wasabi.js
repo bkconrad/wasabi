@@ -1,4 +1,5 @@
 var Bitstream = require('./bitstream');
+var Connection = require('./connection');
 var Registry = require('./registry');
 var Rpc = require('./rpc');
 
@@ -19,6 +20,7 @@ function makeWasabi() {
     Wasabi = {
         constructor: Wasabi
         , Bitstream: Bitstream
+        , Connection: Connection
         , Registry: Registry
         , Rpc: Rpc
 
@@ -31,6 +33,9 @@ function makeWasabi() {
         , WABI_TYPE_MAX: ++iota
         
         , WABI_SEPARATOR: 0xFFFF
+
+        , servers: []
+        , clients: []
 
         /**
          * packs update data for obj
@@ -206,6 +211,46 @@ function makeWasabi() {
          */
         , addRpc: function(rpc, serialize) {
             this.registry.addRpc(rpc, serialize);
+        }
+
+        /**
+         * attach to a server connected through the server object
+         * @method addServer
+         */
+        , addServer: function(server) {
+            this.servers.push(server);
+        }
+
+        /**
+         * attach a client connected through the client object
+         * @method addClient
+         */
+        , addClient: function(client) {
+            this.clients.push(client);
+        }
+
+        /**
+         * process the incoming and outgoing data for all connected clients and
+         * servers
+         */
+        , processConnections: function() {
+            var k;
+            // For each server
+            for (k in this.servers) {
+                if (this.servers.hasOwnProperty(k)) {
+                    // TODO: handle servers
+                }
+            }
+            //   Receive data as needed
+            //   Send data as needed
+            for (k in this.clients) {
+                if (this.clients.hasOwnProperty(k)) {
+                    // TODO: handle clients
+                }
+            }
+            // For each client
+            //   Receive data as needed
+            //   Send data as needed
         }
         
         /**

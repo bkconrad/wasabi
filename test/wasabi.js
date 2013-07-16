@@ -1,6 +1,7 @@
 var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/wasabi')
   , assert = require('chai').assert
   , WebSocket = require('ws')
+  , MockSocket = require('./mock_socket.js');
   ;
 
 describe('Wasabi', function () {
@@ -153,6 +154,27 @@ describe('Wasabi', function () {
         w2.unpack(bs);
         assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
         assert.equal(w2.registry.objects[foo.wabiSerialNumber].foobar, 1337);
+    });
+
+    it('keeps a list of servers and clients to transmit to', function() {
+        var sent = false
+          , received = false;
+
+        var server = new MockSocket();
+        var client = new MockSocket();
+        server.link(client);
+
+        w.addClient(client);
+        w2.addServer(server);
+
+        foo1.foobar = 1337;
+        w.addObject(foo1);
+
+        w.processConnections();
+        w2.processConnections();
+
+        assert.ok(w2.registry.objects[foo1.wabiSerialNumber]);
+        assert.equal(foo1.foobar, w2.registry.objects[foo1.wabiSerialNumber].foobar);
     });
 
     it('complains when receiving update data for an unknown object');

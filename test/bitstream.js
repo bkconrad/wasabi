@@ -84,6 +84,30 @@ describe('Bitstream', function () {
                 }
             }
 		});
+        it('appends bits from character data', function() {
+			var b1 = new Bitstream();
+			var b2 = new Bitstream();
+            b1.writeUInt(1337, 16);
+            b1.writeUInt(4321, 16);
+            b2.appendChars(b1.toChars());
+
+            b2._index = 0;
+
+            assert.equal(1337, b2.readUInt(16));
+            assert.equal(4321, b2.readUInt(16));
+        });
+        it('can check for equivalence with another', function() {
+			var b1 = new Bitstream();
+			var b2 = new Bitstream();
+            b1.writeUInt(1337, 16);
+            b1.writeUInt(4321, 16);
+            b2.appendChars(b1.toChars());
+
+            assert.ok(b1.equals(b2));
+
+            b1.writeUInt(1234, 16);
+            assert.ok(!b1.equals(b2));
+        });
 		it('writes and reads objects to websockets', function (done) {
 			function TestObject () {}
 		        TestObject.prototype = {

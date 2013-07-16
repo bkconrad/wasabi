@@ -109,10 +109,24 @@ Bitstream.prototype = {
     ,
     fromArrayBuffer: function(buffer) {
         this.arr = [];
+        this.appendData(buffer);
+    }
+
+    , appendData: function(buffer) {
         var i;
         for (i = 0; i < buffer.length; i++) {
-            this.arr[i] = buffer[i];
+            this.arr.push(buffer[i]);
         }
+    }
+
+    , appendChars: function(chars) {
+        var data = [];
+        var i;
+        for (i = 0; i < chars.length; i++) {
+            data.push(chars.charCodeAt(i));
+        }
+
+        this.appendData(data);
     }
 
     /**
@@ -200,6 +214,20 @@ Bitstream.prototype = {
         description._target = obj;
         obj.serialize(description);
         return description._target;
+    }
+
+    , equals: function(other) {
+        var i;
+        if (other.arr.length !== this.arr.length) {
+            return false;
+        }
+
+        for (i = 0; i < this.arr.length; i++) {
+            if (this.arr[i] !== other.arr[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 };
 
