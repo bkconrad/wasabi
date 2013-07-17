@@ -24,16 +24,13 @@ describe('Wasabi', function () {
         for (i = 0; i < objList.length; i++) {
             w.packGhost(objList[i], bs);
         }
+        bs.writeUInt(0, 16);
         bs._index = 0;
 
         var newList = [];
         var obj;
-        while (true) {
+        while (bs.peekUInt(16) !== 0) {
             obj = w2.unpackGhost(bs);
-            if (!obj) {
-                break;
-            }
-
             newList.push(obj);
         }
 

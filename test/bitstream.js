@@ -50,6 +50,13 @@ describe('Bitstream', function () {
 			assert.equal(b.readSInt(16), negValue);
 			assert.equal(b.readSInt(7), posValue);
 		});
+		it('complains on overread', function () {
+			var b = new Bitstream;
+			b.writeUInt(1337, 16);
+            b._index = 0;
+            b.readUInt(16);
+            assert.throws(function() { b.readUInt(1) });
+		});
 		it('encodes its value as an ArrayBuffer', function () {
 			var b = new Bitstream;
 			b.writeUInt(1337, 16);
@@ -57,6 +64,10 @@ describe('Bitstream', function () {
 			b.writeUInt(127, 7);
 
 			var b2 = new Bitstream(b.toArrayBuffer());
+            b2._index = 0;
+
+            console.log(b);
+            console.log(b2);
 			assert.equal(1337, b2.readUInt(16));
 			assert.equal(1, b2.readUInt(2));
 			assert.equal(127, b2.readUInt(7));
@@ -134,6 +145,7 @@ describe('Bitstream', function () {
 				var client = new WebSocket('ws://localhost:31337');
 				client.on('message', function (data) {
 					destStream = Bitstream.fromChars(data);
+                    destStream._index = 0;
 					destObj = destStream.unpack(destObj);
 					assert.equal(sourceObj.foo, destObj.foo);
 					assert.equal(sourceObj.bar, destObj.bar);

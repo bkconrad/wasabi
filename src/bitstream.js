@@ -7,7 +7,7 @@ var OutDescription = require('./out_description');
  */
 function Bitstream(buffer) {
     this.arr = [];
-    this.length = 0;
+    this._nbits = 0;
     this._index = 0;
     if (buffer) {
         this.fromArrayBuffer(buffer);
@@ -22,8 +22,8 @@ Bitstream.prototype = {
      */
     , empty: function() {
         this.arr = [];
-        this.length = 0;
         this._index = 0;
+        this._nbits = 0;
     }
     , setBits: function(offset, n, value) {
         var bits
@@ -113,7 +113,7 @@ Bitstream.prototype = {
 
     ,
     fromArrayBuffer: function(buffer) {
-        this.arr = [];
+        this.empty();
         this.appendData(buffer);
     }
 
@@ -122,6 +122,8 @@ Bitstream.prototype = {
         for (i = 0; i < buffer.length; i++) {
             this.arr.push(buffer[i]);
         }
+        // TODO: figure out why this is seven
+        this._extend(i * 7);
     }
 
     , appendChars: function(chars) {
@@ -153,7 +155,7 @@ Bitstream.prototype = {
      */
     , readUInt: function(bits) {
         var result = this.getBits(this._index, bits);
-        this._index += bits;
+        this._advance(bits);
         return result;
     }
 
@@ -172,7 +174,7 @@ Bitstream.prototype = {
      */
     , writeUInt: function(value, bits) {
         this.setBits(this._index, bits, value);
-        this._index += bits;
+        this._extend(bits);
     }
 
     /**
@@ -181,9 +183,9 @@ Bitstream.prototype = {
      */
     , readSInt: function(bits) {
         var result = this.getBits(this._index, bits);
-        this._index += bits;
+        this._advance(bits);
         result *= this.getBits(this._index, 1) ? -1 : 1;
-        this._index++;
+        this._advance(1);
         return result;
     }
 
@@ -193,9 +195,9 @@ Bitstream.prototype = {
      */
     , writeSInt: function(value, bits) {
         this.setBits(this._index, bits, Math.abs(value));
-        this._index += bits;
+        this._extend(bits);
         this.setBits(this._index, 1, value < 0);
-        this._index++;
+        this._extend(1);
     }
 
     /**
@@ -219,6 +221,26 @@ Bitstream.prototype = {
         description._target = obj;
         obj.serialize(description);
         return description._target;
+    }
+
+    /**
+     * advance the head by the specified number of bits and check for overread
+     * @method _advance
+     */
+    , _advance: function(bits) {
+        this._index += bits;
+        if(this._index > this._nbits) {
+            throw new Error("Bitstream overread");
+        }
+    }
+
+    /**
+     * extend the buffer size by the specified number of bits
+     * @method _extend
+     */
+    , _extend: function(bits) {
+        this._nbits += bits;
+        this._index += bits;
     }
 
     , equals: function(other) {
