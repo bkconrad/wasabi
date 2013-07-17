@@ -42,6 +42,7 @@ function makeWasabi() {
         , unpackUpdate: function(bs) {
             var obj = this.registry.getObject(bs.readUInt(16));
             if (!obj) {
+                // TODO: throw error when unpacking an update for a non-existant object
                 return;
             }
             bs.unpack(obj);
@@ -54,7 +55,6 @@ function makeWasabi() {
         , packGhost: function(obj, bs) {
             bs.writeUInt(this.registry.hash(obj.constructor), 16);
             bs.writeUInt(obj.wabiSerialNumber, 16);
-            this.packUpdate(obj, bs);
         }
         /**
          * unpacks a newly replicated object from bs
@@ -63,14 +63,14 @@ function makeWasabi() {
         , unpackGhost: function(bs) {
             var obj, type, serial;
             type = this.registry.getClass(bs.readUInt(16));
+            serial = bs.readUInt(16);
             if (!type) {
                 // TODO: Raise an exception when unpacking a ghost with unregistered class
                 return;
             }
-            serial = bs.readUInt(16);
+            // TODO: raise an exception unpacking a ghost which already exists
             obj = new type;
             this.registry.addObject(obj, serial);
-            this.unpackUpdate(bs);
             return obj;
         }
 
@@ -213,6 +213,8 @@ function makeWasabi() {
                     }
                 }
 
+                conn._scopeObjects = newObjects;
+
                 // pack ghosts for those objects
                 this.packGhosts(newlyInScopeObjects, conn._sendBitstream);
 
@@ -221,11 +223,14 @@ function makeWasabi() {
             }
 
             if(conn._ghostFrom) {
+                conn._receiveBitstream._index = 0;
                 this.unpackGhosts(conn._receiveBitstream);
                 this.unpackUpdates(conn._receiveBitstream);
             }
 
             conn._socket.send(conn._sendBitstream.toChars());
+            conn._sendBitstream.empty();
+            conn._receiveBitstream.empty();
 
             // TODO: pack/unpack rpc calls?
         }

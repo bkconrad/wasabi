@@ -20,6 +20,11 @@ Bitstream.prototype = {
      * set n bits starting at offset to value
      * @method setBits
      */
+    , empty: function() {
+        this.arr = [];
+        this.length = 0;
+        this._index = 0;
+    }
     , setBits: function(offset, n, value) {
         var bits
         , cell

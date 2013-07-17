@@ -118,13 +118,22 @@ describe('Wasabi', function () {
         var sent = false
           , received = false;
 
+
+        var w = MockWasabi.make();
+        var w2 = MockWasabi.make();
         var server = new MockSocket();
         var client = new MockSocket();
         server.link(client);
 
         w.addClient(client, function() {
-            return w.registry.objects;
+            var result = { };
+            var k;
+            for (k in w.registry.objects) {
+                result[k] = w.registry.objects[k];
+            }
+            return result;
         });
+
         w2.addServer(server);
 
         foo1.foobar = 1337;
@@ -135,6 +144,17 @@ describe('Wasabi', function () {
 
         assert.ok(w2.registry.objects[foo1.wabiSerialNumber]);
         assert.equal(foo1.foobar, w2.registry.objects[foo1.wabiSerialNumber].foobar);
+        assert.equal(w.registry.objects.length, w2.registry.objects.length);
+
+        foo2.foobar = 1234;
+        w.addObject(foo2);
+
+        w.processConnections();
+        w2.processConnections();
+
+        assert.ok(w2.registry.objects[foo2.wabiSerialNumber]);
+        assert.equal(foo2.foobar, w2.registry.objects[foo2.wabiSerialNumber].foobar);
+        assert.equal(w.registry.objects.length, w2.registry.objects.length);
     });
 
     it('complains when receiving update data for an unknown object');
