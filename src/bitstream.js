@@ -25,6 +25,20 @@ Bitstream.prototype = {
         this._index = 0;
         this._nbits = 0;
     }
+    /**
+     * move the index to the first index >= the current index which is
+     * the beginning of a cell.  useful for burning off any padding when
+     * processing data from "appendData" since it pads to the nearest
+     * multiple of 7
+     * @method align
+     */
+    , align: function() {
+        var delta = this._index % 7;
+        if (delta == 0) {
+            return;
+        }
+        this._advance(7 - delta);
+    }
     , setBits: function(offset, n, value) {
         var bits
         , cell

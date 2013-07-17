@@ -23,6 +23,7 @@ function makeWasabi() {
 
         , makeWasabi: makeWasabi
         , WABI_SEPARATOR: 0xFFFF
+        , WABI_PACKET_START: 0xFFFE
 
         , servers: []
         , clients: []
@@ -202,6 +203,8 @@ function makeWasabi() {
          */
         , processConnection: function(conn) {
             if(conn._ghostTo) {
+                conn._sendBitstream.writeUInt(this.WABI_PACKET_START, 16);
+
                 var k;
                 // get list of objects which have come into scope
                 var oldObjects = conn._scopeObjects;
@@ -224,8 +227,12 @@ function makeWasabi() {
 
             if(conn._ghostFrom) {
                 conn._receiveBitstream._index = 0;
-                this.unpackGhosts(conn._receiveBitstream);
-                this.unpackUpdates(conn._receiveBitstream);
+                while(conn._receiveBitstream.peekUInt(16) === this.WABI_PACKET_START) {
+                    conn._receiveBitstream.readUInt(16);
+                    this.unpackGhosts(conn._receiveBitstream);
+                    this.unpackUpdates(conn._receiveBitstream);
+                    conn._receiveBitstream.align();
+                }
             }
 
             conn._socket.send(conn._sendBitstream.toChars());

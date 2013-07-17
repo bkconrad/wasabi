@@ -107,6 +107,31 @@ describe('Bitstream', function () {
             assert.equal(1337, b2.readUInt(16));
             assert.equal(4321, b2.readUInt(16));
         });
+        it('can be aligned to the next buffer byte', function() {
+			var b1 = new Bitstream();
+            var start, stop;
+            // this should actually be UTF-8 encoded binary, but whatever
+            // 4 characters == 28 bits of binary data
+            b1.appendChars("test");
+            b1._index = 0;
+
+            // read seven bits, this should land us squarely on the next
+            // cell. A call to .align() should not move the head
+            b1.readUInt(7);
+            start = b1._index;
+            b1.align();
+            assert.equal(start, b1._index);
+
+            // reading one bit further should make the next call advance the index to the next cell
+            b1.readUInt(1);
+            b1.align();
+            assert.equal(start + 7, b1._index);
+
+            // having consumed 14 bits, consuming the remaining 14 should not through an error
+            b1.readUInt(14);
+
+            assert.equal(b1._index, b1._nbits);
+        });
         it('can check for equivalence with another', function() {
 			var b1 = new Bitstream();
 			var b2 = new Bitstream();

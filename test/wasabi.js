@@ -154,6 +154,57 @@ describe('Wasabi', function () {
         assert.equal(w.registry.objects.length, w2.registry.objects.length);
     });
 
+    it('can handle multiple foreign processConnection calls with a single local processConnection', function() {
+        var w = MockWasabi.make();
+        var w2 = MockWasabi.make();
+        var server = new MockSocket();
+        var client = new MockSocket();
+        server.link(client);
+
+        w.addClient(client, function() {
+            var result = { };
+            var k;
+            for (k in w.registry.objects) {
+                result[k] = w.registry.objects[k];
+            }
+            return result;
+        });
+
+        w2.addServer(server);
+
+        foo1.foobar = 1337;
+        w.addObject(foo1);
+        w.processConnections();
+
+        foo2.foobar = 1234;
+        w.addObject(foo2);
+        w.processConnections();
+
+        w2.processConnections();
+
+        assert.ok(w2.registry.objects[foo1.wabiSerialNumber]);
+        assert.equal(foo1.foobar, w2.registry.objects[foo1.wabiSerialNumber].foobar);
+        assert.equal(w.registry.objects.length, w2.registry.objects.length);
+
+        assert.ok(w2.registry.objects[foo2.wabiSerialNumber]);
+        assert.equal(foo2.foobar, w2.registry.objects[foo2.wabiSerialNumber].foobar);
+        assert.equal(w.registry.objects.length, w2.registry.objects.length);
+    });
+
+    it('does not choke on an empty receive bitstream', function() {
+        var w = MockWasabi.make();
+        var w2 = MockWasabi.make();
+        var server = new MockSocket();
+        var client = new MockSocket();
+        server.link(client);
+
+        w.addClient(client, function() {
+        });
+
+        w2.addServer(server);
+        w2.processConnections();
+    });
+
     it('complains when receiving update data for an unknown object');
     it('complains when receiving ghost data for an unknown class');
     it('complains when receiving a call to an unknown RPC');
