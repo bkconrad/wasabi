@@ -113,7 +113,55 @@ describe('Wasabi', function () {
         assert.equal(w2.registry.objects[foo.wabiSerialNumber].testval, 1337);
     });
 
-    it('calls global RPCs with this == undefined');
+    it('passes a connection object to RPC invocations', function (done) {
+        var w = MockWasabi.make();
+        var w2 = MockWasabi.make();
+        var server = new MockSocket();
+        var client = new MockSocket();
+        server.link(client);
+
+
+        w2.addServer(server);
+        w.addClient(client, function() {
+            var result = { };
+            var k;
+            for (k in w.registry.objects) {
+                result[k] = w.registry.objects[k];
+            }
+            return result;
+        });
+
+        function ConnectionAsserter() {
+        }
+
+        ConnectionAsserter.prototype = {
+            serialize: function () { }
+          , constructor: ConnectionAsserter
+          , rpcAssertConnection: function(args, conn) {
+                assert.strictEqual(conn, w2.servers[0]);
+                done();
+            }
+          , rpcAssertConnectionArgs: function(desc) {
+            }
+        };
+
+        w.addClass(ConnectionAsserter);
+        w2.addClass(ConnectionAsserter);
+        
+        var obj = new ConnectionAsserter();
+
+        w.addObject(obj);
+
+        w.processConnections();
+        w2.processConnections();
+
+        obj.rpcAssertConnection({});
+
+        w.processConnections();
+        w2.processConnections();
+
+        assert.ok(w2.registry.objects[obj.wabiSerialNumber]);
+    });
 
     it('automatically manages ghosting and updates', function() {
         var sent = false

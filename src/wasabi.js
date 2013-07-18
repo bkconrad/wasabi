@@ -177,7 +177,7 @@ function makeWasabi() {
          * arguments from bs
          * @method unpackRpc
          */
-        , unpackRpc: function(bs) {
+        , unpackRpc: function(bs, conn) {
             var serialNumber = bs.readUInt(16);
             var hash = bs.readUInt(16);
             var rpc;
@@ -189,7 +189,7 @@ function makeWasabi() {
                 args.serialize = rpc._serialize;
                 bs.unpack(args);
 
-                rpc._fn(args);
+                rpc._fn(args, conn);
             } else {
                 obj = this.registry.getObject(serialNumber);
                 rpc = obj.constructor.wabiRpcs[hash];
@@ -197,7 +197,7 @@ function makeWasabi() {
                 var args = {};
                 args.serialize = rpc._serialize;
                 bs.unpack(args);
-                rpc._fn.call(obj, args);
+                rpc._fn.call(obj, args, conn);
             }
         }
 
@@ -282,7 +282,7 @@ function makeWasabi() {
                 } else {
                     // otherwise invoke the appropriate unpack
                     // function via the _sectionMap
-                    this._sectionMap[section].call(this, conn._receiveBitstream);
+                    this._sectionMap[section].call(this, conn._receiveBitstream, conn);
                 }
             }
 
