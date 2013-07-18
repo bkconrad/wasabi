@@ -136,9 +136,10 @@ function makeWasabi() {
          * pack a call to a registered RP and the supplied arguments into bs
          * @method packRpc
          */
-        , packRpc: function(rpc, args, bs) {
-            bs.writeUInt(this.registry.hash(rpc), 8);
-            args.serialize = rpc.argSerialize;
+        , packRpc: function(rpc, args, obj, bs) {
+            bs.writeUInt(obj ? obj.wabiSerialNumber : 0, 16);
+            bs.writeUInt(this.registry.hash(rpc), 16);
+            args.serialize = rpc._serialize;
             bs.pack(args);
         }
 
@@ -148,14 +149,20 @@ function makeWasabi() {
          * @method unpackRpc
          */
         , unpackRpc: function(bs) {
-            var hash = bs.readUInt(8);
+            var serialNumber = bs.readUInt(16);
+            var hash = bs.readUInt(16);
             var rpc = this.registry.getRpc(hash);
 
             var args = {};
-            args.serialize = rpc.argSerialize;
+            args.serialize = rpc._serialize;
             bs.unpack(args);
 
-            rpc(args);
+            if (serialNumber !== 0) {
+                var obj = this.registry.getObject(serialNumber);
+            }
+
+            // TODO: apply the function the specified object (if any)
+            rpc._fn(args);
         }
 
         // passthrough functions

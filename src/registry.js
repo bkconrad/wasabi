@@ -1,3 +1,5 @@
+var Rpc = require('./rpc');
+
 /**
  * Manages the registration of classes for consistent
  * serialization/unserialization
@@ -77,13 +79,15 @@ Registry.prototype = {
      * register a global RPC
      * @method addRpc
      */
-    , addRpc: function(rpc, serialize) {
-        var hash = this.hash(rpc);
-        if (this.hashToRpc[hash] !== undefined) {
-            throw "Invalid attempt to redefine RPC " + rpc.name + " with hash " + hash;
+    , addRpc: function(fn, serialize) {
+        var hash = this.hash(fn);
+        var klass;
+        if (hash in this.hashToRpc) {
+            throw new Error("Invalid attempt to redefine RPC " + fn.name + " with hash " + hash);
         }
-        // the function used to serialize the arguments object
-        rpc.argSerialize = serialize;
+
+        var rpc = new Rpc(fn, klass, serialize);
+
         // normal hash <-> rpc mapping
         this.rpcToHash[rpc] = hash;
         this.hashToRpc[hash] = rpc;

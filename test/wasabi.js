@@ -54,23 +54,6 @@ describe('Wasabi', function () {
         }
     });
 
-    it('packs and unpacks rpcs', function() {
-        var bs = new Wasabi.Bitstream;
-        var done = false;
-        function rpcFoo(args) { assert.equal(args.bar, 123); done = true; }
-        w.addRpc(rpcFoo, function(desc) {
-            desc.uint('bar', 8);
-        });
-        w2.addRpc(rpcFoo, function(desc) {
-            desc.uint('bar', 8);
-        });
-
-        w.packRpc(rpcFoo, {bar: 123}, bs);
-        bs._index = 0;
-        w2.unpackRpc(bs);
-        assert.ok(done);
-    });
-
     it('orchestrates packing/unpacking data automatically in an update function', function() {
         var i, hash, bs = new Wasabi.Bitstream;
 
@@ -99,14 +82,59 @@ describe('Wasabi', function () {
     });
 
     it('calls RPCs on an associated netobject', function () {
-        var i, hash, bs = new Wasabi.Bitstream;
+        var w = MockWasabi.make();
+        var w2 = MockWasabi.make();
+        var server = new MockSocket();
+        var client = new MockSocket();
+        var foo = new Foo();
+        server.link(client);
 
-        var foo = new Foo;
+        w.addClient(client, function() {
+            var result = { };
+            var k;
+            for (k in w.registry.objects) {
+                result[k] = w.registry.objects[k];
+            }
+            return result;
+        });
+
+        w2.addServer(server);
         w.addObject(foo);
+
         foo.rpcTest(1337);
-        w.pack(bs);
-        bs._index = 0;
-        w2.unpack(bs);
+
+        w.processConnections();
+        w2.processConnections();
+
+        assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
+        assert.equal(w2.registry.objects[foo.wabiSerialNumber].foobar, 1337);
+    });
+
+    it('calls global RPCs with this == undefined', function () {
+        var w = MockWasabi.make();
+        var w2 = MockWasabi.make();
+        var server = new MockSocket();
+        var client = new MockSocket();
+        var foo = new Foo();
+        server.link(client);
+
+        w.addClient(client, function() {
+            var result = { };
+            var k;
+            for (k in w.registry.objects) {
+                result[k] = w.registry.objects[k];
+            }
+            return result;
+        });
+
+        w2.addServer(server);
+        w.addObject(foo);
+
+        foo.rpcTest(1337);
+
+        w.processConnections();
+        w2.processConnections();
+
         assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
         assert.equal(w2.registry.objects[foo.wabiSerialNumber].foobar, 1337);
     });
@@ -114,7 +142,6 @@ describe('Wasabi', function () {
     it('automatically manages ghosting and updates', function() {
         var sent = false
           , received = false;
-
 
         var w = MockWasabi.make();
         var w2 = MockWasabi.make();
