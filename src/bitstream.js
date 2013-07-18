@@ -16,6 +16,9 @@ function Bitstream(buffer) {
 
 Bitstream.prototype = {
     constructor: Bitstream
+    , bitsLeft: function() {
+        return this._nbits - this._index;
+    }
     /**
      * set n bits starting at offset to value
      * @method setBits

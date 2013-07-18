@@ -10,6 +10,17 @@ var Rpc = require('./rpc');
  * @function makeWasabi
  */
 function makeWasabi() {
+    var iota; // for enums
+
+    // packet control constants
+    iota = 0xFFFF;
+    var WABI_SEPARATOR = iota
+      , WABI_SECTION_GHOSTS = --iota
+      , WABI_SECTION_UPDATES = --iota
+      , WABI_SECTION_RPC = --iota
+      , WABI_PACKET_STOP = --iota
+      ;
+
     /**
      * facade class for interacting with Wasabi
      * @class Wasabi
@@ -22,8 +33,6 @@ function makeWasabi() {
         , Rpc: Rpc
 
         , makeWasabi: makeWasabi
-        , WABI_SEPARATOR: 0xFFFF
-        , WABI_PACKET_START: 0xFFFE
 
         , servers: []
         , clients: []
@@ -86,7 +95,7 @@ function makeWasabi() {
                 this.packGhost(obj, bs);
             }
 
-            bs.writeUInt(this.WABI_SEPARATOR, 16);
+            bs.writeUInt(WABI_SEPARATOR, 16);
         }
 
         /**
@@ -94,7 +103,7 @@ function makeWasabi() {
          * @method unpackGhosts
          */
         , unpackGhosts: function(bs) {
-            while(bs.peekUInt(16) != this.WABI_SEPARATOR) {
+            while(bs.peekUInt(16) != WABI_SEPARATOR) {
                 this.unpackGhost(bs);
             }
             
@@ -110,7 +119,7 @@ function makeWasabi() {
             for (k in list) {
                 this.packUpdate(list[k], bs);
             }
-            bs.writeUInt(this.WABI_SEPARATOR, 16);
+            bs.writeUInt(WABI_SEPARATOR, 16);
         }
 
         /**
@@ -121,7 +130,7 @@ function makeWasabi() {
             var hash = 0;
             var list = [];
             var obj;
-            while (bs.peekUInt(16) != this.WABI_SEPARATOR) {
+            while (bs.peekUInt(16) != WABI_SEPARATOR) {
                 obj = this.unpackUpdate(bs);
                 list.push(obj);
             }
@@ -132,13 +141,33 @@ function makeWasabi() {
             return list;
         }
 
+        , _invokeRpc: function(rpc, args, obj) {
+            var k;
+
+            // process server connections
+            for (k in this.servers) {
+                if (this.servers.hasOwnProperty(k)) {
+                    this.servers[k]._sendBitstream.writeUInt(WABI_SECTION_RPC, 16);
+                    this.packRpc(rpc, args, obj, this.servers[k]._sendBitstream);
+                }
+            }
+
+            // process client connections
+            for (k in this.clients) {
+                if (this.clients.hasOwnProperty(k)) {
+                    this.clients[k]._sendBitstream.writeUInt(WABI_SECTION_RPC, 16);
+                    this.packRpc(rpc, args, obj, this.clients[k]._sendBitstream);
+                }
+            }
+        }
+
         /**
          * pack a call to a registered RP and the supplied arguments into bs
          * @method packRpc
          */
         , packRpc: function(rpc, args, obj, bs) {
-            bs.writeUInt(obj ? obj.wabiSerialNumber : 0, 16);
-            bs.writeUInt(this.registry.hash(rpc), 16);
+            bs.writeUInt(obj.wabiSerialNumber, 16);
+            bs.writeUInt(this.registry.hash(rpc._fn), 16);
             args.serialize = rpc._serialize;
             bs.pack(args);
         }
@@ -151,18 +180,25 @@ function makeWasabi() {
         , unpackRpc: function(bs) {
             var serialNumber = bs.readUInt(16);
             var hash = bs.readUInt(16);
-            var rpc = this.registry.getRpc(hash);
+            var rpc;
+            var obj;
+            if (serialNumber === 0) {
+                rpc = this.registry.getRpc(hash);
 
-            var args = {};
-            args.serialize = rpc._serialize;
-            bs.unpack(args);
+                var args = {};
+                args.serialize = rpc._serialize;
+                bs.unpack(args);
 
-            if (serialNumber !== 0) {
-                var obj = this.registry.getObject(serialNumber);
+                rpc._fn(args);
+            } else {
+                obj = this.registry.getObject(serialNumber);
+                rpc = obj.constructor.wabiRpcs[hash];
+
+                var args = {};
+                args.serialize = rpc._serialize;
+                bs.unpack(args);
+                rpc._fn.call(obj, args);
             }
-
-            // TODO: apply the function the specified object (if any)
-            rpc._fn(args);
         }
 
         // passthrough functions
@@ -172,6 +208,7 @@ function makeWasabi() {
          */
         , addObject: function(obj) {
             this.registry.addObject(obj);
+            obj.wabiInstance = this;
         }
         /**
          * register a klass
@@ -210,8 +247,6 @@ function makeWasabi() {
          */
         , processConnection: function(conn) {
             if(conn._ghostTo) {
-                conn._sendBitstream.writeUInt(this.WABI_PACKET_START, 16);
-
                 var k;
                 // get list of objects which have come into scope
                 var oldObjects = conn._scopeObjects;
@@ -226,19 +261,28 @@ function makeWasabi() {
                 conn._scopeObjects = newObjects;
 
                 // pack ghosts for those objects
+                conn._sendBitstream.writeUInt(WABI_SECTION_GHOSTS, 16);
                 this.packGhosts(newlyInScopeObjects, conn._sendBitstream);
 
                 // pack updates for all objects
+                conn._sendBitstream.writeUInt(WABI_SECTION_UPDATES, 16);
                 this.packUpdates(newObjects, conn._sendBitstream);
+
+                conn._sendBitstream.writeUInt(WABI_PACKET_STOP, 16);
             }
 
-            if(conn._ghostFrom) {
-                conn._receiveBitstream._index = 0;
-                while(conn._receiveBitstream.peekUInt(16) === this.WABI_PACKET_START) {
-                    conn._receiveBitstream.readUInt(16);
-                    this.unpackGhosts(conn._receiveBitstream);
-                    this.unpackUpdates(conn._receiveBitstream);
+            conn._receiveBitstream._index = 0;
+            while(conn._receiveBitstream.bitsLeft() > 0) {
+                var section = conn._receiveBitstream.readUInt(16);
+                if (section == WABI_PACKET_STOP) {
+                    // when a packet is terminated we must consume
+                    // the bit padding from Bitstream#fromChars via
+                    // the Bitstream#align
                     conn._receiveBitstream.align();
+                } else {
+                    // otherwise invoke the appropriate unpack
+                    // function via the _sectionMap
+                    this._sectionMap[section].call(this, conn._receiveBitstream);
                 }
             }
 
@@ -270,6 +314,11 @@ function makeWasabi() {
             }
         }
     };
+
+    Wasabi._sectionMap = { };
+    Wasabi._sectionMap[WABI_SECTION_GHOSTS] = Wasabi.unpackGhosts;
+    Wasabi._sectionMap[WABI_SECTION_UPDATES] = Wasabi.unpackUpdates;
+    Wasabi._sectionMap[WABI_SECTION_RPC] = Wasabi.unpackRpc;
 
     Wasabi.registry = new Registry;
 

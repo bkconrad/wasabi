@@ -101,43 +101,19 @@ describe('Wasabi', function () {
         w2.addServer(server);
         w.addObject(foo);
 
-        foo.rpcTest(1337);
+        w.processConnections();
+        w2.processConnections();
+
+        foo.rpcTest({val: 1337});
 
         w.processConnections();
         w2.processConnections();
 
         assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
-        assert.equal(w2.registry.objects[foo.wabiSerialNumber].foobar, 1337);
+        assert.equal(w2.registry.objects[foo.wabiSerialNumber].testval, 1337);
     });
 
-    it('calls global RPCs with this == undefined', function () {
-        var w = MockWasabi.make();
-        var w2 = MockWasabi.make();
-        var server = new MockSocket();
-        var client = new MockSocket();
-        var foo = new Foo();
-        server.link(client);
-
-        w.addClient(client, function() {
-            var result = { };
-            var k;
-            for (k in w.registry.objects) {
-                result[k] = w.registry.objects[k];
-            }
-            return result;
-        });
-
-        w2.addServer(server);
-        w.addObject(foo);
-
-        foo.rpcTest(1337);
-
-        w.processConnections();
-        w2.processConnections();
-
-        assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
-        assert.equal(w2.registry.objects[foo.wabiSerialNumber].foobar, 1337);
-    });
+    it('calls global RPCs with this == undefined');
 
     it('automatically manages ghosting and updates', function() {
         var sent = false

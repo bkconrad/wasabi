@@ -6,6 +6,18 @@ var Bitstream = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' :
 
 describe('Bitstream', function () {
 	describe('bit buffer', function () {
+        it('can tell if there is more data to read', function() {
+			var b = new Bitstream;
+            b.writeUInt(0, 16);
+            b._index = 0;
+            assert.equal(16, b.bitsLeft());
+
+            b.readUInt(8);
+            assert.equal(8, b.bitsLeft());
+
+            b.readUInt(8);
+            assert.equal(0, b.bitsLeft());
+        });
 		it('should set n bits at a time', function () {
 			var b = new Bitstream;
             b.setBits(0, 7, 127);

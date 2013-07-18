@@ -12,7 +12,7 @@ module.exports = (function() {
           assert.equal(this.foobar, that.foobar);
       }
       , rpcTest: function(args) {
-        this.foobar = args.val;
+        this.testval = args.val;
       }
       , rpcTestArgs: function(desc) {
         desc.uint('val', 8);

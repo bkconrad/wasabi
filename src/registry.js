@@ -46,29 +46,35 @@ Registry.prototype = {
 
         // build the rpc registry for this klass
         klass.wabiRpcs = { };
-        for (prop in klass.prototype) {
-            var rpc;
-            rpc = klass.prototype[prop];
+        for (k in klass.prototype) {
+            var prop = klass.prototype[k];
             // search for a function property starting with "rpc" and not
             // ending with "Args"
-            if (typeof rpc === "function" &&
-                prop.indexOf("rpc") === 0 &&
-                prop.indexOf("Args") !== prop.length - 4
+            if (typeof prop === "function" &&
+                k.indexOf("rpc") === 0 &&
+                k.indexOf("Args") !== k.length - 4
             ) {
                 // find the Args function (for rpcFoo this would be
                 // rpcFooArgs)
-                var args = klass.prototype[prop + "Args"];
+                var args = klass.prototype[k + "Args"];
                 if (typeof args !== "function") {
-                    throw "No matching args function \"" + prop + "Args\" found for RPC \"" + prop + "\"";
+                    throw "No matching args function \"" + k + "Args\" found for RPC \"" + k + "\"";
                 }
 
-                rpc.wabiArgs = args;
-                klass.wabiRpcs[this.hash(rpc)] = rpc;
-
-                klass[prop] = function() {
-                    // TODO: replace original rpcFoo with a function to
-                    // pack the RPC into the appropriate bitstream(s)
+                // if this class was already added to a different Wasabi
+                // instance, use the real method instead of the 
+                if(('wabiReal' + k) in klass.prototype) {
+                    prop = klass.prototype['wabiReal' + k];
+                } else {
+                    klass.prototype[k] = function(args) {
+                        this.wabiInstance._invokeRpc(rpc, args, this);
+                    };
+                    
+                    klass.prototype['wabiReal' + k] = prop;
                 }
+
+                var rpc = new Rpc(prop, klass, args);
+                klass.wabiRpcs[this.hash(prop)] = rpc;
             }
         }
 
