@@ -166,7 +166,7 @@ function makeWasabi() {
          * @method packRpc
          */
         , packRpc: function(rpc, args, obj, bs) {
-            bs.writeUInt(obj.wabiSerialNumber, 16);
+            bs.writeUInt(obj ? obj.wabiSerialNumber : 0, 16);
             bs.writeUInt(this.registry.hash(rpc._fn), 16);
             args.serialize = rpc._serialize;
             bs.pack(args);
@@ -180,25 +180,19 @@ function makeWasabi() {
         , unpackRpc: function(bs, conn) {
             var serialNumber = bs.readUInt(16);
             var hash = bs.readUInt(16);
+            var obj = this.registry.getObject(serialNumber);
             var rpc;
-            var obj;
-            if (serialNumber === 0) {
-                rpc = this.registry.getRpc(hash);
 
-                var args = {};
-                args.serialize = rpc._serialize;
-                bs.unpack(args);
-
-                rpc._fn(args, conn);
-            } else {
-                obj = this.registry.getObject(serialNumber);
+            if(obj) {
                 rpc = obj.constructor.wabiRpcs[hash];
-
-                var args = {};
-                args.serialize = rpc._serialize;
-                bs.unpack(args);
-                rpc._fn.call(obj, args, conn);
+            } else {
+                rpc = this.registry.getRpc(hash);
             }
+
+            var args = {};
+            args.serialize = rpc._serialize;
+            bs.unpack(args);
+            rpc._fn.call(obj, args, conn);
         }
 
         // passthrough functions
@@ -218,11 +212,11 @@ function makeWasabi() {
             this.registry.addClass(klass);
         }
         /**
-         * register an RP
-         * @method addRpc
+         * create an RPC from the supplied procedure function and serialize function
+         * @method mkRpc
          */
-        , addRpc: function(rpc, serialize) {
-            this.registry.addRpc(rpc, serialize);
+        , mkRpc: function(fn, serialize) {
+            return this.registry.mkRpc(fn, serialize, this);
         }
 
         /**

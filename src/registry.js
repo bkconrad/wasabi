@@ -82,21 +82,24 @@ Registry.prototype = {
         this.hashToKlass[hash] = klass;
     }
     /**
-     * register a global RPC
-     * @method addRpc
+     * create an RPC from the supplied procedure function and serialize
+     * function. `instance` must be a Wasabi instance
+     * @method mkRpc
      */
-    , addRpc: function(fn, serialize) {
+    , mkRpc: function(fn, serialize, instance) {
         var hash = this.hash(fn);
-        var klass;
+        serialize = serialize || function() { };
         if (hash in this.hashToRpc) {
             throw new Error("Invalid attempt to redefine RPC " + fn.name + " with hash " + hash);
         }
 
-        var rpc = new Rpc(fn, klass, serialize);
+        var rpc = new Rpc(fn, undefined, serialize);
 
         // normal hash <-> rpc mapping
         this.rpcToHash[rpc] = hash;
         this.hashToRpc[hash] = rpc;
+
+        return function(args) { instance._invokeRpc(rpc, args || { }); };
     }
     /**
      * register an instance of a klass

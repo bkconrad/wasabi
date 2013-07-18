@@ -242,6 +242,31 @@ describe('Wasabi', function () {
         assert.equal(w.registry.objects.length, w2.registry.objects.length);
     });
 
+    it('calls static RPCs without any associated object', function(done) {
+        var w = MockWasabi.make();
+        var w2 = MockWasabi.make();
+        var server = new MockSocket();
+        var client = new MockSocket();
+        server.link(client);
+
+        w2.addServer(server);
+        w.addClient(client, function() {
+        });
+
+        var fn = function(args, conn) {
+            assert.equal(conn, w2.servers[0]);
+            done();
+        }
+
+        var rpcTest = w.mkRpc(fn);
+        w2.mkRpc(fn);
+
+        rpcTest();
+
+        w.processConnections();
+        w2.processConnections();
+    });
+
     it('does not choke on an empty receive bitstream', function() {
         var w = MockWasabi.make();
         var w2 = MockWasabi.make();

@@ -11,8 +11,8 @@ describe('Class registry', function () {
     function rpcBar () { };
 
     it('registers RPCs', function () {
-        r.addRpc(rpcFoo);
-        r.addRpc(rpcBar);
+        r.mkRpc(rpcFoo);
+        r.mkRpc(rpcBar);
         assert.notEqual(r.getRpc(r.hash(rpcFoo)), r.getRpc(r.hash(rpcBar)));
     });
 
