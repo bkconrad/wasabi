@@ -264,7 +264,9 @@ function makeWasabi() {
          * @method addServer
          */
         , addServer: function(server) {
-            this.servers.push(new Wasabi.Connection(server, true, false));
+            var conn = new Wasabi.Connection(server, true, false);
+            this.servers.push(conn);
+            return conn;
         }
 
         /**
@@ -272,7 +274,9 @@ function makeWasabi() {
          * @method addClient
          */
         , addClient: function(client, scopeCallback) {
-            this.clients.push(new Wasabi.Connection(client, false, true, scopeCallback));
+            var conn = new Wasabi.Connection(client, false, true, scopeCallback)
+            this.clients.push(conn);
+            return conn;
         }
 
         /**

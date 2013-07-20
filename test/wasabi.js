@@ -328,6 +328,20 @@ describe('Wasabi', function () {
         w2.processConnections();
     });
 
+    it('returns the new connection when adding a client', function() {
+        var w = MockWasabi.make();
+        var sock = new MockSocket();
+        var result = w.addClient(sock);
+        assert.strictEqual(result, w.clients[0]);
+    });
+
+    it('returns the new connection when adding a server', function() {
+        var w = MockWasabi.make();
+        var sock = new MockSocket();
+        var result = w.addClient(sock);
+        assert.strictEqual(result, w.clients[0]);
+    });
+
     it('complains when receiving update data for an unknown object');
     it('complains when receiving ghost data for an unknown class');
     it('complains when receiving a call to an unknown RPC');
