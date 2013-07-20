@@ -291,11 +291,15 @@ describe('Wasabi', function () {
         function TestClass() { }
         TestClass.prototype = {
             constructor: TestClass
-          , rpcTest: function(args, conn) {
+          , rpcTest: function rpcTest(args, conn) {
                 assert.equal(conn, wc1.servers[0]);
                 count++;
             }
           , rpcTestArgs: function() { }
+          , rpcTestTwo: function rpcTestTwo(args, conn) {
+                throw new Error('Should never be called');
+            }
+          , rpcTestTwoArgs: function() { }
           , serialize: function() { }
         }
 

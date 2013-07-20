@@ -60,20 +60,24 @@ Registry.prototype = {
                 if (typeof args !== "function") {
                     throw "No matching args function \"" + k + "Args\" found for RPC \"" + k + "\"";
                 }
-
                 // if this class was already added to a different Wasabi
-                // instance, use the real method instead of the 
+                // instance, we'll use the real method instead of the
+                // replacement we create later in this function
                 if(('wabiReal' + k) in klass.prototype) {
                     prop = klass.prototype['wabiReal' + k];
                 } else {
-                    klass.prototype[k] = function(args, conns) {
-                        this.wabiInstance._invokeRpc(rpc, args, this, conns);
-                    };
-                    
                     klass.prototype['wabiReal' + k] = prop;
                 }
 
-                var rpc = new Rpc(prop, klass, args);
+                rpc = new Rpc(prop, klass, args);
+
+                // TODO: use curry?
+                (function(rpc) {
+                    klass.prototype[k] = function(args, conns) {
+                        this.wabiInstance._invokeRpc(rpc, args, this, conns);
+                    };
+                })(rpc)
+                    
                 klass.wabiRpcs[this.hash(prop)] = rpc;
             }
         }

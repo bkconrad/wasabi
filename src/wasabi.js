@@ -81,6 +81,7 @@ function makeWasabi() {
             }
             // TODO: raise an exception unpacking a ghost which already exists
             obj = new type;
+            obj.wabiInstance = this;
             this.registry.addObject(obj, serial);
 
             // fire the onAddGhost callback if it exists
@@ -162,7 +163,7 @@ function makeWasabi() {
             var i, k;
 
             if(!conns) {
-              conns = [];
+                conns = [];
                 for (k in this.servers) {
                     if (this.servers.hasOwnProperty(k)) {
                         conns.push(this.servers[k]);
@@ -324,13 +325,13 @@ function makeWasabi() {
                 // pack updates for all objects
                 conn._sendBitstream.writeUInt(WABI_SECTION_UPDATES, 16);
                 this.packUpdates(newObjects, conn._sendBitstream);
-
-                // pack all rpc invocations sent to this connection
-                this.packRpcs(conn);
-                conn._rpcQueue = [];
-
-                conn._sendBitstream.writeUInt(WABI_PACKET_STOP, 16);
             }
+
+            // pack all rpc invocations sent to this connection
+            this.packRpcs(conn);
+            conn._rpcQueue = [];
+
+            conn._sendBitstream.writeUInt(WABI_PACKET_STOP, 16);
 
             conn._receiveBitstream._index = 0;
             while(conn._receiveBitstream.bitsLeft() > 0) {
