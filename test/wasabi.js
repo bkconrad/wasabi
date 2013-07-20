@@ -267,6 +267,53 @@ describe('Wasabi', function () {
         w2.processConnections();
     });
 
+    it('emits RPC invocations to a set of specified connections', function() {
+        var ws = MockWasabi.make();
+        var wc1 = MockWasabi.make();
+        var wc2 = MockWasabi.make();
+
+        // link between server and first client
+        var server1 = new MockSocket();
+        var client1 = new MockSocket();
+        server1.link(client1);
+
+        // link between server and second client
+        var server2 = new MockSocket();
+        var client2 = new MockSocket();
+        server2.link(client2);
+
+        ws.addClient(client1);
+        ws.addClient(client2);
+        wc1.addServer(server1);
+        wc2.addServer(server2);
+
+        var count = 0;
+        function TestClass() { }
+        TestClass.prototype = {
+            constructor: TestClass
+          , rpcTest: function(args, conn) {
+                assert.equal(conn, wc1.servers[0]);
+                count++;
+            }
+          , rpcTestArgs: function() { }
+          , serialize: function() { }
+        }
+
+        ws.addClass(TestClass);
+        wc1.addClass(TestClass);
+        wc2.addClass(TestClass);
+
+        var test = new TestClass();
+        ws.addObject(test);
+        test.rpcTest(false, ws.clients[0]);
+
+        ws.processConnections();
+        wc1.processConnections();
+        wc2.processConnections();
+
+        assert.equal(count, 1);
+    });
+
     it('does not choke on an empty receive bitstream', function() {
         var w = MockWasabi.make();
         var w2 = MockWasabi.make();

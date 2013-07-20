@@ -36,6 +36,7 @@ function makeWasabi() {
 
         , servers: []
         , clients: []
+        , _rpcQueue: []
 
         /**
          * packs update data for obj
@@ -141,23 +142,56 @@ function makeWasabi() {
             return list;
         }
 
-        , _invokeRpc: function(rpc, args, obj) {
-            var k;
+        /**
+         * pack an RPC invocation to the appropriate connections
+         * @method _invokeRpc
+         * @param Rpc rpc the rpc to invoke
+         * @param Object args the arguments to the rpc
+         * @param NetObject obj the obj to use as the context the
+         * invocation, or false for static invocations
+         * @param mixed conns falsy to invoke the rpc on all connections.
+         * Otherwise must be a connection or array of connections to emit
+         * the invocation to 
+         */
+        , _invokeRpc: function(rpc, args, obj, conns) {
+            var i, k;
 
-            // process server connections
-            for (k in this.servers) {
-                if (this.servers.hasOwnProperty(k)) {
-                    this.servers[k]._sendBitstream.writeUInt(WABI_SECTION_RPC, 16);
-                    this.packRpc(rpc, args, obj, this.servers[k]._sendBitstream);
+            if(!conns) {
+              conns = [];
+                for (k in this.servers) {
+                    if (this.servers.hasOwnProperty(k)) {
+                        conns.push(this.servers[k]);
+                    }
                 }
+
+                // process client connections
+                for (k in this.clients) {
+                    if (this.clients.hasOwnProperty(k)) {
+                        conns.push(this.clients[k]);
+                    }
+                }
+            } else if(conns.constructor !== Array) {
+                conns = [conns];
             }
 
-            // process client connections
-            for (k in this.clients) {
-                if (this.clients.hasOwnProperty(k)) {
-                    this.clients[k]._sendBitstream.writeUInt(WABI_SECTION_RPC, 16);
-                    this.packRpc(rpc, args, obj, this.clients[k]._sendBitstream);
-                }
+            for (i = 0; i < conns.length; i++) {
+                var invocation = {
+                    rpc: rpc,
+                    args: args,
+                    obj: obj,
+                    bs: conns[i]._sendBitstream
+                };
+                conns[i]._rpcQueue.push(invocation);
+            }
+        }
+
+        , packRpcs: function(conn) {
+            var i;
+            var invocation;
+            for (i = 0; i < conn._rpcQueue.length; i++) {
+                invocation = conn._rpcQueue[i];
+                conn._sendBitstream.writeUInt(WABI_SECTION_RPC, 16);
+                this.packRpc(invocation.rpc, invocation.args, invocation.obj, invocation.bs);
             }
         }
 
@@ -166,6 +200,7 @@ function makeWasabi() {
          * @method packRpc
          */
         , packRpc: function(rpc, args, obj, bs) {
+            args = args || { };
             bs.writeUInt(obj ? obj.wabiSerialNumber : 0, 16);
             bs.writeUInt(this.registry.hash(rpc._fn), 16);
             args.serialize = rpc._serialize;
@@ -187,6 +222,11 @@ function makeWasabi() {
                 rpc = obj.constructor.wabiRpcs[hash];
             } else {
                 rpc = this.registry.getRpc(hash);
+            }
+
+            if (!rpc) {
+                console.log(obj, serialNumber);
+                throw new Error("Unknown RPC with hash " + hash);
             }
 
             var args = {};
@@ -236,6 +276,20 @@ function makeWasabi() {
         }
 
         /**
+         * returns a clone of the registry's object table. used as a fallback
+         * when no _scopeCallback is specified for a connection
+         * @method _getAllObjects
+         */
+        , _getAllObjects: function() {
+            var result = { };
+            var k;
+            for (k in this.registry.objects) {
+                result[k] = this.registry.objects[k];
+            }
+            return result;
+        }
+
+        /**
          * Receive, process, and transmit data as needed for this connection
          * @method processConnection
          */
@@ -244,7 +298,7 @@ function makeWasabi() {
                 var k;
                 // get list of objects which have come into scope
                 var oldObjects = conn._scopeObjects;
-                var newObjects = conn._scopeCallback();
+                var newObjects = conn._scopeCallback ? conn._scopeCallback() : this._getAllObjects();
                 var newlyInScopeObjects = {};
                 for(k in newObjects) {
                     if(newObjects.hasOwnProperty(k) && !(k in oldObjects)) {
@@ -261,6 +315,10 @@ function makeWasabi() {
                 // pack updates for all objects
                 conn._sendBitstream.writeUInt(WABI_SECTION_UPDATES, 16);
                 this.packUpdates(newObjects, conn._sendBitstream);
+
+                // pack all rpc invocations sent to this connection
+                this.packRpcs(conn);
+                conn._rpcQueue = [];
 
                 conn._sendBitstream.writeUInt(WABI_PACKET_STOP, 16);
             }

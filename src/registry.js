@@ -66,8 +66,8 @@ Registry.prototype = {
                 if(('wabiReal' + k) in klass.prototype) {
                     prop = klass.prototype['wabiReal' + k];
                 } else {
-                    klass.prototype[k] = function(args) {
-                        this.wabiInstance._invokeRpc(rpc, args, this);
+                    klass.prototype[k] = function(args, conns) {
+                        this.wabiInstance._invokeRpc(rpc, args, this, conns);
                     };
                     
                     klass.prototype['wabiReal' + k] = prop;
@@ -99,7 +99,7 @@ Registry.prototype = {
         this.rpcToHash[rpc] = hash;
         this.hashToRpc[hash] = rpc;
 
-        return function(args) { instance._invokeRpc(rpc, args || { }); };
+        return function(args, conns) { instance._invokeRpc(rpc, args || { }, false, conns); };
     }
     /**
      * register an instance of a klass
