@@ -82,6 +82,11 @@ function makeWasabi() {
             // TODO: raise an exception unpacking a ghost which already exists
             obj = new type;
             this.registry.addObject(obj, serial);
+
+            // fire the onAddGhost callback if it exists
+            if (obj.onAddGhost && (typeof obj.onAddGhost === 'function')) {
+                obj.onAddGhost();
+            }
             return obj;
         }
 

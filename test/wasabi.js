@@ -348,6 +348,35 @@ describe('Wasabi', function () {
     it('complains when receiving invalid arguments a known RPC');
     it('complains when ghosting to a connection without a scope callback');
     it('queries a callback to determine which netobjects to ghost');
-    it('triggers callbacks when ghosts are added');
+    it('triggers callbacks when ghosts are added', function() {
+        var done = false;
+        var w = MockWasabi.make();
+        var w2 = MockWasabi.make();
+        var server = new MockSocket();
+        var client = new MockSocket();
+        server.link(client);
+
+        w2.addServer(server);
+        w.addClient(client);
+
+        function GhostAddTest() {
+        }
+
+        GhostAddTest.prototype = {
+              serialize: function() { }
+            , onAddGhost: function() { done = true; }
+        };
+
+        w.addClass(GhostAddTest);
+        w2.addClass(GhostAddTest);
+
+        var obj = new GhostAddTest();
+        w.addObject(obj);
+
+        w.processConnections();
+        w2.processConnections();
+
+        assert.ok(done);
+    });
     it('triggers callbacks when ghosts are removed');
 });
