@@ -62,6 +62,17 @@ describe('Bitstream', function () {
 			assert.equal(b.readSInt(16), negValue);
 			assert.equal(b.readSInt(8), posValue);
 		});
+		it('reads/writes float values', function () {
+			var b = new Bitstream;
+            var val = 0.25;
+
+            b.writeFloat(val, 8);
+			assert.equal(b._index, 8);
+
+			b._index = 0;
+
+			assert.closeTo(b.readFloat(8), val, .001);
+		});
 		it('complains on overread', function () {
 			var b = new Bitstream;
 			b.writeUInt(1337, 16);

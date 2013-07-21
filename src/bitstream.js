@@ -254,6 +254,36 @@ Bitstream.prototype = {
         this._extend(1);
     }
 
+    , peekFloat: function(bits) {
+        // We unpack the signed integer representation divided by the
+        // maximum value a number with this number of bits can hold. By
+        // definition the result is in the range [0.0, 1.0]
+        var result = this._getBits(this._index, bits) / (Math.pow(2, bits) - 1);
+        return result;
+    }
+
+    /**
+     * Read a float value, consuming the specified number of bits
+     * @method readFloat
+     * @param {Number} bits The number of bits to unpack
+     */
+    , readFloat: function(bits) {
+        var result = this.peekFloat(bits);
+        this._advance(bits);
+        return result;
+    }
+
+    /**
+     * Write a normalized float in the range `[0.0, 1.0]` using the specified number of bits
+     * @method writeFloat
+     * @param {Number} value Value to write.
+     * @param {Number} bits The number of bits to unpack
+     */
+    , writeFloat: function(value, bits) {
+        this._setBits(this._index, bits, value * Math.pow(2, bits));
+        this._extend(bits);
+    }
+
     /**
      * Pack an object with a .serialize() method into this bitstream
      * @method pack

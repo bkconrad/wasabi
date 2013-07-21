@@ -10,11 +10,15 @@ var InDescription = function () {
 
 InDescription.prototype = {
     uint: function(name, bits) {
-        this._bitStream.writeUInt(this._target[name], 16);
+        this._bitStream.writeUInt(this._target[name], bits);
     }
 
     , sint: function(name, bits) {
-        this._bitStream.writeSInt(this._target[name], 16);
+        this._bitStream.writeSInt(this._target[name], bits);
+    }
+
+    , float: function(name, bits) {
+        this._bitStream.writeFloat(this._target[name], bits);
     }
 }
 

@@ -6,7 +6,9 @@ module.exports = (function() {
     Foo.prototype = {
         constructor: Foo
       , serialize: function(desc) {
-          desc.uint('foobar', 8);
+          desc.uint('foobar', 16);
+          desc.sint('signedbar', 16);
+          desc.float('floatbar', 8);
       }
       , check: function(that) {
           assert.equal(this.foobar, that.foobar);
@@ -15,7 +17,7 @@ module.exports = (function() {
         this.testval = args.val;
       }
       , rpcTestArgs: function(desc) {
-        desc.uint('val', 8);
+        desc.uint('val', 16);
       }
     };
 

@@ -10,10 +10,13 @@ var OutDescription = function () {
 
 OutDescription.prototype = {
     uint: function(name, bits) {
-        this._target[name] = this._bitStream.readUInt(16);
+        this._target[name] = this._bitStream.readUInt(bits);
     }
     , sint: function(name, bits) {
-        this._target[name] = this._bitStream.readSInt(16);
+        this._target[name] = this._bitStream.readSInt(bits);
+    }
+    , float: function(name, bits) {
+        this._target[name] = this._bitStream.readFloat(bits);
     }
 }
 
