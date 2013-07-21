@@ -5,7 +5,7 @@ task('doc', {async: true}, function () {
 });
 
 task('build', {async: true}, function () {
-    jake.exec("browserify -r ./src/wasabi src/wasabi.js -o src/wasabi_browser.js", function () {
+    jake.exec("browserify -r ./src/wasabi src/wasabi.js -o build/wasabi_browser.js", function () {
         complete();
     }, {printStdout: true, printStderr: true});
 });
@@ -19,7 +19,7 @@ task('test', {async: true}, function () {
 task('coverage', {async: true}, function () {
     var fs = require('fs');
     process.env.COVERAGE = 'YES';
-    jake.exec("node-jscoverage src src-cov", function () {
+    jake.exec("jscoverage src src-cov", function () {
         var ex = jake.createExec("mocha --reporter html-cov");
         var output = '';
 

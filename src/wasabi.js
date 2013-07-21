@@ -151,11 +151,11 @@ function makeWasabi() {
         /**
          * pack an RPC invocation to the appropriate connections
          * @method _invokeRpc
-         * @param Rpc rpc the rpc to invoke
-         * @param Object args the arguments to the rpc
-         * @param NetObject obj the obj to use as the context the
+         * @param {Rpc} rpc the rpc to invoke
+         * @param {Object} args the arguments to the rpc
+         * @param {NetObject} obj the obj to use as the context the
          * invocation, or false for static invocations
-         * @param mixed conns falsy to invoke the rpc on all connections.
+         * @param {mixed} conns falsy to invoke the rpc on all connections.
          * Otherwise must be a connection or array of connections to emit
          * the invocation to 
          */

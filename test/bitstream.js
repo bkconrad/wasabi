@@ -20,21 +20,21 @@ describe('Bitstream', function () {
         });
 		it('should set n bits at a time', function () {
 			var b = new Bitstream;
-            b.setBits(0, 7, 127);
+            b._setBits(0, 7, 127);
             assert.equal(b.arr[0], 127);
 		});
 
 		it('should correctly overflow large values', function () {
 			var b = new Bitstream;
-            b.setBits(0, 8, 129);
+            b._setBits(0, 8, 129);
             assert.equal(b.arr[0], 1);
             assert.equal(b.arr[1], 1);
 		});
 
 		it('should get n bits at a time', function () {
 			var b = new Bitstream;
-            b.setBits(0, 16, 1337);
-            assert.equal(b.getBits(0, 16), 1337);
+            b._setBits(0, 16, 1337);
+            assert.equal(b._getBits(0, 16), 1337);
 		});
 		it('should read/write unsigned integers', function () {
 			var b = new Bitstream;
@@ -54,13 +54,13 @@ describe('Bitstream', function () {
 			var negValue = -1337;
 			var posValue = 123;
 			b.writeSInt(negValue, 16);
-			b.writeSInt(posValue, 7);
+			b.writeSInt(posValue, 8);
 
-			assert.equal(b._index, 25);
+			assert.equal(b._index, 24);
 			b._index = 0;
 
 			assert.equal(b.readSInt(16), negValue);
-			assert.equal(b.readSInt(7), posValue);
+			assert.equal(b.readSInt(8), posValue);
 		});
 		it('complains on overread', function () {
 			var b = new Bitstream;

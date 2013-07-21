@@ -4,6 +4,9 @@ var OutDescription = require('./out_description');
 /**
  * Manages the packing/unpacking of values as a set number of bits
  * @class Bitstream
+ * @constructor
+ * @param {Array} buffer an array of 7-bit integers representing the intial
+ * data for this Bitstream
  */
 function Bitstream(buffer) {
     this.arr = [];
@@ -16,21 +19,27 @@ function Bitstream(buffer) {
 
 Bitstream.prototype = {
     constructor: Bitstream
+    /**
+     * @method bitsLeft
+     * @return {Number} the number of bits which can be read without causing an overread
+     */
     , bitsLeft: function() {
         return this._nbits - this._index;
     }
+
     /**
-     * set n bits starting at offset to value
-     * @method setBits
+     * Empty the buffer and reset the index
+     * @method empty
      */
     , empty: function() {
         this.arr = [];
         this._index = 0;
         this._nbits = 0;
     }
+
     /**
-     * move the index to the first index >= the current index which is
-     * the beginning of a cell.  useful for burning off any padding when
+     * Move the index to the first index >= the current index which is
+     * the beginning of a cell. Useful for burning off any padding when
      * processing data from "appendData" since it pads to the nearest
      * multiple of 7
      * @method align
@@ -42,7 +51,16 @@ Bitstream.prototype = {
         }
         this._advance(7 - delta);
     }
-    , setBits: function(offset, n, value) {
+
+    /**
+     * Set the `n` bits starting at `offset` to contain the unsigned integer `value`.
+     * @method _setBits
+     * @param {Number} offset The zero-based bit offset to start at
+     * @param {Number} n The number of bits to pack the value in to
+     * @param {Number} value The value to pack. Will be cast to an
+     * unsigned integer and truncated or padded to n bits
+     */
+    , _setBits: function(offset, n, value) {
         var bits
         , cell
         , cellOffset
@@ -77,10 +95,13 @@ Bitstream.prototype = {
     }
 
     /**
-     * return the value of the first n bits starting at offset
-     * @method getBits
+     * Return the value of the first n bits starting at offset
+     * @method _getBits
+     * @param {Number} offset The zero-based bit offset to start at
+     * @param {Number} n The number of bits to unpack the value from
+     * @return {Number} The unsigned value after unpacking
      */
-    , getBits: function(offset, n) {
+    , _getBits: function(offset, n) {
         var bits
         , cell
         , cellOffset
@@ -115,8 +136,8 @@ Bitstream.prototype = {
         return value;
     }
 
-    ,
-    toArrayBuffer: function() {
+    
+    , toArrayBuffer: function() {
         // TODO: handle CELLSIZE > 8
         var buf = new ArrayBuffer(this.arr.length);
         var arr = new Uint8Array(buf);
@@ -128,8 +149,7 @@ Bitstream.prototype = {
         return arr;
     }
 
-    ,
-    fromArrayBuffer: function(buffer) {
+    , fromArrayBuffer: function(buffer) {
         this.empty();
         this.appendData(buffer);
     }
@@ -167,59 +187,77 @@ Bitstream.prototype = {
     }
 
     /**
-     * read an unsigned integer consuming the specified number of bits
+     * Read an unsigned integer *without* consuming any bits
+     * @method peekUInt
+     * @param {Number} bits The number of bits to unpack
+     */
+    , peekUInt: function(bits) {
+        var result = this._getBits(this._index, bits);
+        return result;
+    }
+
+    /**
+     * Read an unsigned integer consuming the specified number of bits
      * @method readUInt
+     * @param {Number} bits The number of bits to unpack
      */
     , readUInt: function(bits) {
-        var result = this.getBits(this._index, bits);
+        var result = this.peekUInt(bits);
         this._advance(bits);
         return result;
     }
 
     /**
-     * read an unsigned integer *without* consuming any bits
-     * @method peekUInt
+     * Write an unsigned integer using the specified number of bits
+     * @method writeUInt
+     * @param {Number} value Value to write.
+     * @param {Number} bits The number of bits to unpack
      */
-    , peekUInt: function(bits) {
-        var result = this.getBits(this._index, bits);
-        return result;
+    , writeUInt: function(value, bits) {
+        this._setBits(this._index, bits, value);
+        this._extend(bits);
     }
 
     /**
-     * write an unsigned integer using the specified number of bits
-     * @method writeUInt
+     * read a signed integer without consuming any bits
+     * @method peekSInt
+     * @param {Number} bits The number of bits to unpack
      */
-    , writeUInt: function(value, bits) {
-        this.setBits(this._index, bits, value);
-        this._extend(bits);
+    , peekSInt: function(bits) {
+        var result = this._getBits(this._index, bits - 1);
+        result *= this._getBits(this._index + bits - 1, 1) ? -1 : 1;
+        return result;
     }
 
     /**
      * read a signed integer consuming the specified number of bits
      * @method readSInt
+     * @param {Number} bits The number of bits to unpack
      */
     , readSInt: function(bits) {
-        var result = this.getBits(this._index, bits);
+        var result = this.peekSInt(bits);
         this._advance(bits);
-        result *= this.getBits(this._index, 1) ? -1 : 1;
-        this._advance(1);
         return result;
     }
 
     /**
      * write a signed integer using the specified number of bits
      * @method writeSInt
+     * @param {Number} value Value to write. Will be truncated or padded
+     * to the specified number of bits
+     * @param {Number} bits The number of bits to unpack
      */
     , writeSInt: function(value, bits) {
-        this.setBits(this._index, bits, Math.abs(value));
-        this._extend(bits);
-        this.setBits(this._index, 1, value < 0);
+        this._setBits(this._index, bits - 1, Math.abs(value));
+        this._extend(bits - 1);
+        this._setBits(this._index, 1, value < 0);
         this._extend(1);
     }
 
     /**
-     * pack an object with a .serialize() method into this bitstream
+     * Pack an object with a .serialize() method into this bitstream
      * @method pack
+     * @param {NetObject} obj The object to serialize
      */
     , pack: function(obj) {
         var description = new InDescription;
@@ -229,8 +267,9 @@ Bitstream.prototype = {
     }
 
     /**
-     * unpack an object with a .serialize() method from this bitstream
+     * Unpack an object with a .serialize() method from this bitstream
      * @method unpack
+     * @param {NetObject} obj The object to deserialize to
      */
     , unpack: function(obj) {
         var description = new OutDescription;
@@ -241,25 +280,12 @@ Bitstream.prototype = {
     }
 
     /**
-     * advance the head by the specified number of bits and check for overread
-     * @method _advance
+     * See if the contents and byte length of the buffer of this Bitstream
+     * and `other` are exactly  equal
+     * @method equals
+     * @param {Bitstream} other The bitstream to compare with
+     * @return {Boolean} `true` if the bistreams are effectively equal
      */
-    , _advance: function(bits) {
-        this._index += bits;
-        if(this._index > this._nbits) {
-            throw new Error("Bitstream overread");
-        }
-    }
-
-    /**
-     * extend the buffer size by the specified number of bits
-     * @method _extend
-     */
-    , _extend: function(bits) {
-        this._nbits += bits;
-        this._index += bits;
-    }
-
     , equals: function(other) {
         var i;
         if (other.arr.length !== this.arr.length) {
@@ -272,6 +298,30 @@ Bitstream.prototype = {
             }
         }
         return true;
+    }
+
+    /**
+     * Advance the head by the specified number of bits and check for
+     * overread
+     * @method _advance
+     * @param {Number} bits The number of bits to advance the index by
+     */
+    , _advance: function(bits) {
+        this._index += bits;
+        if(this._index > this._nbits) {
+            throw new Error("Bitstream overread");
+        }
+    }
+
+    /**
+     * Extend the buffer size by the specified number of bits. Also
+     * advances the index
+     * @method _extend
+     * @param {Number} bits The number of bits to expand the buffer by
+     */
+    , _extend: function(bits) {
+        this._nbits += bits;
+        this._index += bits;
     }
 };
 
