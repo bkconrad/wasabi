@@ -1,5 +1,18 @@
 var Bitstream = require('./bitstream');
 
+/**
+ * Represents a connection to another Wasabi instance
+ * @class Connection
+ * @constructor
+ * @param {Socket} socket The socket.io socket used to communicate with
+ * the remote host
+ * @param {Boolean} ghostFrom Accept ghosted NetObject from this client
+ * @param {Boolean} ghostTo Ghost NetObjects to this client
+ * @param {Function} scopeCallback The function to call in order
+ * to determine which local objects are in scope for this client.
+ * This function takes no parameters and should return an Array
+ * of NetObjects in scope.
+ */
 function Connection(socket, ghostFrom, ghostTo, scopeCallback) {
     var receiveBitstream = new Bitstream();
 

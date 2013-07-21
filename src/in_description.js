@@ -1,5 +1,7 @@
 /**
- * @brief A class which packs an object when passed to its .serialize function
+ * A class which packs an object when passed to its .serialize function
+ * @class InDescription
+ * @constructor
  */
 var InDescription = function () {
 	this._target = undefined;

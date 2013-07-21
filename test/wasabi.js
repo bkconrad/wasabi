@@ -22,7 +22,7 @@ describe('Wasabi', function () {
         var bs = new Wasabi.Bitstream;
         var i;
         for (i = 0; i < objList.length; i++) {
-            w.packGhost(objList[i], bs);
+            w._packGhost(objList[i], bs);
         }
         bs.writeUInt(0, 16);
         bs._index = 0;
@@ -30,7 +30,7 @@ describe('Wasabi', function () {
         var newList = [];
         var obj;
         while (bs.peekUInt(16) !== 0) {
-            obj = w2.unpackGhost(bs);
+            obj = w2._unpackGhost(bs);
             newList.push(obj);
         }
 
@@ -43,9 +43,9 @@ describe('Wasabi', function () {
 
     it('packs and unpacks updates for lists of objects', function () {
         var bs = new Wasabi.Bitstream;
-        w.packUpdates(objList, bs);
+        w._packUpdates(objList, bs);
         bs._index = 0;
-        var newList = w2.unpackUpdates(bs);
+        var newList = w2._unpackUpdates(bs);
 
         assert.notEqual(0, newList.length);
         for (var i = 0; i < newList.length; i++) {
@@ -60,11 +60,11 @@ describe('Wasabi', function () {
         var foo = new Foo;
         w.addObject(foo);
 
-        w.packGhost(foo, bs);
-        w.packUpdates([foo], bs);
+        w._packGhost(foo, bs);
+        w._packUpdates([foo], bs);
         bs._index = 0;
-        w2.unpackGhost(bs);
-        w2.unpackUpdates(bs);
+        w2._unpackGhost(bs);
+        w2._unpackUpdates(bs);
         assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
     });
 
@@ -75,9 +75,9 @@ describe('Wasabi', function () {
         var foo = new Foo;
         w.addObject(foo);
 
-        w.packGhost(foo, bs);
+        w._packGhost(foo, bs);
         bs._index = 0;
-        w2.unpackGhost(bs);
+        w2._unpackGhost(bs);
         assert.ok(w2.registry.objects[foo.wabiSerialNumber]);
     });
 

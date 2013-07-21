@@ -1,5 +1,7 @@
 /**
- * @brief A class which unpacks an object when passed to its .serialize function
+ * A class which unpacks an object when passed to its .serialize function
+ * @class OutDescription
+ * @constructor
  */
 var OutDescription = function () {
     this._target = undefined;

@@ -4,6 +4,7 @@ var Rpc = require('./rpc');
  * Manages the registration of classes for consistent
  * serialization/unserialization
  * @class Registry
+ * @constructor
  */
 function Registry() {
     // hash <-> klass
@@ -21,10 +22,13 @@ function Registry() {
 
 Registry.prototype = {
     constructor: Registry
+
     /**
-     * return a unique hash from a klass suitable for entering into the
+     * Return a unique hash from a klass suitable for entering into the
      * registry arrays
      * @method hash
+     * @return {Number} The XOR hash of the characters of
+     * klass.prototype.constructor.name
      */
     , hash: function(klass) {
         var result = 0, name = klass.prototype.constructor.name;
@@ -34,9 +38,12 @@ Registry.prototype = {
         }
         return result;
     }
+
     /**
-     * register a klass
+     * Register a class with Wasabi, allowing it to transmit instances of
+     * this class through a Connection
      * @method addClass
+     * @param {Function} klass The constructor of the class to add
      */
     , addClass: function(klass) {
         var hash = this.hash(klass);
@@ -85,10 +92,18 @@ Registry.prototype = {
         this.klassToHash[klass] = hash;
         this.hashToKlass[hash] = klass;
     }
+
     /**
-     * create an RPC from the supplied procedure function and serialize
-     * function. `instance` must be a Wasabi instance
+     * Create an RPC from the supplied procedure function and serialize
+     * function. `instance` must be a {{#crossLink "Wasabi"}}{{/crossLink}} instance
      * @method mkRpc
+     * @param {Function} fn The local function to call when the RPC is invoked
+     * on a remote host
+     * @param {Function} serialize A serialize function describing the
+     * arguments used by this RPC
+     * @param {Wasabi} instance The Wasabi instance to register this RPC with
+     * @return {Function} The function you should call remotely to invoke the
+     * RPC on a connection
      */
     , mkRpc: function(fn, serialize, instance) {
         var hash = this.hash(fn);
@@ -105,29 +120,36 @@ Registry.prototype = {
 
         return function(args, conns) { instance._invokeRpc(rpc, args || { }, false, conns); };
     }
+
     /**
-     * register an instance of a klass
+     * Register an instance of a klass
      * @method addObject
+     * @param {NetObject} obj The object to add to the registry
+     * @param {Nunmber} serial The serial number to assign to this object. If
+     * falsy, the nextSerialNumber will be used
      */
     , addObject: function(obj, serial) {
         obj.wabiSerialNumber = serial || this.nextSerialNumber;
         this.nextSerialNumber += 1;
         this.objects[obj.wabiSerialNumber] = obj;
     }
+
     /**
-     * get an instance of a klass by serial number
+     * Get an instance of a klass by serial number
      * @method getObject
      */
     , getObject: function(serial) {
         return this.objects[serial];
     }
+
     /**
-     * get the function/constructor/klass represented by the given hash
+     * Get the function/constructor/klass represented by the given hash
      * @method getClass
      */
     , getClass: function(hash) {
         return this.hashToKlass[hash];
     }
+
     /**
      * get the RPC function associated with the hash
      * @method getRpc
