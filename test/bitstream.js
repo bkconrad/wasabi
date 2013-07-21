@@ -78,8 +78,6 @@ describe('Bitstream', function () {
 			var b2 = new Bitstream(b.toArrayBuffer());
             b2._index = 0;
 
-            console.log(b);
-            console.log(b2);
 			assert.equal(1337, b2.readUInt(16));
 			assert.equal(1, b2.readUInt(2));
 			assert.equal(127, b2.readUInt(7));
