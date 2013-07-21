@@ -18,6 +18,7 @@ module.exports = (function() {
         desc.uint('val', 8);
       }
     };
+
     function Bar () { this.foobar = 2; this.barbaz = 3};
     Bar.prototype = {
         constructor: Bar
