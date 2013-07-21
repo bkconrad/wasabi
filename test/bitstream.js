@@ -64,14 +64,21 @@ describe('Bitstream', function () {
 		});
 		it('reads/writes float values', function () {
 			var b = new Bitstream;
-            var val = 0.25;
-
-            b.writeFloat(val, 8);
-			assert.equal(b._index, 8);
+            var vals = [0.25, 0.0, -1.0, 1.0, .5, .3333, -.618];
+            var i;
+            
+            for (i = 0; i < vals.length; i++) {
+                b.writeFloat(vals[i], 8);
+            }
+            assert.equal(b._index, 8 * vals.length);
 
 			b._index = 0;
 
-			assert.closeTo(b.readFloat(8), val, .001);
+            var i = 0;
+            while(b.bitsLeft()) {
+                assert.closeTo(b.readFloat(8), vals[i], .01);
+                i += 1;
+            }
 		});
 		it('complains on overread', function () {
 			var b = new Bitstream;

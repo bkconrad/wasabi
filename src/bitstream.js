@@ -258,7 +258,9 @@ Bitstream.prototype = {
         // We unpack the signed integer representation divided by the
         // maximum value a number with this number of bits can hold. By
         // definition the result is in the range [0.0, 1.0]
-        var result = this._getBits(this._index, bits) / (Math.pow(2, bits) - 1);
+        var result = this._getBits(this._index, bits - 1) / (Math.pow(2, bits - 1) - 1);
+        // Then the sign bit
+        result *= this._getBits(this._index + bits - 1, 1) ? -1 : 1;
         return result;
     }
 
@@ -280,8 +282,13 @@ Bitstream.prototype = {
      * @param {Number} bits The number of bits to unpack
      */
     , writeFloat: function(value, bits) {
-        this._setBits(this._index, bits, value * Math.pow(2, bits));
-        this._extend(bits);
+        var absValue = Math.abs(value);
+        // The absolute normalized value * the maximum value of this bitlength
+        this._setBits(this._index, bits - 1, absValue * (Math.pow(2, bits - 1) - 1));
+        this._extend(bits - 1);
+        // Then the sign bit
+        this._setBits(this._index, 1, (value < 0));
+        this._extend(1);
     }
 
     /**
