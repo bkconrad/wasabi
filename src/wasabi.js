@@ -17,6 +17,7 @@ function makeWasabi() {
     iota = 0xFFFF;
     var WABI_SEPARATOR = iota
       , WABI_SECTION_GHOSTS = --iota
+      , WABI_SECTION_REMOVED_GHOSTS = --iota
       , WABI_SECTION_UPDATES = --iota
       , WABI_SECTION_RPC = --iota
       , WABI_PACKET_STOP = --iota
@@ -69,6 +70,16 @@ function makeWasabi() {
         }
 
         /**
+         * Unregister an instance of a klass
+         * @method removeObject
+         * @param {mixed} arg Either a NetObject or a serial number to be
+         * removed from the registry
+         */
+        , removeObject: function(arg) {
+            this.registry.removeObject(arg);
+        }
+
+        /**
          * create an RPC from the supplied procedure function and serialize
          * function.
          * @method mkRpc
@@ -84,19 +95,34 @@ function makeWasabi() {
         }
 
         /**
-         * attach to a server connected through the server object
+         * attach to a server connected through the socket object
          * @method addServer
-         * @param {Socket} server The socket object used to communicate
+         * @param {Socket} sock The socket object used to communicate
          * with the new server
          */
-        , addServer: function(server) {
-            var conn = new Wasabi.Connection(server, true, false);
+        , addServer: function(sock) {
+            var conn = new Wasabi.Connection(sock, true, false);
             this.servers.push(conn);
             return conn;
         }
 
         /**
-         * Attach a client connected through the given client object.
+         * Remove a server by its socket object
+         * @method removeServer
+         * @param {Socket} sock The socket object originally passed to addServer
+         */
+        , removeServer: function(sock) {
+            var i;
+            for (i = 0; i < this.servers.length; i++) {
+                if (this.servers[i]._socket === sock) {
+                    this.servers.splice(i, 1);
+                    return;
+                }
+            }
+        }
+
+        /**
+         * Attach a client connected through the given socket object.
          * Currently this must be a socket.io socket
          * @method addClient
          * @param {Socket} client The socket object used to communicate
@@ -108,6 +134,21 @@ function makeWasabi() {
             var conn = new Wasabi.Connection(client, false, true, scopeCallback)
             this.clients.push(conn);
             return conn;
+        }
+
+        /**
+         * Remove a client by its socket object
+         * @method removeClient
+         * @param {Socket} sock The socket object originally passed to addClient
+         */
+        , removeClient: function(sock) {
+            var i;
+            for (i = 0; i < this.clients.length; i++) {
+                if (this.clients[i]._socket === sock) {
+                    this.clients.splice(i, 1);
+                    return;
+                }
+            }
         }
 
         /**
@@ -136,6 +177,7 @@ function makeWasabi() {
         /**
          * packs update data for obj
          * @method _packUpdate
+         * @private
          */
         , _packUpdate: function(obj, bs) {
             bs.writeUInt(obj.wabiSerialNumber, 16);
@@ -145,6 +187,7 @@ function makeWasabi() {
         /**
          * unpacks update data for an object
          * @method _unpackUpdate
+         * @private
          */
         , _unpackUpdate: function(bs) {
             var obj = this.registry.getObject(bs.readUInt(16));
@@ -159,6 +202,7 @@ function makeWasabi() {
         /**
          * Packs data needed to instantiate a replicated version of obj
          * @method _packGhost
+         * @private
          */
         , _packGhost: function(obj, bs) {
             bs.writeUInt(this.registry.hash(obj.constructor), 16);
@@ -168,6 +212,7 @@ function makeWasabi() {
         /**
          * Unpacks a newly replicated object from Bitstream
          * @method _unpackGhost
+         * @private
          * @param {Bitstream} bs The target bitstream
          */
         , _unpackGhost: function(bs) {
@@ -193,6 +238,7 @@ function makeWasabi() {
         /**
          * Packs ghosts for needed objects into bs
          * @method _packGhosts
+         * @private
          * @param {Object} objects An Array or map of objects to pack ghosts for
          * @param {Bitstream} bs The target Bitstream
          */
@@ -209,6 +255,7 @@ function makeWasabi() {
         /**
          * Unpack all needed ghosts from bs
          * @method _unpackGhosts
+         * @private
          * @param {Bitstream} bs The source Bitstream
          */
         , _unpackGhosts: function(bs) {
@@ -221,8 +268,48 @@ function makeWasabi() {
         }
 
         /**
+         * Packs removed ghosts for `objects` into `bs`
+         * @method _packRemovedGhosts
+         * @private
+         * @param {Object} objects An Array or map of objects to pack ghosts for
+         * @param {Bitstream} bs The target Bitstream
+         */
+        , _packRemovedGhosts: function(objects, bs) {
+            var serial;
+            for(serial in objects) {
+                bs.writeUInt(serial, 16);
+            }
+
+            bs.writeUInt(WABI_SEPARATOR, 16);
+        }
+
+        /**
+         * Unpack all needed removed ghosts from bs
+         * @method _unpackRemovedGhosts
+         * @private
+         * @param {Bitstream} bs The source Bitstream
+         */
+        , _unpackRemovedGhosts: function(bs) {
+            while(bs.peekUInt(16) != WABI_SEPARATOR) {
+                var serial = bs.readUInt(16);
+                var obj = this.registry.getObject(serial);
+
+                // fire the onRemoveGhost callback if it exists
+                if (obj.onRemoveGhost && (typeof obj.onRemoveGhost === 'function')) {
+                    obj.onRemoveGhost();
+                }
+
+                this.removeObject(serial);
+            }
+            
+            // burn off the separator
+            bs.readUInt(16);
+        }
+
+        /**
          * Pack the given list of object update data into bs
          * @method _packUpdates
+         * @private
          * @param {Object} list An Array or map of objects to pack updates for
          * @param {Bitstream} bs The target Bitstream
          */
@@ -237,6 +324,7 @@ function makeWasabi() {
         /**
          * Unpack the given list of objects (with update data) from bs
          * @method _unpackUpdates
+         * @private
          * @param {Bitstream} bs The source Bitstream
          */
         , _unpackUpdates: function(bs) {
@@ -257,6 +345,7 @@ function makeWasabi() {
         /**
          * Pack an RPC invocation to the appropriate connections
          * @method _invokeRpc
+         * @private
          * @param {Rpc} rpc the rpc to invoke
          * @param {Object} args the arguments to the rpc
          * @param {NetObject} obj the obj to use as the context the
@@ -300,6 +389,7 @@ function makeWasabi() {
         /**
          * Pack all RPC invocations in the specified `Connection`'s queue.
          * @method _packRpcs
+         * @private
          * @param {Connection} conn The connection to pack RPC invocations for
          */
         , _packRpcs: function(conn) {
@@ -315,6 +405,7 @@ function makeWasabi() {
         /**
          * Pack a call to a registered RP and the supplied arguments into bs
          * @method _packRpc
+         * @private
          * @param {Rpc} rpc The RPC to pack
          * @param {Object} args The arguments object to be serialized
          * into this invocation
@@ -334,6 +425,7 @@ function makeWasabi() {
          * Unpack and execute a call to a registered RP using the supplied
          * arguments from bs
          * @method _unpackRpc
+         * @private
          * @param {Bitstream} bs The source Bitstream
          * @param {Connection} conn The connection this RPC was invoked from
          */
@@ -364,6 +456,7 @@ function makeWasabi() {
          * Returns a clone of the registry's object table. used as a fallback
          * when no _scopeCallback is specified for a connection
          * @method _getAllObjects
+         * @private
          */
         , _getAllObjects: function() {
             var result = { };
@@ -377,6 +470,7 @@ function makeWasabi() {
         /**
          * Receive, process, and transmit data as needed for this connection
          * @method _processConnection
+         * @private
          */
         , _processConnection: function(conn) {
             if(conn._ghostTo) {
@@ -385,9 +479,16 @@ function makeWasabi() {
                 var oldObjects = conn._scopeObjects;
                 var newObjects = conn._scopeCallback ? conn._scopeCallback() : this._getAllObjects();
                 var newlyInScopeObjects = {};
+                var newlyOutOfScopeObjects = {};
                 for(k in newObjects) {
                     if(newObjects.hasOwnProperty(k) && !(k in oldObjects)) {
                         newlyInScopeObjects[k] = newObjects[k];
+                    }
+                }
+
+                for(k in oldObjects) {
+                    if(oldObjects.hasOwnProperty(k) && !(k in newObjects)) {
+                        newlyOutOfScopeObjects[k] = oldObjects[k];
                     }
                 }
 
@@ -396,6 +497,10 @@ function makeWasabi() {
                 // pack ghosts for those objects
                 conn._sendBitstream.writeUInt(WABI_SECTION_GHOSTS, 16);
                 this._packGhosts(newlyInScopeObjects, conn._sendBitstream);
+
+                // pack ghosts for those objects
+                conn._sendBitstream.writeUInt(WABI_SECTION_REMOVED_GHOSTS, 16);
+                this._packRemovedGhosts(newlyOutOfScopeObjects, conn._sendBitstream);
 
                 // pack updates for all objects
                 conn._sendBitstream.writeUInt(WABI_SECTION_UPDATES, 16);
@@ -432,6 +537,7 @@ function makeWasabi() {
 
     Wasabi._sectionMap = { };
     Wasabi._sectionMap[WABI_SECTION_GHOSTS] = Wasabi._unpackGhosts;
+    Wasabi._sectionMap[WABI_SECTION_REMOVED_GHOSTS] = Wasabi._unpackRemovedGhosts;
     Wasabi._sectionMap[WABI_SECTION_UPDATES] = Wasabi._unpackUpdates;
     Wasabi._sectionMap[WABI_SECTION_RPC] = Wasabi._unpackRpc;
 

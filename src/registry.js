@@ -25,7 +25,7 @@ Registry.prototype = {
 
     /**
      * Return a unique hash from a klass suitable for entering into the
-     * registry arrays
+     * registry's klass table
      * @method hash
      * @return {Number} The XOR hash of the characters of
      * klass.prototype.constructor.name
@@ -132,6 +132,23 @@ Registry.prototype = {
         obj.wabiSerialNumber = serial || this.nextSerialNumber;
         this.nextSerialNumber += 1;
         this.objects[obj.wabiSerialNumber] = obj;
+    }
+
+    , removeObject: function(arg) {
+        var k;
+        if (typeof arg === "number") {
+            delete this.objects[arg];
+        } else {
+            for (k in this.objects) {
+                if(
+                    this.objects.hasOwnProperty(k) &&
+                    this.objects[k] === arg
+                ) {
+                    delete this.objects[k];
+                    return;
+                }
+            }
+        }
     }
 
     /**

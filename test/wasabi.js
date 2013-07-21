@@ -229,46 +229,95 @@ describe('Wasabi', function () {
         wc1.processConnections();
     });
 
-    it('returns the new connection when adding a client', function() {
+    it('adds and removes clients with a socket object', function() {
+        var w = MockWasabi.make();
         var sock = new MockSocket();
-        var result = ws.addClient(sock);
+        var result = w.addClient(sock);
         assert.ok(result);
-        assert.equal(result, ws.clients.pop());
+        assert.equal(result, w.clients[w.clients.length - 1]);
+
+        w.removeClient(sock);
+        assert.equal(w.clients.length, 0);
     });
 
-    it('returns the new connection when adding a server', function() {
+    it('adds and removes servers with a socket object', function() {
+        var w = MockWasabi.make();
         var sock = new MockSocket();
-        var result = wc1.addServer(sock);
+        var result = w.addServer(sock);
         assert.ok(result);
-        assert.equal(result, wc1.servers.pop());
+        assert.equal(result, w.servers[w.servers.length - 1]);
+
+        w.removeServer(sock);
+        assert.equal(w.servers.length, 0);
+    });
+
+    it('triggers callbacks when ghosts are added or removed', function() {
+        var addDone = false, removeDone = false;
+
+        function GhostCallbackTest() {
+        }
+
+        GhostCallbackTest.prototype = {
+              serialize: function() { }
+            , onAddGhost: function() { addDone = true; }
+            , onRemoveGhost: function() { removeDone = true; }
+        };
+
+        ws.addClass(GhostCallbackTest);
+        wc1.addClass(GhostCallbackTest);
+
+        var obj = new GhostCallbackTest();
+        ws.addObject(obj);
+
+        ws.processConnections();
+        wc1.processConnections();
+
+        assert.ok(addDone);
+
+        ws.removeObject(obj);
+
+        ws.processConnections();
+        wc1.processConnections();
+
+        assert.ok(removeDone);
+    });
+
+    it('queries a callback to determine which netobjects to ghost', function() {
+        ws.addObject(foo1);
+        ws.addObject(foo2);
+
+        // set the scope callback to read from the local variable `scope`
+        var scope = { };
+        ws.clients[0]._scopeCallback = function() {
+            return scope;
+        }
+
+        // foo1 in scope, foo2 is not
+        scope[foo1.wabiSerialNumber] = foo1;
+        ws.processConnections();
+        wc1.processConnections();
+        assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
+        assert.equal(wc1.registry.objects[foo2.wabiSerialNumber], undefined);
+
+        // both foo1 and foo2 in scope
+        scope = { };
+        scope[foo1.wabiSerialNumber] = foo1;
+        scope[foo2.wabiSerialNumber] = foo2;
+        ws.processConnections();
+        wc1.processConnections();
+        assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
+        assert.ok(wc1.registry.objects[foo2.wabiSerialNumber]);
+
+        // neither foo1 nor foo2 in scope
+        scope = { };
+        ws.processConnections();
+        wc1.processConnections();
+        assert.equal(wc1.registry.objects[foo1.wabiSerialNumber], undefined);
+        assert.equal(wc1.registry.objects[foo2.wabiSerialNumber], undefined);
     });
 
     it('complains when receiving update data for an unknown object');
     it('complains when receiving ghost data for an unknown class');
     it('complains when receiving a call to an unknown RPC');
     it('complains when receiving invalid arguments a known RPC');
-    it('complains when ghosting to a connection without a scope callback');
-    it('queries a callback to determine which netobjects to ghost');
-    it('triggers callbacks when ghosts are added', function() {
-        var done = false;
-        function GhostAddTest() {
-        }
-
-        GhostAddTest.prototype = {
-              serialize: function() { }
-            , onAddGhost: function() { done = true; }
-        };
-
-        ws.addClass(GhostAddTest);
-        wc1.addClass(GhostAddTest);
-
-        var obj = new GhostAddTest();
-        ws.addObject(obj);
-
-        ws.processConnections();
-        wc1.processConnections();
-
-        assert.ok(done);
-    });
-    it('triggers callbacks when ghosts are removed');
 });
