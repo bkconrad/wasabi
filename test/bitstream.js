@@ -123,6 +123,7 @@ describe('Bitstream', function () {
                 }
             }
 		});
+		it('packs/unpacks objects with .serialize methods, following prototypal inheritance');
         it('appends bits from character data', function() {
 			var b1 = new Bitstream();
 			var b2 = new Bitstream();

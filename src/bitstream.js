@@ -300,7 +300,8 @@ Bitstream.prototype = {
         var description = new InDescription;
         description._bitStream = this;
         description._target = obj;
-        obj.serialize(description);
+
+        this._serializeObject(obj, description);
     }
 
     /**
@@ -312,8 +313,23 @@ Bitstream.prototype = {
         var description = new OutDescription;
         description._bitStream = this;
         description._target = obj;
-        obj.serialize(description);
+
+        this._serializeObject(obj, description);
+
         return description._target;
+    }
+
+    , _serializeObject: function(obj, description) {
+        // We'll walk the prototype chain looking for .serialize methods,
+        // and call them in order from child-most to parent-most
+        // (arguably backwards, but it's easier to code)
+        var proto = obj.constructor ? obj.constructor.prototype : false;
+        var serialize = obj.serialize;
+        while(serialize && (typeof serialize === 'function')) {
+            serialize.call(obj, description);
+            proto = proto ? proto.prototype : false;
+            serialize = proto ? proto.serialize : false;
+        }
     }
 
     /**

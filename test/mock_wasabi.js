@@ -2,7 +2,11 @@ var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/
 var assert = require('chai').assert;
 
 module.exports = (function() {
-    function Foo () { this.foobar = 1; };
+    function Foo () {
+        this.foobar = 1;
+        this.signedbar = -1;
+        this.floatbar = 0.618;
+    };
     Foo.prototype = {
         constructor: Foo
       , serialize: function(desc) {
@@ -21,18 +25,12 @@ module.exports = (function() {
       }
     };
 
-    function Bar () { this.foobar = 2; this.barbaz = 3};
-    Bar.prototype = {
-        constructor: Bar
-      , serialize: function(desc) {
-          desc.uint('foobar', 8);
-          desc.uint('barbaz', 8);
-      }
-      , check: function(that) {
-          assert.equal(this.foobar, that.foobar);
-          assert.equal(this.barbaz, that.barbaz);
-      }
-    };
+    function Bar () { this.barbar = 3};
+    Bar.prototype = Object.create(Foo);
+    Bar.prototype.constructor = Bar;
+    Bar.prototype.serialize =  function(desc) {
+        desc.uint('barbar', 16);
+    }
 
     function make() {
         var w = Wasabi.makeWasabi();

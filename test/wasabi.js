@@ -316,6 +316,22 @@ describe('Wasabi', function () {
         assert.equal(wc1.registry.objects[foo2.wabiSerialNumber], undefined);
     });
 
+    it('handles prototypal inheritance', function() {
+        var bar = new MockWasabi.Bar();
+
+        ws.addObject(bar);
+        bar.foobar = 1234;
+        bar.barbar = 4321;
+
+        ws.processConnections();
+        wc1.processConnections();
+
+        var remoteBar = wc1.registry.getObject(bar.wabiSerialNumber);
+        assert.ok(remoteBar);
+        assert.equal(remoteBar.foobar, bar.foobar);
+        assert.equal(remoteBar.barbar, bar.barbar);
+    });
+
     it('complains when receiving update data for an unknown object');
     it('complains when receiving ghost data for an unknown class');
     it('complains when receiving a call to an unknown RPC');
