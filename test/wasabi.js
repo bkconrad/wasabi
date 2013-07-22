@@ -322,14 +322,23 @@ describe('Wasabi', function () {
         ws.addObject(bar);
         bar.foobar = 1234;
         bar.barbar = 4321;
-
         ws.processConnections();
         wc1.processConnections();
-
         var remoteBar = wc1.registry.getObject(bar.wabiSerialNumber);
         assert.ok(remoteBar);
         assert.equal(remoteBar.foobar, bar.foobar);
         assert.equal(remoteBar.barbar, bar.barbar);
+
+        bar.rpcTest({val: 1337});
+        ws.processConnections();
+        wc1.processConnections();
+        assert.equal(remoteBar.testval, 1337);
+
+        bar.rpcBarTest({val: 7331});
+        ws.processConnections();
+        wc1.processConnections();
+        assert.equal(remoteBar.barval, 7331);
+
     });
 
     it('complains when receiving update data for an unknown object');

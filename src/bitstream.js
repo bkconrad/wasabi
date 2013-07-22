@@ -319,6 +319,15 @@ Bitstream.prototype = {
         return description._target;
     }
 
+    /**
+     * Calls all serialize methods in this object's prototype chain with
+     * `description` as its argument. This allows packing and unpacking classes
+     * which use prototypal inheritance.
+     * @method _serializeObject
+     * @param {NetObject} obj The object to serialize
+     * @param {Description} description The description to serialize through
+     * @private
+     */
     , _serializeObject: function(obj, description) {
         // We'll walk the prototype chain looking for .serialize methods,
         // and call them in order from child-most to parent-most
@@ -327,7 +336,7 @@ Bitstream.prototype = {
         var serialize = obj.serialize;
         while(serialize && (typeof serialize === 'function')) {
             serialize.call(obj, description);
-            proto = proto ? proto.prototype : false;
+            proto = Object.getPrototypeOf(proto);
             serialize = proto ? proto.serialize : false;
         }
     }
