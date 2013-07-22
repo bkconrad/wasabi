@@ -16,6 +16,10 @@ task('test', {async: true}, function () {
     }, {printStdout: true, printStderr: true});
 });
 
+task('bench', {async: true}, function () {
+    require('./bench/wasabi.js');
+});
+
 task('coverage', {async: true}, function () {
     var fs = require('fs');
     process.env.COVERAGE = 'YES';
