@@ -35,8 +35,6 @@ encode their maximum value.
 
 **new player.js**
 
-    var wsb = require('wasabi');
-    
     function Player () {
         this.x = Math.floor(Math.random() * 400);
         this.y = Math.floor(Math.random() * 400);
@@ -47,10 +45,8 @@ encode their maximum value.
     Player.prototype.serialize = function (desc) {
         desc.uint('x', 16); // a 16 bit unsigned integer named x
         desc.uint('y', 16); // a 16 bit unsigned integer named y
-        desc.float('health', 16); // a normalized 16 bit signed float named health
+        desc.float('health', 16); // a normalized 16 bit signed float
     }
-    
-    wsb.addClass(Player);
 
 The `desc` argument which Wasabi passes to `serialize` is a "description"
 of the object. The actual class of the `desc` object is determined by the
@@ -63,34 +59,49 @@ At this point you're ready to start replicating:
 **server.js**
 
     var Player = require('./player.js')
-      , wsb = require('wasabi')
+      , Wasabi = require('wasabi')
       , WebSocket = require('ws')
       ;
     
-    var webSockServer = new WebSocket.Server(1234);
+    Wasabi.addClass(Player);
+    
+    var webSockServer = new WebSocket.Server({port:1234}, function() {
+        setInterval(function() {
+            // handle connections
+            Wasabi.processConnections();
+            
+            // simulation update code goes here
+            
+        }, 50);
+    });
+  
     webSockServer.on('connection', function(clientSock) {
         // add the new client's connection to the server's Wasabi instance
-        wsb.addClient(clientSock);
+        Wasabi.addClient(clientSock);
         
         // create the player's game object and add it to Wasabi
         var newPlayer = new Player();
-        wsb.addObject(newPlayer);
+        Wasabi.addObject(newPlayer);
     });
-    
-    // You have to call processConnections once in a while, or Wasabi won't do
-    // anything useful with your objects. All of Wasabi's magic happens during this
-    // call, including replicant lifespan control and RPC invocation
-    setTimeout(function() { wsb.processConnections(); }, 50);
 
 You probably want to then read the object from a socket on the client side:
 
 **client.js**
 
-    var serverSock = new WebSocket('ws://localhost:1234');             
-    wc.addServer(serverSock);
+    Wasabi.addClass(Player);
     
-    // make sure to call processConnections on the client, too
-    setTimeout(function() { wsb.processConnections(); }, 50);
+    var sock = new WebSocket('ws://localhost:1234');             
+    Wasabi.addServer(sock);
+    
+    sock.onopen = function() {
+        setInterval(function() {
+            // receive network stuff
+            Wasabi.processConnections();
+            
+            // client-side update code goes here
+            
+        }, 50);
+    }
 
 ## Remote Procedure Calls
 ### Definition
@@ -136,6 +147,5 @@ Wasabi has cpu and network usage benchmark which can be run via `sudo jake bench
     server -> client: 820.59kB (872.85kB with transport)
     13.09kB/s at 15hz
 
-
 # Contact
-If you have bug reports, feature requests, questions, or pull requests, drop by the [github repo](https://github.com/kaen/wasabi). If you have lavish praise or eloquent maledications, email me at [bkconrad@gmail.com](mailto:bkconrad@gmail.com).
+If you have bug reports, feature requests, questions, or pull requests, drop by the [github repo](https://github.com/kaen/wasabi). If you have lavish praise or eloquent maledictions, email me at [bkconrad@gmail.com](mailto:bkconrad@gmail.com).
