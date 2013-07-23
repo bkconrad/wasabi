@@ -121,7 +121,7 @@ On the server side we can make a Player "yell" on the clients by saying:
 Something to note: you must pass rpcYell an object of named arguments, just as its definition would suggest. If you try to invoke an RPC without the `args` object, e.g. as `player.rpcYell(3)`, Wasabi will throw an error.
 
 # Benchmarks
-Wasabi has cpu and network usage benchmark which can be run via `sudo jake bench` (you need sudo because it measures network usage with pcap... patches welcome). Here is the performance of Wasabi v0.1.2 on a 2.8Ghz AMD chip:
+Wasabi has cpu and network usage benchmark which can be run via `sudo jake bench` (you need sudo because it measures network usage with pcap... patches welcome). Here is the performance of Wasabi v0.1.3 on a 2.8Ghz AMD chip:
 
     One connection, 1000 objects x 148 ops/sec ±0.83% (86 runs sampled)
     Ten connections, 100 objects x 144 ops/sec ±0.93% (84 runs sampled)
