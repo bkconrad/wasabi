@@ -17,7 +17,8 @@ task('test', {async: true}, function () {
 });
 
 task('bench', {async: true}, function () {
-    require('./bench/wasabi.js');
+    require('./bench/cpu.js');
+    require('./bench/net.js');
 });
 
 task('coverage', {async: true}, function () {

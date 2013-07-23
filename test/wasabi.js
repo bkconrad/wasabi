@@ -341,8 +341,20 @@ describe('Wasabi', function () {
 
     });
 
+    it('complains when receiving ghost data for an unknown class', function() {
+        function UnknownClass() {
+        }
+        ws.addClass(UnknownClass);
+        var obj = new UnknownClass;
+        ws.addObject(obj);
+
+        ws.processConnections();
+
+        assert.throws(function() {
+            wc1.processConnections();
+        });
+    });
     it('complains when receiving update data for an unknown object');
-    it('complains when receiving ghost data for an unknown class');
     it('complains when receiving a call to an unknown RPC');
     it('complains when receiving invalid arguments a known RPC');
     it('complains when receiving anything except an object or falsey as the first argument to a known RPC');

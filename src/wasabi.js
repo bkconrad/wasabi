@@ -216,11 +216,12 @@ function makeWasabi() {
          * @param {Bitstream} bs The target bitstream
          */
         , _unpackGhost: function(bs) {
-            var obj, type, serial;
-            type = this.registry.getClass(bs.readUInt(16));
+            var obj, hash, type, serial;
+            hash = bs.readUInt(16);
+            type = this.registry.getClass(hash);
             serial = bs.readUInt(16);
             if (!type) {
-                // TODO: Raise an exception when unpacking a ghost with unregistered class
+                throw new Error('Received ghost for unknown class with hash ' + hash);
                 return;
             }
             // TODO: raise an exception unpacking a ghost which already exists
