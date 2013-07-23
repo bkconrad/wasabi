@@ -358,4 +358,5 @@ describe('Wasabi', function () {
     it('complains when receiving a call to an unknown RPC');
     it('complains when receiving invalid arguments a known RPC');
     it('complains when receiving anything except an object or falsey as the first argument to a known RPC');
+    it('uses the attribute name for RPCs when Function.name is empty');
 });
