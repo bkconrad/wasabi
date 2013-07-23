@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=640" />
+
+    <link rel="stylesheet" href="stylesheets/core.css" media="screen"/>
+    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)"/>
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+
+    <script type="text/javascript" src="javascripts/modernizr.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $('#main_content').headsmart()
+      })
+    </script>
+    <title>Wasabi by kaen</title>
+  </head>
+
+  <body>
+    <a id="forkme_banner" href="https://github.com/kaen/wasabi">View on GitHub</a>
+    <div class="shell">
+
+      <header>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <h1>Wasabi</h1>
+            <h2></h2>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+      </header>
+
+      <section id="downloads">
+        <span class="inner">
+          <a href="https://github.com/kaen/wasabi/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/kaen/wasabi/tarball/master" class="tgz"><em>download</em> .TGZ</a>
+        </span>
+      </section>
+
+
+      <span class="banner-fix"></span>
+
+
+      <section id="main_content">
+        <h1>
+<a name="wasabi" class="anchor" href="#wasabi"><span class="octicon octicon-link"></span></a>Wasabi</h1>
+
+<p>A simple replication library using <em>binary</em> encoding over WebSockets (no
+fallbacks). Released under the MIT License.</p>
+
+<pre><code>npm install wasabi
+</code></pre>
+
+<p>The main advantages of using Wasabi are:</p>
+
+<ul>
+<li>You only need to write single short function per class to start
+replicating</li>
+<li>All data is transferred as binary as opposed to ascii JSON</li>
+<li>Replicated object lifetimes are automatically managed based on a
+"scope" callback which may be set for each client (or not at all)</li>
+<li>Remote RPC invocation works almost exactly like local function calls</li>
+<li>Prototypal inheritance of is fully supported out-of-the-box</li>
+</ul><h1>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h1>
+
+<h2>
+<a name="simple-replication" class="anchor" href="#simple-replication"><span class="octicon octicon-link"></span></a>Simple Replication</h2>
+
+<p>Say you have a Player object you use in an existing (client-only) game:
+<strong>old player.js</strong></p>
+
+<pre><code>function Player () {
+    this.x = Math.floor(Math.random() * 400);
+    this.y = Math.floor(Math.random() * 400);
+    this.health = 1.0;
+}
+</code></pre>
+
+<p>To start replicating this class with Wasabi, just register it and write a
+<code>serialize</code> method for it.  Wasabi uses these <code>serialize</code> methods to
+describe the replicated attributes, their types, and the bits required to
+encode their maximum value.</p>
+
+<p><strong>new player.js</strong></p>
+
+<pre><code>function Player () {
+    this.x = Math.floor(Math.random() * 400);
+    this.y = Math.floor(Math.random() * 400);
+    this.health = 1.0;
+}
+
+// serialize
+Player.prototype.serialize = function (desc) {
+    desc.uint('x', 16); // a 16 bit unsigned integer named x
+    desc.uint('y', 16); // a 16 bit unsigned integer named y
+    desc.float('health', 16); // a normalized 16 bit signed float
+}
+</code></pre>
+
+<p>The <code>desc</code> argument which Wasabi passes to <code>serialize</code> is a "description"
+of the object. The actual class of the <code>desc</code> object is determined by the
+whether the object is being packed or unpacked. Using this one weird
+trick, you only have to write a single function and Wasabi will figure
+out how to take your object in <em>and</em> out of the network.</p>
+
+<p>At this point you're ready to start replicating:</p>
+
+<p><strong>server.js</strong></p>
+
+<pre><code>var Player = require('./player.js')
+  , Wasabi = require('wasabi')
+  , WebSocket = require('ws')
+  ;
+
+Wasabi.addClass(Player);
+
+var webSockServer = new WebSocket.Server({port:1234}, function() {
+    setInterval(function() {
+        // handle connections
+        Wasabi.processConnections();
+
+        // simulation update code goes here
+
+    }, 50);
+});
+
+webSockServer.on('connection', function(clientSock) {
+    // add the new client's connection to the server's Wasabi instance
+    Wasabi.addClient(clientSock);
+
+    // create the player's game object and add it to Wasabi
+    var newPlayer = new Player();
+    Wasabi.addObject(newPlayer);
+});
+</code></pre>
+
+<p>You probably want to then read the object from a socket on the client side:</p>
+
+<p><strong>client.js</strong></p>
+
+<pre><code>Wasabi.addClass(Player);
+
+var sock = new WebSocket('ws://localhost:1234');             
+Wasabi.addServer(sock);
+
+sock.onopen = function() {
+    setInterval(function() {
+        // receive network stuff
+        Wasabi.processConnections();
+
+        // client-side update code goes here
+
+    }, 50);
+}
+</code></pre>
+
+<h2>
+<a name="remote-procedure-calls" class="anchor" href="#remote-procedure-calls"><span class="octicon octicon-link"></span></a>Remote Procedure Calls</h2>
+
+<h3>
+<a name="definition" class="anchor" href="#definition"><span class="octicon octicon-link"></span></a>Definition</h3>
+
+<p><em>Defining and invoking RPCs is currently a little wonky. Progress is being made towards more natural invocation and definition conventions, so the following is subject to change.</em></p>
+
+<p>To define a class RPC, create a method prefixed with "rpc" which takes a single <code>args</code> argument, which is an Object of named arguments and their values:</p>
+
+<pre><code>Player.prototype.rpcYell = function (args) {
+    var i;
+    for(i = 0; i &lt; args.times; i++) {
+        console.log('SPAARTA!');
+    }
+}
+</code></pre>
+
+<p>Here's the wonkiness: you have to write an <code>rpc*Args</code> for any RPC that takes arguments. This is exactly the same as writing a <code>serialize</code> method for replicated classes. For <code>rpcYell</code> above, we'll need to write <code>rpcYellArgs</code> as follows:</p>
+
+<pre><code>Player.prototype.rpcYellArgs = function (desc) {
+    desc.uint('times', 8);
+}
+</code></pre>
+
+<p>Make sure that you call <code>addClass</code> only <strong>after</strong> defining RPCs, as Wasabi will look for any methods starting with <code>rpc</code> and replace them with the actual remote invocation stubs.</p>
+
+<h3>
+<a name="invocation" class="anchor" href="#invocation"><span class="octicon octicon-link"></span></a>Invocation</h3>
+
+<p>On the server side we can make a Player "yell" on the clients by saying:</p>
+
+<pre><code>player.rpcYell({times: 3});
+</code></pre>
+
+<p>Something to note: you must pass rpcYell an object of named arguments, just as its definition would suggest. If you try to invoke an RPC without the <code>args</code> object, e.g. as <code>player.rpcYell(3)</code>, Wasabi will throw an error.</p>
+
+<h1>
+<a name="benchmarks" class="anchor" href="#benchmarks"><span class="octicon octicon-link"></span></a>Benchmarks</h1>
+
+<p>Wasabi has cpu and network usage benchmark which can be run via <code>sudo jake bench</code> (you need sudo because it measures network usage with pcap... patches welcome). Here is the performance of Wasabi v0.1.3 on a 2.8Ghz AMD chip:</p>
+
+<pre><code>One connection, 1000 objects x 148 ops/sec ±0.83% (86 runs sampled)
+Ten connections, 100 objects x 144 ops/sec ±0.93% (84 runs sampled)
+100 connections, ten objects x 109 ops/sec ±1.06% (82 runs sampled)
+Ten connections, ten objects x 1,165 ops/sec ±0.82% (98 runs sampled)
+
+Start of TCP session between 127.0.0.1:47099 and 127.0.0.1:31337
+1 clients with 100 objects for 1000 iterations
+End of TCP session between 127.0.0.1:47099 and 127.0.0.1:31337
+client -&gt; server: 9.15kB (61.42kB with transport)
+0.92kB/s at 15hz
+server -&gt; client: 820.59kB (872.85kB with transport)
+13.09kB/s at 15hz
+</code></pre>
+
+<h1>
+<a name="contact" class="anchor" href="#contact"><span class="octicon octicon-link"></span></a>Contact</h1>
+
+<p>If you have bug reports, feature requests, questions, or pull requests, drop by the <a href="https://github.com/kaen/wasabi">github repo</a>. If you have lavish praise or eloquent maledictions, email me at <a href="mailto:bkconrad@gmail.com">bkconrad@gmail.com</a>.</p>
+      </section>
+
+      <footer>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <p>this project by <a href="https://github.com/kaen">kaen</a> can be found on <a href="https://github.com/kaen/wasabi">GitHub</a></p>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+        <p>Generated with <a href="http://pages.github.com">GitHub Pages</a> using Merlot</p>
+        <span class="octocat"></span>
+      </footer>
+
+    </div>
+
+    
+  </body>
+</html>
