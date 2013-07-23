@@ -7,11 +7,8 @@ MockSocket.prototype = {
         other._target = this;
     },
     send: function(data) {
-        this._target._callback(data);
+        this._target.onmessage(data);
     },
-    on: function(ev, callback) {
-        this._callback = callback;
-    }
 };
 
 module.exports = MockSocket;

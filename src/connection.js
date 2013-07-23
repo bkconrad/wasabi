@@ -27,9 +27,9 @@ function Connection(socket, ghostFrom, ghostTo, scopeCallback) {
 
     // configure socket to dump received data into the receive bitstream
     // currently assumes that it receives a socket.io socket
-    socket.on('message', function(data) {
-        receiveBitstream.appendChars(data);
-    });
+    socket.onmessage = function(data) {
+        receiveBitstream.appendChars(data.data || data);
+    };
 }
 
 Connection.prototype = {
