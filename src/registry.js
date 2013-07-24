@@ -46,7 +46,7 @@ Registry.prototype = {
      * @param {Function} klass The constructor of the class to add
      */
     , addClass: function(klass) {
-        var hash = this.hash(klass);
+        var k, hash = this.hash(klass);
         if (this.hashToKlass[hash] !== undefined) {
             throw "Invalid attempt to redefine class " + klass.name + " with hash " + hash;
         }
@@ -83,7 +83,7 @@ Registry.prototype = {
                     klass.prototype[k] = function(args, conns) {
                         this.wabiInstance._invokeRpc(rpc, args, this, conns);
                     };
-                })(rpc)
+                })(rpc);
                     
                 klass.wabiRpcs[this.hash(prop)] = rpc;
             }
@@ -174,6 +174,6 @@ Registry.prototype = {
     , getRpc: function(hash) {
         return this.hashToRpc[hash];
     }
-}
+};
 
 module.exports = Registry;

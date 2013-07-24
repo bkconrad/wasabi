@@ -20,6 +20,6 @@ InDescription.prototype = {
     , float: function(name, bits) {
         this._bitStream.writeFloat(this._target[name], bits);
     }
-}
+};
 
 module.exports = InDescription;

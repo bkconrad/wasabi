@@ -131,7 +131,7 @@ function makeWasabi() {
          * "Connection"}}{{/crossLink}}        
          */
         , addClient: function(client, scopeCallback) {
-            var conn = new Wasabi.Connection(client, false, true, scopeCallback)
+            var conn = new Wasabi.Connection(client, false, true, scopeCallback);
             this.clients.push(conn);
             return conn;
         }
@@ -222,10 +222,9 @@ function makeWasabi() {
             serial = bs.readUInt(16);
             if (!type) {
                 throw new Error('Received ghost for unknown class with hash ' + hash);
-                return;
             }
             // TODO: raise an exception unpacking a ghost which already exists
-            obj = new type;
+            obj = new type();
             obj.wabiInstance = this;
             this.registry.addObject(obj, serial);
 
@@ -542,7 +541,7 @@ function makeWasabi() {
     Wasabi._sectionMap[WABI_SECTION_UPDATES] = Wasabi._unpackUpdates;
     Wasabi._sectionMap[WABI_SECTION_RPC] = Wasabi._unpackRpc;
 
-    Wasabi.registry = new Registry;
+    Wasabi.registry = new Registry();
 
     return Wasabi;
 }

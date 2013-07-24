@@ -46,7 +46,7 @@ Bitstream.prototype = {
      */
     , align: function() {
         var delta = this._index % 7;
-        if (delta == 0) {
+        if (delta === 0) {
             return;
         }
         this._advance(7 - delta);
@@ -297,7 +297,7 @@ Bitstream.prototype = {
      * @param {NetObject} obj The object to serialize
      */
     , pack: function(obj) {
-        var description = new InDescription;
+        var description = new InDescription();
         description._bitStream = this;
         description._target = obj;
 
@@ -310,7 +310,7 @@ Bitstream.prototype = {
      * @param {NetObject} obj The object to deserialize to
      */
     , unpack: function(obj) {
-        var description = new OutDescription;
+        var description = new OutDescription();
         description._bitStream = this;
         description._target = obj;
 

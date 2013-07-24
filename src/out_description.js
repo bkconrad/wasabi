@@ -18,6 +18,6 @@ OutDescription.prototype = {
     , float: function(name, bits) {
         this._target[name] = this._bitStream.readFloat(bits);
     }
-}
+};
 
 module.exports = OutDescription;
