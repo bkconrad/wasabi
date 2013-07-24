@@ -52,3 +52,17 @@ task('coverage', {async: true}, function () {
         ex.run();
     }, {printStdout: true, printStderr: true});
 });
+
+task('lint', {async: true}, function () {
+    jake.exec("js-beautify -j --good-stuff -r src/*", function () {
+        complete();
+    }, {printStdout: true, printStderr: true});
+
+    jake.exec("jshint src/ || true", function () {
+        complete();
+    }, {printStdout: true, printStderr: true});
+
+    jake.exec("jslint --nomen --sloppy --vars --plusplus --node --bitwise src/*", function () {
+        complete();
+    }, {printStdout: true, printStderr: true});
+});

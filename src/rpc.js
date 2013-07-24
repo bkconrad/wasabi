@@ -3,6 +3,7 @@
  * @class Rpc
  * @constructor
  */
+
 function Rpc(fn, klass, serialize) {
     this._fn = fn;
     this._klass = klass;

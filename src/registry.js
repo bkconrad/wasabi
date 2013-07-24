@@ -6,6 +6,7 @@ var Rpc = require('./rpc');
  * @class Registry
  * @constructor
  */
+
 function Registry() {
     // hash <-> klass
     this.klassToHash = {};
@@ -21,7 +22,7 @@ function Registry() {
 }
 
 Registry.prototype = {
-    constructor: Registry
+    constructor: Registry,
 
     /**
      * Return a unique hash from a klass suitable for entering into the
@@ -30,14 +31,18 @@ Registry.prototype = {
      * @return {Number} The XOR hash of the characters of
      * klass.prototype.constructor.name
      */
-    , hash: function(klass) {
-        var result = 0, name = klass.prototype.constructor.name;
-        for (var i = 0; i < name.length; i++) {
+    hash: function (klass) {
+        var result = 0;
+        var name = klass.prototype.constructor.name;
+        var i;
+
+        for (i = 0; i < name.length; i++) {
             // TODO: just how unique is this hash?
             result ^= name.charCodeAt(i);
         }
+
         return result;
-    }
+    },
 
     /**
      * Register a class with Wasabi, allowing it to transmit instances of
@@ -45,53 +50,56 @@ Registry.prototype = {
      * @method addClass
      * @param {Function} klass The constructor of the class to add
      */
-    , addClass: function(klass) {
-        var k, hash = this.hash(klass);
+    addClass: function (klass) {
+        var k;
+        var prop;
+        var propNameReal;
+        var hash = this.hash(klass);
+        var rpc;
+        var args;
         if (this.hashToKlass[hash] !== undefined) {
-            throw "Invalid attempt to redefine class " + klass.name + " with hash " + hash;
+            throw 'Invalid attempt to redefine class ' + klass.name + ' with hash ' + hash;
         }
 
         // build the rpc registry for this klass
-        klass.wabiRpcs = { };
+        klass.wabiRpcs = {};
         for (k in klass.prototype) {
-            var prop = klass.prototype[k];
             // search for a function property starting with "rpc" and not
             // ending with "Args"
-            if (typeof prop === "function" &&
-                k.indexOf("rpc") === 0 &&
-                k.indexOf("Args") !== k.length - 4
-            ) {
+            if (typeof klass.prototype[k] === 'function' && k.indexOf('rpc') === 0 && k.indexOf('Args') !== k.length - 4) {
+                prop = klass.prototype[k];
                 // find the Args function (for rpcFoo this would be
                 // rpcFooArgs)
-                var args = klass.prototype[k + "Args"];
-                if (typeof args !== "function") {
-                    throw "No matching args function \"" + k + "Args\" found for RPC \"" + k + "\"";
+                args = klass.prototype[k + 'Args'];
+                if (typeof args !== 'function') {
+                    throw 'No matching args function \'' + k + 'Args\' found for RPC \'' + k + '\'';
                 }
                 // if this class was already added to a different Wasabi
                 // instance, we'll use the real method instead of the
                 // replacement we create later in this function
-                if(('wabiReal' + k) in klass.prototype) {
-                    prop = klass.prototype['wabiReal' + k];
+                propNameReal = 'wabiReal' + k;
+                if (klass.prototype[propNameReal] !== undefined) {
+                    prop = klass.prototype[propNameReal];
                 } else {
-                    klass.prototype['wabiReal' + k] = prop;
+                    klass.prototype[propNameReal] = prop;
                 }
 
                 rpc = new Rpc(prop, klass, args);
 
-                // TODO: use curry?
-                (function(rpc) {
-                    klass.prototype[k] = function(args, conns) {
-                        this.wabiInstance._invokeRpc(rpc, args, this, conns);
-                    };
-                })(rpc);
-                    
+                klass.prototype[k] = this._mkRpcInvocationStub(rpc);
                 klass.wabiRpcs[this.hash(prop)] = rpc;
             }
         }
 
         this.klassToHash[klass] = hash;
         this.hashToKlass[hash] = klass;
-    }
+    },
+
+    _mkRpcInvocationStub: function (rpc) {
+        return function (args, conns) {
+            this.wabiInstance._invokeRpc(rpc, args, this, conns);
+        };
+    },
 
     /**
      * Create an RPC from the supplied procedure function and serialize
@@ -105,21 +113,24 @@ Registry.prototype = {
      * @return {Function} The function you should call remotely to invoke the
      * RPC on a connection
      */
-    , mkRpc: function(fn, serialize, instance) {
+    mkRpc: function (fn, serialize, instance) {
         var hash = this.hash(fn);
-        serialize = serialize || function() { };
-        if (hash in this.hashToRpc) {
-            throw new Error("Invalid attempt to redefine RPC " + fn.name + " with hash " + hash);
+        var rpc;
+        serialize = serialize || function () {};
+        if (this.hashToRpc[hash] !== undefined) {
+            throw new Error('Invalid attempt to redefine RPC ' + fn.name + ' with hash ' + hash);
         }
 
-        var rpc = new Rpc(fn, undefined, serialize);
+        rpc = new Rpc(fn, undefined, serialize);
 
         // normal hash <-> rpc mapping
         this.rpcToHash[rpc] = hash;
         this.hashToRpc[hash] = rpc;
 
-        return function(args, conns) { instance._invokeRpc(rpc, args || { }, false, conns); };
-    }
+        return function (args, conns) {
+            instance._invokeRpc(rpc, args || {}, false, conns);
+        };
+    },
 
     /**
      * Register an instance of a klass
@@ -128,50 +139,47 @@ Registry.prototype = {
      * @param {Nunmber} serial The serial number to assign to this object. If
      * falsy, the nextSerialNumber will be used
      */
-    , addObject: function(obj, serial) {
+    addObject: function (obj, serial) {
         obj.wabiSerialNumber = serial || this.nextSerialNumber;
         this.nextSerialNumber += 1;
         this.objects[obj.wabiSerialNumber] = obj;
-    }
+    },
 
-    , removeObject: function(arg) {
+    removeObject: function (arg) {
         var k;
-        if (typeof arg === "number") {
+        if (typeof arg === 'number') {
             delete this.objects[arg];
         } else {
             for (k in this.objects) {
-                if(
-                    this.objects.hasOwnProperty(k) &&
-                    this.objects[k] === arg
-                ) {
+                if (this.objects.hasOwnProperty(k) && this.objects[k] === arg) {
                     delete this.objects[k];
                     return;
                 }
             }
         }
-    }
+    },
 
     /**
      * Get an instance of a klass by serial number
      * @method getObject
      */
-    , getObject: function(serial) {
+    getObject: function (serial) {
         return this.objects[serial];
-    }
+    },
 
     /**
      * Get the function/constructor/klass represented by the given hash
      * @method getClass
      */
-    , getClass: function(hash) {
+    getClass: function (hash) {
         return this.hashToKlass[hash];
-    }
+    },
 
     /**
      * get the RPC function associated with the hash
      * @method getRpc
      */
-    , getRpc: function(hash) {
+    getRpc: function (hash) {
         return this.hashToRpc[hash];
     }
 };

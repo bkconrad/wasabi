@@ -4,20 +4,20 @@
  * @constructor
  */
 var InDescription = function () {
-	this._target = undefined;
-	this._bitStream = undefined;
+    this._target = null;
+    this._bitStream = null;
 };
 
 InDescription.prototype = {
-    uint: function(name, bits) {
+    uint: function (name, bits) {
         this._bitStream.writeUInt(this._target[name], bits);
-    }
+    },
 
-    , sint: function(name, bits) {
+    sint: function (name, bits) {
         this._bitStream.writeSInt(this._target[name], bits);
-    }
+    },
 
-    , float: function(name, bits) {
+    float: function (name, bits) {
         this._bitStream.writeFloat(this._target[name], bits);
     }
 };

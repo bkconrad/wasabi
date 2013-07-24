@@ -4,18 +4,20 @@
  * @constructor
  */
 var OutDescription = function () {
-    this._target = undefined;
-    this._bitStream = undefined;
+    this._target = null;
+    this._bitStream = null;
 };
 
 OutDescription.prototype = {
-    uint: function(name, bits) {
+    uint: function (name, bits) {
         this._target[name] = this._bitStream.readUInt(bits);
-    }
-    , sint: function(name, bits) {
+    },
+
+    sint: function (name, bits) {
         this._target[name] = this._bitStream.readSInt(bits);
-    }
-    , float: function(name, bits) {
+    },
+
+    float: function (name, bits) {
         this._target[name] = this._bitStream.readFloat(bits);
     }
 };

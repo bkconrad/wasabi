@@ -13,6 +13,7 @@ var Bitstream = require('./bitstream');
  * This function takes no parameters and should return an Array
  * of NetObjects in scope.
  */
+
 function Connection(socket, ghostFrom, ghostTo, scopeCallback) {
     var receiveBitstream = new Bitstream();
 
@@ -27,12 +28,11 @@ function Connection(socket, ghostFrom, ghostTo, scopeCallback) {
 
     // configure socket to dump received data into the receive bitstream
     // currently assumes that it receives a socket.io socket
-    socket.onmessage = function(data) {
+    socket.onmessage = function (data) {
         receiveBitstream.appendChars(data.data || data);
     };
 }
 
-Connection.prototype = {
-};
+Connection.prototype = {};
 
 module.exports = Connection;

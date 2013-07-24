@@ -1,3 +1,20 @@
 {
-	"laxcomma": true
+	"camelcase": true,
+	"eqeqeq": true,
+	"forin": true,
+	"immed": true,
+	"latedef": true,
+	"quotmark": "single",
+	"undef": true,
+	"curly": true,
+	"trailing": true,
+	// "maxdepth": 2,
+	// "maxcomplexity": 2,
+	"globals": {
+		"ArrayBuffer": true,
+		"Uint8Array": true,
+		"module": true,
+		"console": true,
+		"require": true
+	}
 }

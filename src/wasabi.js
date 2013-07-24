@@ -10,35 +10,34 @@ var Rpc = require('./rpc');
  * @method makeWasabi
  * @static
  */
+
 function makeWasabi() {
     var iota; // for enums
 
     // packet control constants
     iota = 0xFFFF;
-    var WABI_SEPARATOR = iota
-      , WABI_SECTION_GHOSTS = --iota
-      , WABI_SECTION_REMOVED_GHOSTS = --iota
-      , WABI_SECTION_UPDATES = --iota
-      , WABI_SECTION_RPC = --iota
-      , WABI_PACKET_STOP = --iota
-      ;
+    var WABI_SEPARATOR = iota;
+    var WABI_SECTION_GHOSTS = --iota;
+    var WABI_SECTION_REMOVED_GHOSTS = --iota;
+    var WABI_SECTION_UPDATES = --iota;
+    var WABI_SECTION_RPC = --iota;
+    var WABI_PACKET_STOP = --iota;
 
     /**
      * Facade class for interacting with Wasabi
      * @class Wasabi
      */
-    Wasabi = {
-        constructor: Wasabi
-        , Bitstream: Bitstream
-        , Connection: Connection
-        , Registry: Registry
-        , Rpc: Rpc
+    var Wasabi = {
+        Bitstream: Bitstream,
+        Connection: Connection,
+        Registry: Registry,
+        Rpc: Rpc,
 
-        , makeWasabi: makeWasabi
+        makeWasabi: makeWasabi,
 
-        , servers: []
-        , clients: []
-        , _rpcQueue: []
+        servers: [],
+        clients: [],
+        _rpcQueue: [],
 
         /**
          * Register a class with Wasabi, allowing it to transmit instances of
@@ -46,9 +45,9 @@ function makeWasabi() {
          * @method addClass
          * @param {Function} klass The constructor of the class to add
          */
-        , addClass: function(klass) {
+        addClass: function (klass) {
             this.registry.addClass(klass);
-        }
+        },
 
         /**
          * Register an instance of a klass, which can then be sent to
@@ -64,10 +63,10 @@ function makeWasabi() {
          * @param {Number} serial The serial number to assign to this object. If
          * falsy, the nextSerialNumber will be used
          */
-        , addObject: function(obj) {
+        addObject: function (obj) {
             this.registry.addObject(obj);
             obj.wabiInstance = this;
-        }
+        },
 
         /**
          * Unregister an instance of a klass
@@ -75,9 +74,9 @@ function makeWasabi() {
          * @param {mixed} arg Either a NetObject or a serial number to be
          * removed from the registry
          */
-        , removeObject: function(arg) {
+        removeObject: function (arg) {
             this.registry.removeObject(arg);
-        }
+        },
 
         /**
          * create an RPC from the supplied procedure function and serialize
@@ -90,9 +89,9 @@ function makeWasabi() {
          * @return {Function} The function you should call remotely to invoke the
          * RPC on a connection
          */
-        , mkRpc: function(fn, serialize) {
+        mkRpc: function (fn, serialize) {
             return this.registry.mkRpc(fn, serialize, this);
-        }
+        },
 
         /**
          * attach to a server connected through the socket object
@@ -100,18 +99,18 @@ function makeWasabi() {
          * @param {Socket} sock The socket object used to communicate
          * with the new server
          */
-        , addServer: function(sock) {
+        addServer: function (sock) {
             var conn = new Wasabi.Connection(sock, true, false);
             this.servers.push(conn);
             return conn;
-        }
+        },
 
         /**
          * Remove a server by its socket object
          * @method removeServer
          * @param {Socket} sock The socket object originally passed to addServer
          */
-        , removeServer: function(sock) {
+        removeServer: function (sock) {
             var i;
             for (i = 0; i < this.servers.length; i++) {
                 if (this.servers[i]._socket === sock) {
@@ -119,7 +118,7 @@ function makeWasabi() {
                     return;
                 }
             }
-        }
+        },
 
         /**
          * Attach a client connected through the given socket object.
@@ -128,20 +127,20 @@ function makeWasabi() {
          * @param {Socket} client The socket object used to communicate
          * with the new client
          * @param {Function} scopeCallback See {{#crossLink
-         * "Connection"}}{{/crossLink}}        
+         * "Connection"}}{{/crossLink}}
          */
-        , addClient: function(client, scopeCallback) {
+        addClient: function (client, scopeCallback) {
             var conn = new Wasabi.Connection(client, false, true, scopeCallback);
             this.clients.push(conn);
             return conn;
-        }
+        },
 
         /**
          * Remove a client by its socket object
          * @method removeClient
          * @param {Socket} sock The socket object originally passed to addClient
          */
-        , removeClient: function(sock) {
+        removeClient: function (sock) {
             var i;
             for (i = 0; i < this.clients.length; i++) {
                 if (this.clients[i]._socket === sock) {
@@ -149,14 +148,14 @@ function makeWasabi() {
                     return;
                 }
             }
-        }
+        },
 
         /**
          * Process the incoming and outgoing data for all connected clients and
          * servers
          * @method processConnections
          */
-        , processConnections: function() {
+        processConnections: function () {
             var k;
 
             // process server connections
@@ -172,24 +171,24 @@ function makeWasabi() {
                     this._processConnection(this.clients[k]);
                 }
             }
-        }
+        },
 
         /**
          * packs update data for obj
          * @method _packUpdate
          * @private
          */
-        , _packUpdate: function(obj, bs) {
+        _packUpdate: function (obj, bs) {
             bs.writeUInt(obj.wabiSerialNumber, 16);
             bs.pack(obj);
-        }
+        },
 
         /**
          * unpacks update data for an object
          * @method _unpackUpdate
          * @private
          */
-        , _unpackUpdate: function(bs) {
+        _unpackUpdate: function (bs) {
             var obj = this.registry.getObject(bs.readUInt(16));
             if (!obj) {
                 // TODO: throw error when unpacking an update for a non-existant object
@@ -197,17 +196,17 @@ function makeWasabi() {
             }
             bs.unpack(obj);
             return obj;
-        }
+        },
 
         /**
          * Packs data needed to instantiate a replicated version of obj
          * @method _packGhost
          * @private
          */
-        , _packGhost: function(obj, bs) {
+        _packGhost: function (obj, bs) {
             bs.writeUInt(this.registry.hash(obj.constructor), 16);
             bs.writeUInt(obj.wabiSerialNumber, 16);
-        }
+        },
 
         /**
          * Unpacks a newly replicated object from Bitstream
@@ -215,16 +214,16 @@ function makeWasabi() {
          * @private
          * @param {Bitstream} bs The target bitstream
          */
-        , _unpackGhost: function(bs) {
-            var obj, hash, type, serial;
-            hash = bs.readUInt(16);
-            type = this.registry.getClass(hash);
-            serial = bs.readUInt(16);
-            if (!type) {
+        _unpackGhost: function (bs) {
+            var hash = bs.readUInt(16);
+            var T = this.registry.getClass(hash);
+            var serial = bs.readUInt(16);
+            var obj;
+            if (!T) {
                 throw new Error('Received ghost for unknown class with hash ' + hash);
             }
             // TODO: raise an exception unpacking a ghost which already exists
-            obj = new type();
+            obj = new T();
             obj.wabiInstance = this;
             this.registry.addObject(obj, serial);
 
@@ -233,7 +232,7 @@ function makeWasabi() {
                 obj.onAddGhost();
             }
             return obj;
-        }
+        },
 
         /**
          * Packs ghosts for needed objects into bs
@@ -242,15 +241,18 @@ function makeWasabi() {
          * @param {Object} objects An Array or map of objects to pack ghosts for
          * @param {Bitstream} bs The target Bitstream
          */
-        , _packGhosts: function(objects, bs) {
+        _packGhosts: function (objects, bs) {
             var serial;
-            for(serial in objects) {
-                var obj = this.registry.getObject(serial);
-                this._packGhost(obj, bs);
+            var obj;
+            for (serial in objects) {
+                if (objects.hasOwnProperty(serial)) {
+                    obj = this.registry.getObject(serial);
+                    this._packGhost(obj, bs);
+                }
             }
 
             bs.writeUInt(WABI_SEPARATOR, 16);
-        }
+        },
 
         /**
          * Unpack all needed ghosts from bs
@@ -258,14 +260,14 @@ function makeWasabi() {
          * @private
          * @param {Bitstream} bs The source Bitstream
          */
-        , _unpackGhosts: function(bs) {
-            while(bs.peekUInt(16) != WABI_SEPARATOR) {
+        _unpackGhosts: function (bs) {
+            while (bs.peekUInt(16) !== WABI_SEPARATOR) {
                 this._unpackGhost(bs);
             }
-            
+
             // burn off the separator
             bs.readUInt(16);
-        }
+        },
 
         /**
          * Packs removed ghosts for `objects` into `bs`
@@ -274,14 +276,16 @@ function makeWasabi() {
          * @param {Object} objects An Array or map of objects to pack ghosts for
          * @param {Bitstream} bs The target Bitstream
          */
-        , _packRemovedGhosts: function(objects, bs) {
+        _packRemovedGhosts: function (objects, bs) {
             var serial;
-            for(serial in objects) {
-                bs.writeUInt(serial, 16);
+            for (serial in objects) {
+                if (objects.hasOwnProperty(serial)) {
+                    bs.writeUInt(serial, 16);
+                }
             }
 
             bs.writeUInt(WABI_SEPARATOR, 16);
-        }
+        },
 
         /**
          * Unpack all needed removed ghosts from bs
@@ -289,10 +293,12 @@ function makeWasabi() {
          * @private
          * @param {Bitstream} bs The source Bitstream
          */
-        , _unpackRemovedGhosts: function(bs) {
-            while(bs.peekUInt(16) != WABI_SEPARATOR) {
-                var serial = bs.readUInt(16);
-                var obj = this.registry.getObject(serial);
+        _unpackRemovedGhosts: function (bs) {
+            var serial;
+            var obj;
+            while (bs.peekUInt(16) !== WABI_SEPARATOR) {
+                serial = bs.readUInt(16);
+                obj = this.registry.getObject(serial);
 
                 // fire the onRemoveGhost callback if it exists
                 if (obj.onRemoveGhost && (typeof obj.onRemoveGhost === 'function')) {
@@ -301,10 +307,10 @@ function makeWasabi() {
 
                 this.removeObject(serial);
             }
-            
+
             // burn off the separator
             bs.readUInt(16);
-        }
+        },
 
         /**
          * Pack the given list of object update data into bs
@@ -313,13 +319,15 @@ function makeWasabi() {
          * @param {Object} list An Array or map of objects to pack updates for
          * @param {Bitstream} bs The target Bitstream
          */
-        , _packUpdates: function(list, bs) {
+        _packUpdates: function (list, bs) {
             var k;
             for (k in list) {
-                this._packUpdate(list[k], bs);
+                if (list.hasOwnProperty(k)) {
+                    this._packUpdate(list[k], bs);
+                }
             }
             bs.writeUInt(WABI_SEPARATOR, 16);
-        }
+        },
 
         /**
          * Unpack the given list of objects (with update data) from bs
@@ -327,11 +335,11 @@ function makeWasabi() {
          * @private
          * @param {Bitstream} bs The source Bitstream
          */
-        , _unpackUpdates: function(bs) {
+        _unpackUpdates: function (bs) {
             var hash = 0;
             var list = [];
             var obj;
-            while (bs.peekUInt(16) != WABI_SEPARATOR) {
+            while (bs.peekUInt(16) !== WABI_SEPARATOR) {
                 obj = this._unpackUpdate(bs);
                 list.push(obj);
             }
@@ -340,7 +348,7 @@ function makeWasabi() {
             bs.readUInt(16);
 
             return list;
-        }
+        },
 
         /**
          * Pack an RPC invocation to the appropriate connections
@@ -352,12 +360,13 @@ function makeWasabi() {
          * invocation, or false for static invocations
          * @param {mixed} conns falsy to invoke the rpc on all connections.
          * Otherwise must be a connection or array of connections to emit
-         * the invocation to 
+         * the invocation to
          */
-        , _invokeRpc: function(rpc, args, obj, conns) {
-            var i, k;
-
-            if(!conns) {
+        _invokeRpc: function (rpc, args, obj, conns) {
+            var i;
+            var k;
+            var invocation;
+            if (!conns) {
                 conns = [];
                 for (k in this.servers) {
                     if (this.servers.hasOwnProperty(k)) {
@@ -371,12 +380,12 @@ function makeWasabi() {
                         conns.push(this.clients[k]);
                     }
                 }
-            } else if(conns.constructor !== Array) {
+            } else if (conns.constructor !== Array) {
                 conns = [conns];
             }
 
             for (i = 0; i < conns.length; i++) {
-                var invocation = {
+                invocation = {
                     rpc: rpc,
                     args: args,
                     obj: obj,
@@ -384,7 +393,7 @@ function makeWasabi() {
                 };
                 conns[i]._rpcQueue.push(invocation);
             }
-        }
+        },
 
         /**
          * Pack all RPC invocations in the specified `Connection`'s queue.
@@ -392,7 +401,7 @@ function makeWasabi() {
          * @private
          * @param {Connection} conn The connection to pack RPC invocations for
          */
-        , _packRpcs: function(conn) {
+        _packRpcs: function (conn) {
             var i;
             var invocation;
             for (i = 0; i < conn._rpcQueue.length; i++) {
@@ -400,7 +409,7 @@ function makeWasabi() {
                 conn._sendBitstream.writeUInt(WABI_SECTION_RPC, 16);
                 this._packRpc(invocation.rpc, invocation.args, invocation.obj, invocation.bs);
             }
-        }
+        },
 
         /**
          * Pack a call to a registered RP and the supplied arguments into bs
@@ -413,13 +422,13 @@ function makeWasabi() {
          * falsy for "static" RPC invocation
          * @param {Bitstream} bs The target Bitstream
          */
-        , _packRpc: function(rpc, args, obj, bs) {
-            args = args || { };
+        _packRpc: function (rpc, args, obj, bs) {
+            args = args || {};
             bs.writeUInt(obj ? obj.wabiSerialNumber : 0, 16);
             bs.writeUInt(this.registry.hash(rpc._fn), 16);
             args.serialize = rpc._serialize;
             bs.pack(args);
-        }
+        },
 
         /**
          * Unpack and execute a call to a registered RP using the supplied
@@ -429,13 +438,14 @@ function makeWasabi() {
          * @param {Bitstream} bs The source Bitstream
          * @param {Connection} conn The connection this RPC was invoked from
          */
-        , _unpackRpc: function(bs, conn) {
+        _unpackRpc: function (bs, conn) {
             var serialNumber = bs.readUInt(16);
             var hash = bs.readUInt(16);
             var obj = this.registry.getObject(serialNumber);
             var rpc;
+            var args;
 
-            if(obj) {
+            if (obj) {
                 rpc = obj.constructor.wabiRpcs[hash];
             } else {
                 rpc = this.registry.getRpc(hash);
@@ -443,14 +453,14 @@ function makeWasabi() {
 
             if (!rpc) {
                 console.log(obj, serialNumber);
-                throw new Error("Unknown RPC with hash " + hash);
+                throw new Error('Unknown RPC with hash ' + hash);
             }
 
-            var args = {};
+            args = {};
             args.serialize = rpc._serialize;
             bs.unpack(args);
             rpc._fn.call(obj, args, conn);
-        }
+        },
 
         /**
          * Returns a clone of the registry's object table. used as a fallback
@@ -458,36 +468,44 @@ function makeWasabi() {
          * @method _getAllObjects
          * @private
          */
-        , _getAllObjects: function() {
-            var result = { };
+        _getAllObjects: function () {
+            var result = {};
             var k;
             for (k in this.registry.objects) {
-                result[k] = this.registry.objects[k];
+                if (this.registry.objects.hasOwnProperty(k)) {
+                    result[k] = this.registry.objects[k];
+                }
             }
             return result;
-        }
+        },
 
         /**
          * Receive, process, and transmit data as needed for this connection
          * @method _processConnection
          * @private
          */
-        , _processConnection: function(conn) {
-            if(conn._ghostTo) {
-                var k;
+        _processConnection: function (conn) {
+            var k;
+            var oldObjects;
+            var newObjects;
+            var newlyInScopeObjects;
+            var newlyOutOfScopeObjects;
+            var section;
+
+            if (conn._ghostTo) {
                 // get list of objects which have come into scope
-                var oldObjects = conn._scopeObjects;
-                var newObjects = conn._scopeCallback ? conn._scopeCallback() : this._getAllObjects();
-                var newlyInScopeObjects = {};
-                var newlyOutOfScopeObjects = {};
-                for(k in newObjects) {
-                    if(newObjects.hasOwnProperty(k) && !(k in oldObjects)) {
+                oldObjects = conn._scopeObjects;
+                newObjects = conn._scopeCallback ? conn._scopeCallback() : this._getAllObjects();
+                newlyInScopeObjects = {};
+                newlyOutOfScopeObjects = {};
+                for (k in newObjects) {
+                    if (newObjects.hasOwnProperty(k) && oldObjects[k] === undefined) {
                         newlyInScopeObjects[k] = newObjects[k];
                     }
                 }
 
-                for(k in oldObjects) {
-                    if(oldObjects.hasOwnProperty(k) && !(k in newObjects)) {
+                for (k in oldObjects) {
+                    if (oldObjects.hasOwnProperty(k) && newObjects[k] === undefined) {
                         newlyOutOfScopeObjects[k] = oldObjects[k];
                     }
                 }
@@ -514,9 +532,9 @@ function makeWasabi() {
             conn._sendBitstream.writeUInt(WABI_PACKET_STOP, 16);
 
             conn._receiveBitstream._index = 0;
-            while(conn._receiveBitstream.bitsLeft() > 0) {
-                var section = conn._receiveBitstream.readUInt(16);
-                if (section == WABI_PACKET_STOP) {
+            while (conn._receiveBitstream.bitsLeft() > 0) {
+                section = conn._receiveBitstream.readUInt(16);
+                if (section === WABI_PACKET_STOP) {
                     // when a packet is terminated we must consume
                     // the bit padding from Bitstream#fromChars via
                     // the Bitstream#align
@@ -532,10 +550,9 @@ function makeWasabi() {
             conn._sendBitstream.empty();
             conn._receiveBitstream.empty();
         }
-
     };
 
-    Wasabi._sectionMap = { };
+    Wasabi._sectionMap = {};
     Wasabi._sectionMap[WABI_SECTION_GHOSTS] = Wasabi._unpackGhosts;
     Wasabi._sectionMap[WABI_SECTION_REMOVED_GHOSTS] = Wasabi._unpackRemovedGhosts;
     Wasabi._sectionMap[WABI_SECTION_UPDATES] = Wasabi._unpackUpdates;
