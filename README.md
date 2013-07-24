@@ -7,15 +7,18 @@ fallbacks). Released under the MIT License.
 
 The main advantages of using Wasabi are:
 
- - You only need to write single short function per class to start
+ - All data is transferred as binary rather than JSON 
+ - You only need to write a single short function per class to start
    replicating
- - All data is transferred as binary as opposed to ascii JSON
- - Replicated object lifetimes are automatically managed based on a
-   "scope" callback which may be set for each client (or not at all)
- - Remote RPC invocation works almost exactly like local function calls
+ - Replicated object lifetimes can be managed based on a "scope" callback which may be set for each client (or not at all)
+ - <del>Remote RPC invocation works almost exactly like local function calls</del> (not quite yet...)
  - Prototypal inheritance of is fully supported out-of-the-box
 
 # Usage
+
+The following is a simple overview with minimal code. You can see a functional demo project at https://github.com/kaen/wsb_simple
+
+For further reading, make sure to look at the [API Docs on GitHub](http://kaen.github.io/wasabi/doc/) or build your own locally with `jake doc`.
 
 ## Simple Replication
 
@@ -125,14 +128,14 @@ Here's the wonkiness: you have to write an `rpc*Args` for any RPC that takes arg
 Make sure that you call `addClass` only **after** defining RPCs, as Wasabi will look for any methods starting with `rpc` and replace them with the actual remote invocation stubs.
 
 ### Invocation
-On the server side we can make a Player "yell" on the clients by saying:
+From the server side we can make a Player "yell" on the clients by saying:
 
     player.rpcYell({times: 3});
     
 Something to note: you must pass rpcYell an object of named arguments, just as its definition would suggest. If you try to invoke an RPC without the `args` object, e.g. as `player.rpcYell(3)`, Wasabi will throw an error.
 
 # Benchmarks
-Wasabi has cpu and network usage benchmark which can be run via `sudo jake bench` (you need sudo because it measures network usage with pcap... patches welcome). Here is the performance of Wasabi v0.1.3 on a 2.8Ghz AMD chip:
+Wasabi has cpu and network usage benchmark which can be run via `sudo jake bench` (you need sudo because it measures network usage with pcap... patches welcome). Here is the performance of Wasabi v0.1.3 on a 2.8Ghz CPU:
 
     One connection, 1000 objects x 148 ops/sec ±0.83% (86 runs sampled)
     Ten connections, 100 objects x 144 ops/sec ±0.93% (84 runs sampled)
