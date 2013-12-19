@@ -6,18 +6,21 @@ A simple then powerful replication library using binary encoding over WebSockets
 
 The main advantages of using Wasabi are:
 
- - All data is transferred as binary rather than JSON 
- - You only need to write a single short function per class to start
-   replicating
- - Replicated object lifetimes can be managed based on a "scope" callback which may be set for each client (or not at all)
- - <del>Remote RPC invocation works almost exactly like local function calls</del> (not quite yet...)
+ - All data is tightly packed as binary rather than JSON, with user-specified
+   precision.
+ - You only need to write a single short function per class to start replicating
+ - Replicated object lifetimes can be managed based on a "scope" callback which
+   may be set for each client (or not at all)
+ - Remote RPC invocation works exactly like local function calls
  - Prototypal inheritance of is fully supported out-of-the-box
+ - You can get started without much boilerplate, then define additional
+   functions to increase performance when you become production-ready
 
 # Usage
 
-The following is a simple overview with minimal code. You can see a functional demo project at https://github.com/kaen/wsb_simple
-
-For further reading, make sure to look at the [API Docs on GitHub](http://kaen.github.io/wasabi/doc/) or build your own locally with `jake doc`.
+For further reading, make sure to look at the [API Docs on
+GitHub](http://kaen.github.io/wasabi/doc/) or build your own locally with `jake
+doc`.
 
 ## Simple Replication
 
@@ -50,11 +53,11 @@ encode their maximum value.
         desc.float('health', 16); // a normalized 16 bit signed float
     }
 
-The `desc` argument which Wasabi passes to `serialize` is a "description"
-of the object. The actual class of the `desc` object is determined by the
-whether the object is being packed or unpacked. Using this one weird
-trick, you only have to write a single function and Wasabi will figure
-out how to take your object in *and* out of the network.
+The `desc` argument which Wasabi passes to `serialize` is a "description" of the
+object. The actual class of the `desc` object is determined by whether the
+object is being packed or unpacked. Using this one weird trick, you only have to
+write a single function and Wasabi will figure out how to take your object in
+*and* out of the network.
 
 At this point you're ready to start replicating:
 
@@ -107,34 +110,44 @@ You probably want to then read the object from a socket on the client side:
 
 ## Remote Procedure Calls
 ### Definition
-*Defining and invoking RPCs is currently a little wonky. Progress is being made towards more natural invocation and definition conventions, so the following is subject to change.*
+To define a class RPC, create a method prefixed with "rpc":
 
-To define a class RPC, create a method prefixed with "rpc" which takes a single `args` argument, which is an Object of named arguments and their values:
-
-    Player.prototype.rpcYell = function (args) {
+    Player.prototype.rpcYell = function (times) {
         var i;
-        for(i = 0; i < args.times; i++) {
+        for(i = 0; i < times; i++) {
             console.log('SPAARTA!');
         }
     }
     
-Here's the wonkiness: you have to write an `rpc*Args` for any RPC that takes arguments. This is exactly the same as writing a `serialize` method for replicated classes. For `rpcYell` above, we'll need to write `rpcYellArgs` as follows:
-
-    Player.prototype.rpcYellArgs = function (desc) {
-        desc.uint('times', 8);
-    }
-    
-Make sure that you call `addClass` only **after** defining RPCs, as Wasabi will look for any methods starting with `rpc` and replace them with the actual remote invocation stubs.
+Make sure that you call `addClass` only **after** defining RPCs, as Wasabi will
+look for any methods starting with `rpc` and replace them with the actual remote
+invocation stubs.
 
 ### Invocation
 From the server side we can make a Player "yell" on the clients by saying:
 
-    player.rpcYell({times: 3});
-    
-Something to note: you must pass rpcYell an object of named arguments, just as its definition would suggest. If you try to invoke an RPC without the `args` object, e.g. as `player.rpcYell(3)`, Wasabi will throw an error.
+    player.rpcYell(3);
+
+### Performance Enhancement
+In order to allow rapid prototyping, Wasabi will infer the types of the
+arguments (float, uint, etc.) upon invocation by default. There is significant
+CPU and network overhead involved in doing this, so it is highly recommended
+that production code includes "args" functions for each RPC. The args function
+is written like the serialize function for an object, but is applied to the
+arguments on the RPC. The benefit of writing these functions is that Wasabi
+doesn't have to detect the types of the arguments, and also does not have to
+encode type information over the network.
+
+The args function for `rpcYell` above would look like:
+
+    Player.prototype.rpcYellArgs = function (desc) {
+        desc.uint('times', 8); // An 8-bit unsigned integer
+    }
 
 # Benchmarks
-Wasabi has cpu and network usage benchmark which can be run via `sudo jake bench` (you need sudo because it measures network usage with pcap... patches welcome). Here is the performance of Wasabi v0.1.3 on a 2.8Ghz CPU:
+Wasabi has cpu and network usage benchmark which can be run via `sudo jake
+bench` (you need sudo because it measures network usage with pcap... patches
+welcome). Here is the performance of Wasabi v0.1.3 on a 2.8Ghz CPU:
 
     One connection, 1000 objects x 148 ops/sec ±0.83% (86 runs sampled)
     Ten connections, 100 objects x 144 ops/sec ±0.93% (84 runs sampled)
@@ -150,4 +163,6 @@ Wasabi has cpu and network usage benchmark which can be run via `sudo jake bench
     13.09kB/s at 15hz
 
 # Contact
-If you have bug reports, feature requests, questions, or pull requests, drop by the [github repo](https://github.com/kaen/wasabi). If you have lavish praise or eloquent maledictions, email me at [bkconrad@gmail.com](mailto:bkconrad@gmail.com).
+If you have bug reports, feature requests, questions, or pull requests, drop by
+the [github repo](https://github.com/kaen/wasabi). If you have lavish praise or
+eloquent maledictions, email me at [bkconrad@gmail.com](mailto:bkconrad@gmail.com).
