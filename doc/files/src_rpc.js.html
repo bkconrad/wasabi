@@ -59,6 +59,8 @@
 
             <ul id="api-modules" class="apis modules">
             
+                <li><a href="../modules/Types.html">Types</a></li>
+            
             </ul>
         </div>
     </div>
@@ -99,14 +101,66 @@
 <div class="file">
     <pre class="code prettyprint linenums">
 /**
- * A POD class representing an RPC definition
  * @class Rpc
  * @constructor
  */
+
 function Rpc(fn, klass, serialize) {
     this._fn = fn;
     this._klass = klass;
-    this._serialize = serialize;
+    this._serialize = serialize || Rpc._makeDefaultSerialize(fn.length);
+
+    // Many thanks to http://mattsnider.com/parsing-javascript-function-argument-names/
+	var funStr = fn.toString();
+    this._args = funStr.slice(funStr.indexOf(&#x27;(&#x27;) + 1, funStr.indexOf(&#x27;)&#x27;)).match(/([^\s,]+)/g) || [];
+}
+
+/**
+ * Populate &#x60;obj&#x60; with keys corresponding to the names of the argument in the
+ * nth position of the original function and values from the indexed values in
+ * &#x60;obj&#x60;
+ * @method _populateKeys
+ * @private
+ * @param {Object} obj The target object containing indexed values
+ */
+Rpc.prototype._populateKeys = function(obj) {
+	for(var i = 0; i &lt; obj.length; i++) {
+		obj[this._args[i]] = obj[i];
+	}
+}
+
+/**
+ * Populate &#x60;obj&#x60; with keys corresponding to the names of the argument in the
+ * nth position of the original function and values from the indexed values in
+ * &#x60;obj&#x60;
+ * @method _populateIndexes
+ * @private
+ * @param {Object} obj The target object containing indexed values
+ */
+Rpc.prototype._populateIndexes = function(obj) {
+	for(var i = 0; i &lt; this._args.length; i++) {
+		if(obj[i] === undefined) {
+			obj[i] = obj[this._args[i]];
+		}
+	}
+}
+
+/**
+ * Creates a default serialization function for an RPC definition when no args
+ * function is supplied. The resultant function simply calls &#x60;desc.any(i, 16)&#x60;
+ * the appropriate number of times. This means that by default, RPC arguments
+ * have 16 bit precision.
+ * @method _makeDefaultSerialize
+ * @static
+ * @param {Number} nargs The number of arguments to serialize
+ * @return The serialize function
+ */
+Rpc._makeDefaultSerialize = function(nargs) {
+	return function _defaultSerialize(desc) {
+		for(var i = 0; i &lt; nargs; i++) {
+			desc.any(i, 16);
+		}
+	};
 }
 
 module.exports = Rpc;

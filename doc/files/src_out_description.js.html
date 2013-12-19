@@ -59,6 +59,8 @@
 
             <ul id="api-modules" class="apis modules">
             
+                <li><a href="../modules/Types.html">Types</a></li>
+            
             </ul>
         </div>
     </div>
@@ -98,24 +100,35 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
+var Types = require(&#x27;./types.js&#x27;);
 /**
  * A class which unpacks an object when passed to its .serialize function
  * @class OutDescription
  * @constructor
  */
 var OutDescription = function () {
-    this._target = undefined;
-    this._bitStream = undefined;
+    this._target = null;
+    this._bitStream = null;
 };
 
 OutDescription.prototype = {
-    uint: function(name, bits) {
-        this._target[name] = this._bitStream.readUInt(16);
+    uint: function (name, bits) {
+        this._target[name] = this._bitStream.readUInt(bits);
+    },
+
+    sint: function (name, bits) {
+        this._target[name] = this._bitStream.readSInt(bits);
+    },
+
+    float: function (name, bits) {
+        this._target[name] = this._bitStream.readFloat(bits);
+    },
+
+    any: function (name, bits) {
+        var type = this._bitStream.readUInt(16);
+        this[Types.fromValue[type]](name, bits);
     }
-    , sint: function(name, bits) {
-        this._target[name] = this._bitStream.readSInt(16);
-    }
-}
+};
 
 module.exports = OutDescription;
 

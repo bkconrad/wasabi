@@ -59,6 +59,8 @@
 
             <ul id="api-modules" class="apis modules">
             
+                <li><a href="../modules/Types.html">Types</a></li>
+            
             </ul>
         </div>
     </div>
@@ -106,6 +108,10 @@
         </div>
     
 
+    
+        
+            Module: <a href="../modules/Types.html">Types</a>
+        
     
 
     
@@ -376,7 +382,7 @@
             
         
         
-        <a href="../files/src_wasabi.js.html#l455"><code>src&#x2F;wasabi.js:455</code></a>
+        <a href="../files/src_wasabi.js.html#l479"><code>src&#x2F;wasabi.js:479</code></a>
         
         </p>
 
@@ -415,19 +421,13 @@ when no _scopeCallback is specified for a connection</p>
             
                 <li class="arg">
                     
-                        <code>args</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
                         <code>obj</code>
                     
                 </li>
             
                 <li class="arg">
                     
-                        <code>conns</code>
+                        <code>args</code>
                     
                 </li>
             
@@ -462,7 +462,7 @@ when no _scopeCallback is specified for a connection</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l345"><code>src&#x2F;wasabi.js:345</code></a>
+        <a href="../files/src_wasabi.js.html#l361"><code>src&#x2F;wasabi.js:361</code></a>
         
         </p>
 
@@ -501,22 +501,6 @@ when no _scopeCallback is specified for a connection</p>
             
                 <li class="param">
                     
-                        <code class="param-name">args</code>
-                        <span class="type">Object</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the arguments to the rpc</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
                         <code class="param-name">obj</code>
                         <span class="type">NetObject</span>
                     
@@ -524,8 +508,8 @@ when no _scopeCallback is specified for a connection</p>
                     
 
                     <div class="param-description">
-                        <p>the obj to use as the context the
-invocation, or false for static invocations</p>
+                        <p>the obj to use as the context the invocation,
+    or false for static invocations</p>
 
                     </div>
 
@@ -534,16 +518,16 @@ invocation, or false for static invocations</p>
             
                 <li class="param">
                     
-                        <code class="param-name">conns</code>
-                        <span class="type">Mixed</span>
+                        <code class="param-name">args</code>
+                        <span class="type">Array</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>falsy to invoke the rpc on all connections.
-Otherwise must be a connection or array of connections to emit
-the invocation to</p>
+                        <p>the arguments to the rpc, followed by an optional
+    list of connections to emit the invocation to. If no connections
+    are specified, the invocation is emitted to all connections</p>
 
                     </div>
 
@@ -564,7 +548,23 @@ the invocation to</p>
     <h3 class="name"><code>_packGhost</code></h3>
 
     
-        <span class="paren">()</span>
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>obj</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>bs</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
     
 
     
@@ -594,7 +594,7 @@ the invocation to</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l202"><code>src&#x2F;wasabi.js:202</code></a>
+        <a href="../files/src_wasabi.js.html#l206"><code>src&#x2F;wasabi.js:206</code></a>
         
         </p>
 
@@ -609,6 +609,46 @@ the invocation to</p>
 
     </div>
 
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">obj</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The object to pack</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">bs</code>
+                        <span class="type">BitStream</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The bitstream to pack into</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
     
 
     
@@ -667,7 +707,7 @@ the invocation to</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l238"><code>src&#x2F;wasabi.js:238</code></a>
+        <a href="../files/src_wasabi.js.html#l244"><code>src&#x2F;wasabi.js:244</code></a>
         
         </p>
 
@@ -678,7 +718,7 @@ the invocation to</p>
     </div>
 
     <div class="description">
-        <p>Packs ghosts for needed objects into bs</p>
+        <p>Packs ghosts for needed objects into <code>bs</code></p>
 
     </div>
 
@@ -691,7 +731,7 @@ the invocation to</p>
                 <li class="param">
                     
                         <code class="param-name">objects</code>
-                        <span class="type">Object</span>
+                        <span class="type">Array</span>
                     
 
                     
@@ -780,7 +820,7 @@ the invocation to</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l270"><code>src&#x2F;wasabi.js:270</code></a>
+        <a href="../files/src_wasabi.js.html#l279"><code>src&#x2F;wasabi.js:279</code></a>
         
         </p>
 
@@ -810,7 +850,7 @@ the invocation to</p>
                     
 
                     <div class="param-description">
-                        <p>An Array or map of objects to pack ghosts for</p>
+                        <p>An Array or map of objects to remove</p>
 
                     </div>
 
@@ -905,7 +945,7 @@ the invocation to</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l405"><code>src&#x2F;wasabi.js:405</code></a>
+        <a href="../files/src_wasabi.js.html#l426"><code>src&#x2F;wasabi.js:426</code></a>
         
         </p>
 
@@ -945,14 +985,14 @@ the invocation to</p>
                 <li class="param">
                     
                         <code class="param-name">args</code>
-                        <span class="type">Object</span>
+                        <span class="type">Array</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>The arguments object to be serialized
-into this invocation</p>
+                        <p>The arguments to be serialized into this
+    invocation</p>
 
                     </div>
 
@@ -968,8 +1008,8 @@ into this invocation</p>
                     
 
                     <div class="param-description">
-                        <p>The NetObject to apply the RPC to (or
-falsy for &quot;static&quot; RPC invocation</p>
+                        <p>The NetObject to apply the RPC to (or falsy
+    for &quot;static&quot; RPC invocation</p>
 
                     </div>
 
@@ -1046,7 +1086,7 @@ falsy for &quot;static&quot; RPC invocation</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l389"><code>src&#x2F;wasabi.js:389</code></a>
+        <a href="../files/src_wasabi.js.html#l410"><code>src&#x2F;wasabi.js:410</code></a>
         
         </p>
 
@@ -1097,7 +1137,23 @@ falsy for &quot;static&quot; RPC invocation</p>
     <h3 class="name"><code>_packUpdate</code></h3>
 
     
-        <span class="paren">()</span>
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>obj</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>bs</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
     
 
     
@@ -1127,7 +1183,7 @@ falsy for &quot;static&quot; RPC invocation</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l177"><code>src&#x2F;wasabi.js:177</code></a>
+        <a href="../files/src_wasabi.js.html#l178"><code>src&#x2F;wasabi.js:178</code></a>
         
         </p>
 
@@ -1138,10 +1194,50 @@ falsy for &quot;static&quot; RPC invocation</p>
     </div>
 
     <div class="description">
-        <p>packs update data for obj</p>
+        <p>Packs update data for <code>obj</code> into <code>bs</code></p>
 
     </div>
 
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">obj</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The object to pack</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">bs</code>
+                        <span class="type">BitStream</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The bitstream to pack into</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
     
 
     
@@ -1200,7 +1296,7 @@ falsy for &quot;static&quot; RPC invocation</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l309"><code>src&#x2F;wasabi.js:309</code></a>
+        <a href="../files/src_wasabi.js.html#l323"><code>src&#x2F;wasabi.js:323</code></a>
         
         </p>
 
@@ -1297,7 +1393,7 @@ falsy for &quot;static&quot; RPC invocation</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l470"><code>src&#x2F;wasabi.js:470</code></a>
+        <a href="../files/src_wasabi.js.html#l496"><code>src&#x2F;wasabi.js:496</code></a>
         
         </p>
 
@@ -1364,7 +1460,7 @@ falsy for &quot;static&quot; RPC invocation</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l212"><code>src&#x2F;wasabi.js:212</code></a>
+        <a href="../files/src_wasabi.js.html#l218"><code>src&#x2F;wasabi.js:218</code></a>
         
         </p>
 
@@ -1455,7 +1551,7 @@ falsy for &quot;static&quot; RPC invocation</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l255"><code>src&#x2F;wasabi.js:255</code></a>
+        <a href="../files/src_wasabi.js.html#l264"><code>src&#x2F;wasabi.js:264</code></a>
         
         </p>
 
@@ -1466,7 +1562,7 @@ falsy for &quot;static&quot; RPC invocation</p>
     </div>
 
     <div class="description">
-        <p>Unpack all needed ghosts from bs</p>
+        <p>Unpack all needed ghosts from <code>bs</code></p>
 
     </div>
 
@@ -1546,7 +1642,7 @@ falsy for &quot;static&quot; RPC invocation</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l286"><code>src&#x2F;wasabi.js:286</code></a>
+        <a href="../files/src_wasabi.js.html#l297"><code>src&#x2F;wasabi.js:297</code></a>
         
         </p>
 
@@ -1557,7 +1653,8 @@ falsy for &quot;static&quot; RPC invocation</p>
     </div>
 
     <div class="description">
-        <p>Unpack all needed removed ghosts from bs</p>
+        <p>Unpack all removed ghosts from bs. An object with its ghost unpacked
+in this way will be removed from the local Wasabi&#39;s registry</p>
 
     </div>
 
@@ -1643,7 +1740,7 @@ falsy for &quot;static&quot; RPC invocation</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l424"><code>src&#x2F;wasabi.js:424</code></a>
+        <a href="../files/src_wasabi.js.html#l446"><code>src&#x2F;wasabi.js:446</code></a>
         
         </p>
 
@@ -1711,7 +1808,17 @@ arguments from bs</p>
     <h3 class="name"><code>_unpackUpdate</code></h3>
 
     
-        <span class="paren">()</span>
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>bs</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
     
 
     
@@ -1741,7 +1848,7 @@ arguments from bs</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l187"><code>src&#x2F;wasabi.js:187</code></a>
+        <a href="../files/src_wasabi.js.html#l190"><code>src&#x2F;wasabi.js:190</code></a>
         
         </p>
 
@@ -1752,10 +1859,34 @@ arguments from bs</p>
     </div>
 
     <div class="description">
-        <p>unpacks update data for an object</p>
+        <p>Unpacks update data from <code>bs</code></p>
 
     </div>
 
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">bs</code>
+                        <span class="type">BitStream</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The bitstream to unpack from</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
     
 
     
@@ -1808,7 +1939,7 @@ arguments from bs</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l324"><code>src&#x2F;wasabi.js:324</code></a>
+        <a href="../files/src_wasabi.js.html#l340"><code>src&#x2F;wasabi.js:340</code></a>
         
         </p>
 
@@ -1897,7 +2028,7 @@ arguments from bs</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l43"><code>src&#x2F;wasabi.js:43</code></a>
+        <a href="../files/src_wasabi.js.html#l42"><code>src&#x2F;wasabi.js:42</code></a>
         
         </p>
 
@@ -1993,7 +2124,7 @@ this class through a Connection</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l124"><code>src&#x2F;wasabi.js:124</code></a>
+        <a href="../files/src_wasabi.js.html#l123"><code>src&#x2F;wasabi.js:123</code></a>
         
         </p>
 
@@ -2004,8 +2135,9 @@ this class through a Connection</p>
     </div>
 
     <div class="description">
-        <p>Attach a client connected through the given socket object.
-Currently this must be a socket.io socket</p>
+        <p>Attach a client connected through the given socket object. Currently
+this must be a WebSocket or socket.io socket, or something that is API
+compatible (i.e. has an <code>onmessage</code> callback and a <code>send</code> method).</p>
 
     </div>
 
@@ -2024,8 +2156,8 @@ Currently this must be a socket.io socket</p>
                     
 
                     <div class="param-description">
-                        <p>The socket object used to communicate
-with the new client</p>
+                        <p>The socket object used to communicate with the
+    new client</p>
 
                     </div>
 
@@ -2106,7 +2238,7 @@ with the new client</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l53"><code>src&#x2F;wasabi.js:53</code></a>
+        <a href="../files/src_wasabi.js.html#l52"><code>src&#x2F;wasabi.js:52</code></a>
         
         </p>
 
@@ -2218,7 +2350,7 @@ falsy, the nextSerialNumber will be used</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l97"><code>src&#x2F;wasabi.js:97</code></a>
+        <a href="../files/src_wasabi.js.html#l95"><code>src&#x2F;wasabi.js:95</code></a>
         
         </p>
 
@@ -2229,7 +2361,7 @@ falsy, the nextSerialNumber will be used</p>
     </div>
 
     <div class="description">
-        <p>attach to a server connected through the socket object</p>
+        <p>Attach to a server connected through the socket object</p>
 
     </div>
 
@@ -2248,8 +2380,8 @@ falsy, the nextSerialNumber will be used</p>
                     
 
                     <div class="param-description">
-                        <p>The socket object used to communicate
-with the new server</p>
+                        <p>The socket object used to communicate with the
+    new server</p>
 
                     </div>
 
@@ -2340,7 +2472,7 @@ client)</p>
             
                 <li class="arg">
                     
-                        <code>serialize</code>
+                        <code>opt_serialize</code>
                     
                 </li>
             
@@ -2377,7 +2509,7 @@ client)</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l82"><code>src&#x2F;wasabi.js:82</code></a>
+        <a href="../files/src_wasabi.js.html#l81"><code>src&#x2F;wasabi.js:81</code></a>
         
         </p>
 
@@ -2388,8 +2520,7 @@ client)</p>
     </div>
 
     <div class="description">
-        <p>create an RPC from the supplied procedure function and serialize
-function.</p>
+        <p>Create an RPC from the supplied procedure and serialize functions.</p>
 
     </div>
 
@@ -2408,8 +2539,8 @@ function.</p>
                     
 
                     <div class="param-description">
-                        <p>The local function to call when the RPC is invoked
-on a remote host</p>
+                        <p>The local function to call when the RPC is
+    invoked on a remote host</p>
 
                     </div>
 
@@ -2418,15 +2549,15 @@ on a remote host</p>
             
                 <li class="param">
                     
-                        <code class="param-name">serialize</code>
+                        <code class="param-name">opt_serialize</code>
                         <span class="type">Function</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>A serialize function describing the
-arguments used by this RPC</p>
+                        <p>An optional serialize function
+    describing the arguments used by this RPC</p>
 
                     </div>
 
@@ -2446,8 +2577,8 @@ arguments used by this RPC</p>
                     
                         <span class="type">Function</span>:
                     
-                    <p>The function you should call remotely to invoke the
-RPC on a connection</p>
+                    <p>The function you should call remotely to invoke
+    the RPC on a connection</p>
 
                 
             </div>
@@ -2490,7 +2621,7 @@ RPC on a connection</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l154"><code>src&#x2F;wasabi.js:154</code></a>
+        <a href="../files/src_wasabi.js.html#l155"><code>src&#x2F;wasabi.js:155</code></a>
         
         </p>
 
@@ -2502,7 +2633,7 @@ RPC on a connection</p>
 
     <div class="description">
         <p>Process the incoming and outgoing data for all connected clients and
-servers</p>
+servers. This is typically called in your game&#39;s update loop</p>
 
     </div>
 
@@ -2567,7 +2698,8 @@ servers</p>
     </div>
 
     <div class="description">
-        <p>Remove a client by its socket object</p>
+        <p>Remove a client by its socket object. <code>sock</code> must be strictly equal
+(<code>===</code>) to the original socket.</p>
 
     </div>
 
@@ -2645,7 +2777,7 @@ servers</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l72"><code>src&#x2F;wasabi.js:72</code></a>
+        <a href="../files/src_wasabi.js.html#l71"><code>src&#x2F;wasabi.js:71</code></a>
         
         </p>
 
@@ -2735,7 +2867,7 @@ removed from the registry</p>
             
         
         
-        <a href="../files/src_wasabi.js.html#l109"><code>src&#x2F;wasabi.js:109</code></a>
+        <a href="../files/src_wasabi.js.html#l107"><code>src&#x2F;wasabi.js:107</code></a>
         
         </p>
 
@@ -2746,7 +2878,8 @@ removed from the registry</p>
     </div>
 
     <div class="description">
-        <p>Remove a server by its socket object</p>
+        <p>Remove a server by its socket object. <code>sock</code> must be strictly equal
+(<code>===</code>) to the original socket.</p>
 
     </div>
 

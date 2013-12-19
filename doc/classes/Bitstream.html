@@ -59,6 +59,8 @@
 
             <ul id="api-modules" class="apis modules">
             
+                <li><a href="../modules/Types.html">Types</a></li>
+            
             </ul>
         </div>
     </div>
@@ -102,10 +104,14 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/src_bitstream.js.html#l4"><code>src&#x2F;bitstream.js:4</code></a>
+            Defined in: <a href="../files/src_bitstream.js.html#l6"><code>src&#x2F;bitstream.js:6</code></a>
         </div>
     
 
+    
+        
+            Module: <a href="../modules/Types.html">Types</a>
+        
     
 
     
@@ -163,7 +169,7 @@
             
         
         
-        <a href="../files/src_bitstream.js.html#l4"><code>src&#x2F;bitstream.js:4</code></a>
+        <a href="../files/src_bitstream.js.html#l6"><code>src&#x2F;bitstream.js:6</code></a>
         
         </p>
 
@@ -234,28 +240,35 @@ data for this Bitstream</p>
 
                     <ul class="index-list methods">
                         
-                            <li class="index-item method">
+                            <li class="index-item method private">
                                 <a href="#method__advance">_advance</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method private">
                                 <a href="#method__extend">_extend</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method private">
                                 <a href="#method__getBits">_getBits</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method private">
+                                <a href="#method__serializeObject">_serializeObject</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
                                 <a href="#method__setBits">_setBits</a>
 
                                 
@@ -264,6 +277,20 @@ data for this Bitstream</p>
                         
                             <li class="index-item method">
                                 <a href="#method_align">align</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_appendChars">appendChars</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_appendData">appendData</a>
 
                                 
                                 
@@ -291,6 +318,13 @@ data for this Bitstream</p>
                             </li>
                         
                             <li class="index-item method">
+                                <a href="#method_fromArrayBuffer">fromArrayBuffer</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
                                 <a href="#method_fromChars">fromChars</a>
 
                                 
@@ -301,6 +335,13 @@ data for this Bitstream</p>
                         
                             <li class="index-item method">
                                 <a href="#method_pack">pack</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_peekFloat">peekFloat</a>
 
                                 
                                 
@@ -321,6 +362,13 @@ data for this Bitstream</p>
                             </li>
                         
                             <li class="index-item method">
+                                <a href="#method_readFloat">readFloat</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
                                 <a href="#method_readSInt">readSInt</a>
 
                                 
@@ -335,6 +383,13 @@ data for this Bitstream</p>
                             </li>
                         
                             <li class="index-item method">
+                                <a href="#method_toArrayBuffer">toArrayBuffer</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
                                 <a href="#method_toChars">toChars</a>
 
                                 
@@ -343,6 +398,13 @@ data for this Bitstream</p>
                         
                             <li class="index-item method">
                                 <a href="#method_unpack">unpack</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_writeFloat">writeFloat</a>
 
                                 
                                 
@@ -378,7 +440,7 @@ data for this Bitstream</p>
                 <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="method__advance" class="method item">
+                    <div id="method__advance" class="method item private">
     <h3 class="name"><code>_advance</code></h3>
 
     
@@ -400,6 +462,8 @@ data for this Bitstream</p>
     
 
     
+        <span class="flag private">private</span>
+    
 
     
 
@@ -420,7 +484,7 @@ data for this Bitstream</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l303"><code>src&#x2F;bitstream.js:303</code></a>
+        <a href="../files/src_bitstream.js.html#l397"><code>src&#x2F;bitstream.js:397</code></a>
         
         </p>
 
@@ -431,8 +495,7 @@ data for this Bitstream</p>
     </div>
 
     <div class="description">
-        <p>Advance the head by the specified number of bits and check for
-overread</p>
+        <p>Advance the head by the specified number of bits and check for overread</p>
 
     </div>
 
@@ -468,7 +531,7 @@ overread</p>
 </div>
 
                 
-                    <div id="method__extend" class="method item">
+                    <div id="method__extend" class="method item private">
     <h3 class="name"><code>_extend</code></h3>
 
     
@@ -490,6 +553,8 @@ overread</p>
     
 
     
+        <span class="flag private">private</span>
+    
 
     
 
@@ -510,7 +575,7 @@ overread</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l316"><code>src&#x2F;bitstream.js:316</code></a>
+        <a href="../files/src_bitstream.js.html#l410"><code>src&#x2F;bitstream.js:410</code></a>
         
         </p>
 
@@ -558,7 +623,7 @@ advances the index</p>
 </div>
 
                 
-                    <div id="method__getBits" class="method item">
+                    <div id="method__getBits" class="method item private">
     <h3 class="name"><code>_getBits</code></h3>
 
     
@@ -590,6 +655,8 @@ advances the index</p>
     
 
     
+        <span class="flag private">private</span>
+    
 
     
 
@@ -610,7 +677,7 @@ advances the index</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l97"><code>src&#x2F;bitstream.js:97</code></a>
+        <a href="../files/src_bitstream.js.html#l103"><code>src&#x2F;bitstream.js:103</code></a>
         
         </p>
 
@@ -687,7 +754,122 @@ advances the index</p>
 </div>
 
                 
-                    <div id="method__setBits" class="method item">
+                    <div id="method__serializeObject" class="method item private">
+    <h3 class="name"><code>_serializeObject</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>obj</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>description</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_bitstream.js.html#l354"><code>src&#x2F;bitstream.js:354</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Calls all serialize methods in this object&#39;s prototype chain with
+<code>description</code> as its argument. This allows packing and unpacking classes
+which use prototypal inheritance.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">obj</code>
+                        <span class="type">NetObject</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The object to serialize</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">description</code>
+                        <span class="type">Description</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The description to serialize through</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method__setBits" class="method item private">
     <h3 class="name"><code>_setBits</code></h3>
 
     
@@ -721,6 +903,8 @@ advances the index</p>
     
 
     
+        <span class="flag private">private</span>
+    
 
     
 
@@ -741,7 +925,7 @@ advances the index</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l55"><code>src&#x2F;bitstream.js:55</code></a>
+        <a href="../files/src_bitstream.js.html#l59"><code>src&#x2F;bitstream.js:59</code></a>
         
         </p>
 
@@ -752,7 +936,8 @@ advances the index</p>
     </div>
 
     <div class="description">
-        <p>Set the <code>n</code> bits starting at <code>offset</code> to contain the unsigned integer <code>value</code>.</p>
+        <p>Set the <code>n</code> bits starting at <code>offset</code> to contain the unsigned integer
+<code>value</code></p>
 
     </div>
 
@@ -803,8 +988,8 @@ advances the index</p>
                     
 
                     <div class="param-description">
-                        <p>The value to pack. Will be cast to an
-unsigned integer and truncated or padded to n bits</p>
+                        <p>The value to pack. Will be cast to an unsigned
+    integer and truncated or padded to n bits</p>
 
                     </div>
 
@@ -853,7 +1038,7 @@ unsigned integer and truncated or padded to n bits</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l40"><code>src&#x2F;bitstream.js:40</code></a>
+        <a href="../files/src_bitstream.js.html#l45"><code>src&#x2F;bitstream.js:45</code></a>
         
         </p>
 
@@ -864,10 +1049,120 @@ unsigned integer and truncated or padded to n bits</p>
     </div>
 
     <div class="description">
-        <p>Move the index to the first index &gt;= the current index which is
-the beginning of a cell. Useful for burning off any padding when
-processing data from &quot;appendData&quot; since it pads to the nearest
-multiple of 7</p>
+        <p>Move the _index to the first position &gt;= the current index which is the
+beginning of a cell. Used to burn off padding when processing data from
+&quot;appendData&quot; since it pads to the nearest multiple of CELLSIZE</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_appendChars" class="method item">
+    <h3 class="name"><code>appendChars</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_bitstream.js.html#l188"><code>src&#x2F;bitstream.js:188</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Append UTF-8 encoded data from a string to this Bitstream</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_appendData" class="method item">
+    <h3 class="name"><code>appendData</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_bitstream.js.html#l174"><code>src&#x2F;bitstream.js:174</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Append data from an ArrayBuffer received over a binary websocket to this
+Bitstream</p>
 
     </div>
 
@@ -915,7 +1210,7 @@ multiple of 7</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l22"><code>src&#x2F;bitstream.js:22</code></a>
+        <a href="../files/src_bitstream.js.html#l26"><code>src&#x2F;bitstream.js:26</code></a>
         
         </p>
 
@@ -940,7 +1235,8 @@ multiple of 7</p>
                     
                         <span class="type">Number</span>:
                     
-                    <p>the number of bits which can be read without causing an overread</p>
+                    <p>the number of bits which can be read without causing an
+    overread</p>
 
                 
             </div>
@@ -983,7 +1279,7 @@ multiple of 7</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l30"><code>src&#x2F;bitstream.js:30</code></a>
+        <a href="../files/src_bitstream.js.html#l35"><code>src&#x2F;bitstream.js:35</code></a>
         
         </p>
 
@@ -1052,7 +1348,7 @@ multiple of 7</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l282"><code>src&#x2F;bitstream.js:282</code></a>
+        <a href="../files/src_bitstream.js.html#l376"><code>src&#x2F;bitstream.js:376</code></a>
         
         </p>
 
@@ -1064,7 +1360,7 @@ multiple of 7</p>
 
     <div class="description">
         <p>See if the contents and byte length of the buffer of this Bitstream
-and <code>other</code> are exactly  equal</p>
+and <code>other</code> are exactly equal</p>
 
     </div>
 
@@ -1114,6 +1410,62 @@ and <code>other</code> are exactly  equal</p>
 </div>
 
                 
+                    <div id="method_fromArrayBuffer" class="method item">
+    <h3 class="name"><code>fromArrayBuffer</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_bitstream.js.html#l164"><code>src&#x2F;bitstream.js:164</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Populate the data in this Bitstream from an ArrayBuffer received over a 
+binary websocket</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="method_fromChars" class="method item">
     <h3 class="name"><code>fromChars</code></h3>
 
@@ -1148,7 +1500,7 @@ and <code>other</code> are exactly  equal</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l328"><code>src&#x2F;bitstream.js:328</code></a>
+        <a href="../files/src_bitstream.js.html#l423"><code>src&#x2F;bitstream.js:423</code></a>
         
         </p>
 
@@ -1213,7 +1565,7 @@ and <code>other</code> are exactly  equal</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l257"><code>src&#x2F;bitstream.js:257</code></a>
+        <a href="../files/src_bitstream.js.html#l326"><code>src&#x2F;bitstream.js:326</code></a>
         
         </p>
 
@@ -1224,7 +1576,7 @@ and <code>other</code> are exactly  equal</p>
     </div>
 
     <div class="description">
-        <p>Pack an object with a .serialize() method into this bitstream</p>
+        <p>Pack an object with a <code>.serialize()</code> method into this bitstream</p>
 
     </div>
 
@@ -1244,6 +1596,95 @@ and <code>other</code> are exactly  equal</p>
 
                     <div class="param-description">
                         <p>The object to serialize</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_peekFloat" class="method item">
+    <h3 class="name"><code>peekFloat</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>bits</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_bitstream.js.html#l283"><code>src&#x2F;bitstream.js:283</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Read a normalized float without consuming any bits</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">bits</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The number of bits to peek at</p>
 
                     </div>
 
@@ -1302,7 +1743,7 @@ and <code>other</code> are exactly  equal</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l221"><code>src&#x2F;bitstream.js:221</code></a>
+        <a href="../files/src_bitstream.js.html#l247"><code>src&#x2F;bitstream.js:247</code></a>
         
         </p>
 
@@ -1313,7 +1754,7 @@ and <code>other</code> are exactly  equal</p>
     </div>
 
     <div class="description">
-        <p>read a signed integer without consuming any bits</p>
+        <p>Read a signed integer without consuming any bits</p>
 
     </div>
 
@@ -1332,7 +1773,7 @@ and <code>other</code> are exactly  equal</p>
                     
 
                     <div class="param-description">
-                        <p>The number of bits to unpack</p>
+                        <p>The number of bits to peek at</p>
 
                     </div>
 
@@ -1391,7 +1832,7 @@ and <code>other</code> are exactly  equal</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l189"><code>src&#x2F;bitstream.js:189</code></a>
+        <a href="../files/src_bitstream.js.html#l215"><code>src&#x2F;bitstream.js:215</code></a>
         
         </p>
 
@@ -1403,6 +1844,95 @@ and <code>other</code> are exactly  equal</p>
 
     <div class="description">
         <p>Read an unsigned integer <em>without</em> consuming any bits</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">bits</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The number of bits to unpack</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_readFloat" class="method item">
+    <h3 class="name"><code>readFloat</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>bits</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_bitstream.js.html#l298"><code>src&#x2F;bitstream.js:298</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Read a float value, consuming the specified number of bits</p>
 
     </div>
 
@@ -1480,7 +2010,7 @@ and <code>other</code> are exactly  equal</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l232"><code>src&#x2F;bitstream.js:232</code></a>
+        <a href="../files/src_bitstream.js.html#l258"><code>src&#x2F;bitstream.js:258</code></a>
         
         </p>
 
@@ -1491,7 +2021,7 @@ and <code>other</code> are exactly  equal</p>
     </div>
 
     <div class="description">
-        <p>read a signed integer consuming the specified number of bits</p>
+        <p>Read a signed integer consuming the specified number of bits</p>
 
     </div>
 
@@ -1569,7 +2099,7 @@ and <code>other</code> are exactly  equal</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l199"><code>src&#x2F;bitstream.js:199</code></a>
+        <a href="../files/src_bitstream.js.html#l225"><code>src&#x2F;bitstream.js:225</code></a>
         
         </p>
 
@@ -1616,6 +2146,78 @@ and <code>other</code> are exactly  equal</p>
 </div>
 
                 
+                    <div id="method_toArrayBuffer" class="method item">
+    <h3 class="name"><code>toArrayBuffer</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type"></span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_bitstream.js.html#l146"><code>src&#x2F;bitstream.js:146</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Convert the data in this <code>Bitstream</code> to a <code>Uint8Array</code> containing an
+<code>ArrayBuffer</code> suitable for transmitting this data over a binary websocket</p>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                    <p>A <code>Uint8Array</code> containing the data in this Bitstream</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
                     <div id="method_toChars" class="method item">
     <h3 class="name"><code>toChars</code></h3>
 
@@ -1648,7 +2250,7 @@ and <code>other</code> are exactly  equal</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l176"><code>src&#x2F;bitstream.js:176</code></a>
+        <a href="../files/src_bitstream.js.html#l202"><code>src&#x2F;bitstream.js:202</code></a>
         
         </p>
 
@@ -1713,7 +2315,7 @@ and <code>other</code> are exactly  equal</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l269"><code>src&#x2F;bitstream.js:269</code></a>
+        <a href="../files/src_bitstream.js.html#l339"><code>src&#x2F;bitstream.js:339</code></a>
         
         </p>
 
@@ -1744,6 +2346,118 @@ and <code>other</code> are exactly  equal</p>
 
                     <div class="param-description">
                         <p>The object to deserialize to</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_writeFloat" class="method item">
+    <h3 class="name"><code>writeFloat</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>value</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>bits</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_bitstream.js.html#l309"><code>src&#x2F;bitstream.js:309</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Write a normalized float in the range <code>[0.0, 1.0]</code> using the specified
+number of bits</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">value</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Value to write.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">bits</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The number of bits to unpack</p>
 
                     </div>
 
@@ -1808,7 +2522,7 @@ and <code>other</code> are exactly  equal</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l243"><code>src&#x2F;bitstream.js:243</code></a>
+        <a href="../files/src_bitstream.js.html#l269"><code>src&#x2F;bitstream.js:269</code></a>
         
         </p>
 
@@ -1920,7 +2634,7 @@ to the specified number of bits</p>
             
         
         
-        <a href="../files/src_bitstream.js.html#l210"><code>src&#x2F;bitstream.js:210</code></a>
+        <a href="../files/src_bitstream.js.html#l236"><code>src&#x2F;bitstream.js:236</code></a>
         
         </p>
 

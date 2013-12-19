@@ -9,7 +9,15 @@ YUI.add("yuidoc-meta", function(Y) {
         "Rpc",
         "Wasabi"
     ],
-    "modules": [],
-    "allModules": []
+    "modules": [
+        "Types"
+    ],
+    "allModules": [
+        {
+            "displayName": "Types",
+            "name": "Types",
+            "description": "An enum of types that are serializable by Wasabi"
+        }
+    ]
 } };
 });
