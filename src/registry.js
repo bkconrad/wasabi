@@ -102,15 +102,16 @@ Registry.prototype = {
 
     /**
      * Create an RPC from the supplied procedure function and serialize
-     * function. `instance` must be a {{#crossLink "Wasabi"}}{{/crossLink}} instance
+     * function. `instance` must be a {{#crossLink "Wasabi"}}{{/crossLink}}
+     * instance
      * @method mkRpc
      * @param {Function} fn The local function to call when the RPC is invoked
-     * on a remote host
-     * @param {Function} serialize A serialize function describing the
-     * arguments used by this RPC
+     *     on a remote host
+     * @param {Function} serialize A serialize function describing the arguments
+     *     used by this RPC
      * @param {Wasabi} instance The Wasabi instance to register this RPC with
      * @return {Function} The function you should call remotely to invoke the
-     * RPC on a connection
+     *     RPC on a connection
      */
     mkRpc: function (fn, serialize, instance) {
         var hash = this.hash(fn);
@@ -137,7 +138,7 @@ Registry.prototype = {
      * @method addObject
      * @param {NetObject} obj The object to add to the registry
      * @param {Nunmber} serial The serial number to assign to this object. If
-     * falsy, the nextSerialNumber will be used
+     *     falsy, the nextSerialNumber will be used
      */
     addObject: function (obj, serial) {
         obj.wabiSerialNumber = serial || this.nextSerialNumber;

@@ -25,7 +25,8 @@ Bitstream.prototype = {
 
     /**
      * @method bitsLeft
-     * @return {Number} the number of bits which can be read without causing an overread
+     * @return {Number} the number of bits which can be read without causing an
+     *     overread
      */
     bitsLeft: function () {
         return this._nbits - this._index;
@@ -42,10 +43,9 @@ Bitstream.prototype = {
     },
 
     /**
-     * Move the index to the first index >= the current index which is
-     * the beginning of a cell. Useful for burning off any padding when
-     * processing data from "appendData" since it pads to the nearest
-     * multiple of 7
+     * Move the _index to the first position >= the current index which is the
+     * beginning of a cell. Used to burn off padding when processing data from
+     * "appendData" since it pads to the nearest multiple of CELLSIZE
      * @method align
      */
     align: function () {
@@ -57,12 +57,14 @@ Bitstream.prototype = {
     },
 
     /**
-     * Set the `n` bits starting at `offset` to contain the unsigned integer `value`.
+     * Set the `n` bits starting at `offset` to contain the unsigned integer
+     * `value`
      * @method _setBits
+     * @private
      * @param {Number} offset The zero-based bit offset to start at
      * @param {Number} n The number of bits to pack the value in to
-     * @param {Number} value The value to pack. Will be cast to an
-     * unsigned integer and truncated or padded to n bits
+     * @param {Number} value The value to pack. Will be cast to an unsigned
+     *     integer and truncated or padded to n bits
      */
     _setBits: function (offset, n, value) {
         var bits;
@@ -100,6 +102,7 @@ Bitstream.prototype = {
 
     /**
      * Return the value of the first n bits starting at offset
+     * @private
      * @method _getBits
      * @param {Number} offset The zero-based bit offset to start at
      * @param {Number} n The number of bits to unpack the value from
@@ -140,7 +143,12 @@ Bitstream.prototype = {
         return value;
     },
 
-
+    /**
+     * Convert the data in this `Bitstream` to a `Uint8Array` containing an
+     * `ArrayBuffer` suitable for transmitting this data over a binary websocket
+     * @method toArrayBuffer
+     * @return A `Uint8Array` containing the data in this Bitstream
+     */
     toArrayBuffer: function () {
         // TODO: handle CELLSIZE > 8
         var buf = new ArrayBuffer(this.arr.length);
@@ -153,11 +161,21 @@ Bitstream.prototype = {
         return arr;
     },
 
+    /**
+     * Populate the data in this Bitstream from an ArrayBuffer received over a 
+     * binary websocket
+     * @method fromArrayBuffer
+     */
     fromArrayBuffer: function (buffer) {
         this.empty();
         this.appendData(buffer);
     },
 
+    /**
+     * Append data from an ArrayBuffer received over a binary websocket to this
+     * Bitstream
+     * @method appendData
+     */
     appendData: function (buffer) {
         var i;
         for (i = 0; i < buffer.length; i++) {
@@ -167,6 +185,10 @@ Bitstream.prototype = {
         this._extend(i * 7);
     },
 
+    /**
+     * Append UTF-8 encoded data from a string to this Bitstream
+     * @method appendChars
+     */
     appendChars: function (chars) {
         var data = [];
         var i;
@@ -223,9 +245,9 @@ Bitstream.prototype = {
     },
 
     /**
-     * read a signed integer without consuming any bits
+     * Read a signed integer without consuming any bits
      * @method peekSInt
-     * @param {Number} bits The number of bits to unpack
+     * @param {Number} bits The number of bits to peek at
      */
     peekSInt: function (bits) {
         var result = this._getBits(this._index, bits - 1);
@@ -234,7 +256,7 @@ Bitstream.prototype = {
     },
 
     /**
-     * read a signed integer consuming the specified number of bits
+     * Read a signed integer consuming the specified number of bits
      * @method readSInt
      * @param {Number} bits The number of bits to unpack
      */
@@ -258,6 +280,11 @@ Bitstream.prototype = {
         this._extend(1);
     },
 
+    /**
+     * Read a normalized float without consuming any bits
+     * @method peekFloat
+     * @param {Number} bits The number of bits to peek at
+     */
     peekFloat: function (bits) {
         // We unpack the signed integer representation divided by the
         // maximum value a number with this number of bits can hold. By
@@ -280,7 +307,8 @@ Bitstream.prototype = {
     },
 
     /**
-     * Write a normalized float in the range `[0.0, 1.0]` using the specified number of bits
+     * Write a normalized float in the range `[0.0, 1.0]` using the specified
+     * number of bits
      * @method writeFloat
      * @param {Number} value Value to write.
      * @param {Number} bits The number of bits to unpack
@@ -296,7 +324,7 @@ Bitstream.prototype = {
     },
 
     /**
-     * Pack an object with a .serialize() method into this bitstream
+     * Pack an object with a `.serialize()` method into this bitstream
      * @method pack
      * @param {NetObject} obj The object to serialize
      */
@@ -347,7 +375,7 @@ Bitstream.prototype = {
 
     /**
      * See if the contents and byte length of the buffer of this Bitstream
-     * and `other` are exactly  equal
+     * and `other` are exactly equal
      * @method equals
      * @param {Bitstream} other The bitstream to compare with
      * @return {Boolean} `true` if the bistreams are effectively equal
@@ -367,9 +395,9 @@ Bitstream.prototype = {
     },
 
     /**
-     * Advance the head by the specified number of bits and check for
-     * overread
+     * Advance the head by the specified number of bits and check for overread
      * @method _advance
+     * @private
      * @param {Number} bits The number of bits to advance the index by
      */
     _advance: function (bits) {
@@ -383,6 +411,7 @@ Bitstream.prototype = {
      * Extend the buffer size by the specified number of bits. Also
      * advances the index
      * @method _extend
+     * @private
      * @param {Number} bits The number of bits to expand the buffer by
      */
     _extend: function (bits) {

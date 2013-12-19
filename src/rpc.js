@@ -1,5 +1,4 @@
 /**
- * A POD class representing an RPC definition
  * @class Rpc
  * @constructor
  */
@@ -7,7 +6,7 @@
 function Rpc(fn, klass, serialize) {
     this._fn = fn;
     this._klass = klass;
-    this._serialize = serialize || Rpc._mkDefaultSerialize(fn.length);
+    this._serialize = serialize || Rpc._makeDefaultSerialize(fn.length);
 
     // Many thanks to http://mattsnider.com/parsing-javascript-function-argument-names/
 	var funStr = fn.toString();
@@ -15,10 +14,10 @@ function Rpc(fn, klass, serialize) {
 }
 
 /**
- * @method _populateKeys
  * Populate `obj` with keys corresponding to the names of the argument in the
  * nth position of the original function and values from the indexed values in
  * `obj`
+ * @method _populateKeys
  * @private
  * @param {Object} obj The target object containing indexed values
  */
@@ -29,10 +28,10 @@ Rpc.prototype._populateKeys = function(obj) {
 }
 
 /**
- * @method _populateIndexes
  * Populate `obj` with keys corresponding to the names of the argument in the
  * nth position of the original function and values from the indexed values in
  * `obj`
+ * @method _populateIndexes
  * @private
  * @param {Object} obj The target object containing indexed values
  */
@@ -44,7 +43,17 @@ Rpc.prototype._populateIndexes = function(obj) {
 	}
 }
 
-Rpc._mkDefaultSerialize = function(nargs) {
+/**
+ * Creates a default serialization function for an RPC definition when no args
+ * function is supplied. The resultant function simply calls `desc.any(i, 16)`
+ * the appropriate number of times. This means that by default, RPC arguments
+ * have 16 bit precision.
+ * @method _makeDefaultSerialize
+ * @static
+ * @param {Number} nargs The number of arguments to serialize
+ * @return The serialize function
+ */
+Rpc._makeDefaultSerialize = function(nargs) {
 	return function _defaultSerialize(desc) {
 		for(var i = 0; i < nargs; i++) {
 			desc.any(i, 16);

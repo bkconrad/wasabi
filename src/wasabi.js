@@ -79,25 +79,24 @@ function makeWasabi() {
         },
 
         /**
-         * create an RPC from the supplied procedure function and serialize
-         * function.
+         * Create an RPC from the supplied procedure and serialize functions.
          * @method mkRpc
-         * @param {Function} fn The local function to call when the RPC is invoked
-         * on a remote host
-         * @param {Function} serialize A serialize function describing the
-         * arguments used by this RPC
-         * @return {Function} The function you should call remotely to invoke the
-         * RPC on a connection
+         * @param {Function} fn The local function to call when the RPC is
+         *     invoked on a remote host
+         * @param {Function} opt_serialize An optional serialize function
+         *     describing the arguments used by this RPC
+         * @return {Function} The function you should call remotely to invoke
+         *     the RPC on a connection
          */
-        mkRpc: function (fn, serialize) {
-            return this.registry.mkRpc(fn, serialize, this);
+        mkRpc: function (fn, opt_serialize) {
+            return this.registry.mkRpc(fn, opt_serialize, this);
         },
 
         /**
-         * attach to a server connected through the socket object
+         * Attach to a server connected through the socket object
          * @method addServer
-         * @param {Socket} sock The socket object used to communicate
-         * with the new server
+         * @param {Socket} sock The socket object used to communicate with the
+         *     new server
          */
         addServer: function (sock) {
             var conn = new Wasabi.Connection(sock, true, false);
@@ -106,7 +105,8 @@ function makeWasabi() {
         },
 
         /**
-         * Remove a server by its socket object
+         * Remove a server by its socket object. `sock` must be strictly equal
+         * (`===`) to the original socket.
          * @method removeServer
          * @param {Socket} sock The socket object originally passed to addServer
          */
@@ -121,13 +121,14 @@ function makeWasabi() {
         },
 
         /**
-         * Attach a client connected through the given socket object.
-         * Currently this must be a socket.io socket
+         * Attach a client connected through the given socket object. Currently
+         * this must be a WebSocket or socket.io socket, or something that is API
+         * compatible (i.e. has an `onmessage` callback and a `send` method).
          * @method addClient
-         * @param {Socket} client The socket object used to communicate
-         * with the new client
+         * @param {Socket} client The socket object used to communicate with the
+         *     new client
          * @param {Function} scopeCallback See {{#crossLink
-         * "Connection"}}{{/crossLink}}
+         *     "Connection"}}{{/crossLink}}
          */
         addClient: function (client, scopeCallback) {
             var conn = new Wasabi.Connection(client, false, true, scopeCallback);
@@ -136,7 +137,8 @@ function makeWasabi() {
         },
 
         /**
-         * Remove a client by its socket object
+         * Remove a client by its socket object. `sock` must be strictly equal
+         * (`===`) to the original socket.
          * @method removeClient
          * @param {Socket} sock The socket object originally passed to addClient
          */
@@ -152,7 +154,7 @@ function makeWasabi() {
 
         /**
          * Process the incoming and outgoing data for all connected clients and
-         * servers
+         * servers. This is typically called in your game's update loop
          * @method processConnections
          */
         processConnections: function () {
@@ -174,8 +176,10 @@ function makeWasabi() {
         },
 
         /**
-         * packs update data for obj
+         * Packs update data for `obj` into `bs`
          * @method _packUpdate
+         * @param {Object} obj The object to pack
+         * @param {BitStream} bs The bitstream to pack into
          * @private
          */
         _packUpdate: function (obj, bs) {
@@ -184,8 +188,9 @@ function makeWasabi() {
         },
 
         /**
-         * unpacks update data for an object
+         * Unpacks update data from `bs`
          * @method _unpackUpdate
+         * @param {BitStream} bs The bitstream to unpack from
          * @private
          */
         _unpackUpdate: function (bs) {
@@ -201,6 +206,8 @@ function makeWasabi() {
         /**
          * Packs data needed to instantiate a replicated version of obj
          * @method _packGhost
+         * @param {Object} obj The object to pack
+         * @param {BitStream} bs The bitstream to pack into
          * @private
          */
         _packGhost: function (obj, bs) {
@@ -211,8 +218,8 @@ function makeWasabi() {
         /**
          * Unpacks a newly replicated object from Bitstream
          * @method _unpackGhost
-         * @private
          * @param {Bitstream} bs The target bitstream
+         * @private
          */
         _unpackGhost: function (bs) {
             var hash = bs.readUInt(16);
@@ -235,10 +242,10 @@ function makeWasabi() {
         },
 
         /**
-         * Packs ghosts for needed objects into bs
+         * Packs ghosts for needed objects into `bs`
          * @method _packGhosts
          * @private
-         * @param {Object} objects An Array or map of objects to pack ghosts for
+         * @param {Array} objects An Array or map of objects to pack ghosts for
          * @param {Bitstream} bs The target Bitstream
          */
         _packGhosts: function (objects, bs) {
@@ -255,7 +262,7 @@ function makeWasabi() {
         },
 
         /**
-         * Unpack all needed ghosts from bs
+         * Unpack all needed ghosts from `bs`
          * @method _unpackGhosts
          * @private
          * @param {Bitstream} bs The source Bitstream
@@ -273,7 +280,7 @@ function makeWasabi() {
          * Packs removed ghosts for `objects` into `bs`
          * @method _packRemovedGhosts
          * @private
-         * @param {Object} objects An Array or map of objects to pack ghosts for
+         * @param {Object} objects An Array or map of objects to remove
          * @param {Bitstream} bs The target Bitstream
          */
         _packRemovedGhosts: function (objects, bs) {
@@ -288,7 +295,8 @@ function makeWasabi() {
         },
 
         /**
-         * Unpack all needed removed ghosts from bs
+         * Unpack all removed ghosts from bs. An object with its ghost unpacked
+         * in this way will be removed from the local Wasabi's registry
          * @method _unpackRemovedGhosts
          * @private
          * @param {Bitstream} bs The source Bitstream
@@ -355,11 +363,11 @@ function makeWasabi() {
          * @method _invokeRpc
          * @private
          * @param {Rpc} rpc the rpc to invoke
-         * @param {NetObject} obj the obj to use as the context the
-         * invocation, or false for static invocations
+         * @param {NetObject} obj the obj to use as the context the invocation,
+         *     or false for static invocations
          * @param {Array} args the arguments to the rpc, followed by an optional
-         * list of connections to emit the invocation to. If no connections are
-         * specified, the invocation is emitted to all connections
+         *     list of connections to emit the invocation to. If no connections
+         *     are specified, the invocation is emitted to all connections
          */
         _invokeRpc: function (rpc, obj, args) {
             var i;
@@ -420,10 +428,10 @@ function makeWasabi() {
          * @method _packRpc
          * @private
          * @param {Rpc} rpc The RPC to pack
-         * @param {Object} args The arguments object to be serialized
-         * into this invocation
-         * @param {NetObject} obj The NetObject to apply the RPC to (or
-         * falsy for "static" RPC invocation
+         * @param {Array} args The arguments to be serialized into this
+         *     invocation
+         * @param {NetObject} obj The NetObject to apply the RPC to (or falsy
+         *     for "static" RPC invocation
          * @param {Bitstream} bs The target Bitstream
          */
         _packRpc: function (rpc, args, obj, bs) {
@@ -559,10 +567,10 @@ function makeWasabi() {
     };
 
     Wasabi._sectionMap = {};
-    Wasabi._sectionMap[WABI_SECTION_GHOSTS] = Wasabi._unpackGhosts;
+    Wasabi._sectionMap[WABI_SECTION_GHOSTS]         = Wasabi._unpackGhosts;
     Wasabi._sectionMap[WABI_SECTION_REMOVED_GHOSTS] = Wasabi._unpackRemovedGhosts;
-    Wasabi._sectionMap[WABI_SECTION_UPDATES] = Wasabi._unpackUpdates;
-    Wasabi._sectionMap[WABI_SECTION_RPC] = Wasabi._unpackRpc;
+    Wasabi._sectionMap[WABI_SECTION_UPDATES]        = Wasabi._unpackUpdates;
+    Wasabi._sectionMap[WABI_SECTION_RPC]            = Wasabi._unpackRpc;
 
     Wasabi.registry = new Registry();
 
