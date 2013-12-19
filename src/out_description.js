@@ -1,3 +1,4 @@
+var Types = require('./types.js');
 /**
  * A class which unpacks an object when passed to its .serialize function
  * @class OutDescription
@@ -19,6 +20,11 @@ OutDescription.prototype = {
 
     float: function (name, bits) {
         this._target[name] = this._bitStream.readFloat(bits);
+    },
+
+    any: function (name, bits) {
+        var type = this._bitStream.readUInt(16);
+        this[Types.fromValue[type]](name, bits);
     }
 };
 

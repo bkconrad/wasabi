@@ -91,7 +91,7 @@ describe('Wasabi', function () {
 
     it('calls RPCs on an associated netobject', function () {
         ws.addObject(foo1);
-        foo1.rpcTest({val: 1337});
+        foo1.rpcTest(1337);
 
         ws.processConnections();
         wc1.processConnections();
@@ -107,11 +107,10 @@ describe('Wasabi', function () {
         ConnectionAsserter.prototype = {
             serialize: function () { }
           , constructor: ConnectionAsserter
-          , rpcAssertConnection: function(args, conn) {
+          , rpcAssertConnection: function() {
+                var conn = arguments[0];
                 assert.strictEqual(conn, wc1.servers[0]);
                 done();
-            }
-          , rpcAssertConnectionArgs: function(desc) {
             }
         };
 
@@ -125,7 +124,7 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        obj.rpcAssertConnection({});
+        obj.rpcAssertConnection();
 
         ws.processConnections();
         wc1.processConnections();
@@ -179,8 +178,8 @@ describe('Wasabi', function () {
     });
 
     it('calls static RPCs without any associated object', function(done) {
-        var fn = function(args, conn) {
-            assert.equal(conn, wc1.servers[0]);
+        var fn = function() {
+            assert.equal(arguments[0], wc1.servers[0]);
             done();
         }
 
@@ -198,15 +197,13 @@ describe('Wasabi', function () {
         function TestClass() { }
         TestClass.prototype = {
             constructor: TestClass
-          , rpcTest: function rpcTest(args, conn) {
-                assert.equal(conn, wc1.servers[0]);
+          , rpcTest: function rpcTest() {
+                assert.equal(arguments[0], wc1.servers[0]);
                 count++;
             }
-          , rpcTestArgs: function() { }
-          , rpcTestTwo: function rpcTestTwo(args, conn) {
+          , rpcTestTwo: function rpcTestTwo() {
                 throw new Error('Should never be called');
             }
-          , rpcTestTwoArgs: function() { }
           , serialize: function() { }
         }
 
@@ -216,7 +213,7 @@ describe('Wasabi', function () {
 
         var test = new TestClass();
         ws.addObject(test);
-        test.rpcTest(false, ws.clients[0]);
+        test.rpcTest(ws.clients[0]);
 
         ws.processConnections();
         wc1.processConnections();
@@ -329,12 +326,12 @@ describe('Wasabi', function () {
         assert.equal(remoteBar.foobar, bar.foobar);
         assert.equal(remoteBar.barbar, bar.barbar);
 
-        bar.rpcTest({val: 1337});
+        bar.rpcTest(1337);
         ws.processConnections();
         wc1.processConnections();
         assert.equal(remoteBar.testval, 1337);
 
-        bar.rpcBarTest({val: 7331});
+        bar.rpcBarTest(7331);
         ws.processConnections();
         wc1.processConnections();
         assert.equal(remoteBar.barval, 7331);
@@ -359,4 +356,24 @@ describe('Wasabi', function () {
     it('complains when receiving invalid arguments a known RPC');
     it('complains when receiving anything except an object or falsey as the first argument to a known RPC');
     it('uses the attribute name for RPCs when Function.name is empty');
+    it('uses a sane default when no serialize function is given to RPCs', function(done) {
+        function ClassWithSimpleRpc() { }
+        ClassWithSimpleRpc.prototype.rpcOne = function rpcOne(a, b, c) {
+            assert.equal(a, 1337);
+            assert.closeTo(b, .123, .001);
+            assert.equal(c, -100);
+            done();
+        }
+
+        ws.addClass(ClassWithSimpleRpc);
+        wc1.addClass(ClassWithSimpleRpc);
+
+        var obj = new ClassWithSimpleRpc();
+        ws.addObject(obj);
+        obj.rpcOne(1337, .123, -100);
+
+        ws.processConnections();
+        wc1.processConnections();
+
+    });
 });

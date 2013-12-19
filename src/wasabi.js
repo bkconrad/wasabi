@@ -355,19 +355,25 @@ function makeWasabi() {
          * @method _invokeRpc
          * @private
          * @param {Rpc} rpc the rpc to invoke
-         * @param {Object} args the arguments to the rpc
          * @param {NetObject} obj the obj to use as the context the
          * invocation, or false for static invocations
-         * @param {mixed} conns falsy to invoke the rpc on all connections.
-         * Otherwise must be a connection or array of connections to emit
-         * the invocation to
+         * @param {Array} args the arguments to the rpc, followed by an optional
+         * list of connections to emit the invocation to. If no connections are
+         * specified, the invocation is emitted to all connections
          */
-        _invokeRpc: function (rpc, args, obj, conns) {
+        _invokeRpc: function (rpc, obj, args) {
             var i;
             var k;
             var invocation;
-            if (!conns) {
-                conns = [];
+
+            args = args || [];
+
+            // Extract connection list from supplied args
+            // Note that RPCs expect exactly the number of arguments specified
+            // in the original function's definition
+            var conns = args.slice(rpc._fn.length, args.length - rpc._fn.length);
+
+            if (conns.length === 0) {
                 for (k in this.servers) {
                     if (this.servers.hasOwnProperty(k)) {
                         conns.push(this.servers[k]);
@@ -380,8 +386,6 @@ function makeWasabi() {
                         conns.push(this.clients[k]);
                     }
                 }
-            } else if (conns.constructor !== Array) {
-                conns = [conns];
             }
 
             for (i = 0; i < conns.length; i++) {
@@ -424,6 +428,7 @@ function makeWasabi() {
          */
         _packRpc: function (rpc, args, obj, bs) {
             args = args || {};
+            rpc._populateKeys(args);
             bs.writeUInt(obj ? obj.wabiSerialNumber : 0, 16);
             bs.writeUInt(this.registry.hash(rpc._fn), 16);
             args.serialize = rpc._serialize;
@@ -452,14 +457,15 @@ function makeWasabi() {
             }
 
             if (!rpc) {
-                console.log(obj, serialNumber);
                 throw new Error('Unknown RPC with hash ' + hash);
             }
 
-            args = {};
+            args = [];
             args.serialize = rpc._serialize;
             bs.unpack(args);
-            rpc._fn.call(obj, args, conn);
+            rpc._populateIndexes(args);
+            args.push(conn);
+            rpc._fn.apply(obj, args);
         },
 
         /**

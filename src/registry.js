@@ -71,9 +71,7 @@ Registry.prototype = {
                 // find the Args function (for rpcFoo this would be
                 // rpcFooArgs)
                 args = klass.prototype[k + 'Args'];
-                if (typeof args !== 'function') {
-                    throw 'No matching args function \'' + k + 'Args\' found for RPC \'' + k + '\'';
-                }
+
                 // if this class was already added to a different Wasabi
                 // instance, we'll use the real method instead of the
                 // replacement we create later in this function
@@ -96,8 +94,9 @@ Registry.prototype = {
     },
 
     _mkRpcInvocationStub: function (rpc) {
-        return function (args, conns) {
-            this.wabiInstance._invokeRpc(rpc, args, this, conns);
+        return function () {
+            var args = Array.prototype.slice.call(arguments);
+            this.wabiInstance._invokeRpc(rpc, this, args);
         };
     },
 
@@ -127,8 +126,9 @@ Registry.prototype = {
         this.rpcToHash[rpc] = hash;
         this.hashToRpc[hash] = rpc;
 
-        return function (args, conns) {
-            instance._invokeRpc(rpc, args || {}, false, conns);
+        return function () {
+            var args = Array.prototype.slice.call(arguments);
+            instance._invokeRpc(rpc, false, args);
         };
     },
 

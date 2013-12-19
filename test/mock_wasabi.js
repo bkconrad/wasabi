@@ -17,8 +17,8 @@ module.exports = (function() {
       , check: function(that) {
           assert.equal(this.foobar, that.foobar);
       }
-      , rpcTest: function rpcTest(args) {
-        this.testval = args.val;
+      , rpcTest: function rpcTest(val) {
+        this.testval = val;
       }
       , rpcTestArgs: function(desc) {
         desc.uint('val', 16);
@@ -31,8 +31,8 @@ module.exports = (function() {
     Bar.prototype.serialize =  function(desc) {
         desc.uint('barbar', 16);
     }
-    Bar.prototype.rpcBarTest = function rpcBarTest(args) {
-        this.barval = args.val;
+    Bar.prototype.rpcBarTest = function rpcBarTest(val) {
+        this.barval = val;
     }
     Bar.prototype.rpcBarTestArgs = function (desc) {
         desc.uint('val', 16);

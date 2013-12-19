@@ -6,12 +6,14 @@
     "dependencies":{
     },
     "devDependencies":{
+        "browserify":"",
         "benchmark":"",
         "chai":"",
         "fibers":"",
         "jake":"",
         "mocha":"",
-        "pcap":""
+        "pcap":"",
+        "ws":""
     },
     "keywords":[
         "multiplayer",
