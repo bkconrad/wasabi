@@ -97,6 +97,7 @@ function makeWasabi() {
          * @method addServer
          * @param {Socket} sock The socket object used to communicate with the
          *     new server
+         * @return {Connection} The newly created Connection object
          */
         addServer: function (sock) {
             var conn = new Wasabi.Connection(sock, true, false);
@@ -122,13 +123,15 @@ function makeWasabi() {
 
         /**
          * Attach a client connected through the given socket object. Currently
-         * this must be a WebSocket or socket.io socket, or something that is API
-         * compatible (i.e. has an `onmessage` callback and a `send` method).
+         * this must be a WebSocket or socket.io socket, or something that is
+         * API compatible (i.e. has an `onmessage` callback and a `send`
+         * method).
          * @method addClient
          * @param {Socket} client The socket object used to communicate with the
          *     new client
          * @param {Function} scopeCallback See {{#crossLink
          *     "Connection"}}{{/crossLink}}
+         * @return {Connection} The newly created Connection object
          */
         addClient: function (client, scopeCallback) {
             var conn = new Wasabi.Connection(client, false, true, scopeCallback);
@@ -567,10 +570,10 @@ function makeWasabi() {
     };
 
     Wasabi._sectionMap = {};
-    Wasabi._sectionMap[WABI_SECTION_GHOSTS]         = Wasabi._unpackGhosts;
+    Wasabi._sectionMap[WABI_SECTION_GHOSTS] = Wasabi._unpackGhosts;
     Wasabi._sectionMap[WABI_SECTION_REMOVED_GHOSTS] = Wasabi._unpackRemovedGhosts;
-    Wasabi._sectionMap[WABI_SECTION_UPDATES]        = Wasabi._unpackUpdates;
-    Wasabi._sectionMap[WABI_SECTION_RPC]            = Wasabi._unpackRpc;
+    Wasabi._sectionMap[WABI_SECTION_UPDATES] = Wasabi._unpackUpdates;
+    Wasabi._sectionMap[WABI_SECTION_RPC] = Wasabi._unpackRpc;
 
     Wasabi.registry = new Registry();
 

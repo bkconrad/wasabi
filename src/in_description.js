@@ -23,10 +23,10 @@ InDescription.prototype = {
         this._bitStream.writeFloat(this._target[name], bits);
     },
 
-    any: function(name, bits) {
+    any: function (name, bits) {
         var type;
         var val = this._target[name];
-        if(val | 0 === val) {
+        if (val | 0 === val) {
             type = 'sint';
         } else if (val + 0 === val) {
             type = 'float';
