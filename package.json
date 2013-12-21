@@ -12,7 +12,6 @@
         "fibers":"",
         "jake":"",
         "mocha":"",
-        "pcap":"",
         "ws":""
     },
     "keywords":[
@@ -28,5 +27,8 @@
         "url":"https://github.com/kaen/wasabi.git"
     },
     "license":"MIT",
-    "main":"src/wasabi"
+    "main":"src/wasabi",
+    "scripts": {
+        "test": "mocha test"
+    }
 }
