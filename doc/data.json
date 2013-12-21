@@ -91,7 +91,7 @@
             "namespaces": {},
             "tag": "module",
             "file": "src/wasabi.js",
-            "line": 26,
+            "line": 27,
             "description": "An enum of types that are serializable by Wasabi"
         }
     },
@@ -219,8 +219,8 @@
             "module": "Types",
             "namespace": "",
             "file": "src/wasabi.js",
-            "line": 26,
-            "description": "Facade class for interacting with Wasabi"
+            "line": 27,
+            "description": "Facade class for interacting with Wasabi.\n\nNote that Wasabi implements the Node.js `events.EventEmitter` interface\nfor event handling, allowing use of `on`, `once`, `removeListener` and\nfriends. See the related [Node.js events.EventEmitter docs](http://nodejs.org/api/events.html#events_class_events_eventemitter) for\nevent handling methods."
         }
     },
     "classitems": [
@@ -318,7 +318,7 @@
         {
             "file": "src/bitstream.js",
             "line": 164,
-            "description": "Populate the data in this Bitstream from an ArrayBuffer received over a \nbinary websocket",
+            "description": "Populate the data in this Bitstream from an ArrayBuffer received over a\nbinary websocket",
             "itemtype": "method",
             "name": "fromArrayBuffer",
             "class": "Bitstream"
@@ -766,7 +766,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 6,
+            "line": 7,
             "description": "Named and exported function that would otherwise be an IIFE. Used to\ninstantiate a second Wasabi module for use in tests (to simulate a remote\nclient)",
             "itemtype": "method",
             "name": "makeWasabi",
@@ -776,7 +776,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 42,
+            "line": 49,
             "description": "Register a class with Wasabi, allowing it to transmit instances of\nthis class through a Connection",
             "itemtype": "method",
             "name": "addClass",
@@ -792,7 +792,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 52,
+            "line": 59,
             "description": "Register an instance of a klass, which can then be sent to\nconnected clients as needed (based on the results of their\n`scopeCallback`s).\n\n*Note: This method should only be called manually on\nauthoritative peers (i.e. server-side).* Wasabi clients will\nautomatically add instances to the Registry when their ghosts\nare unpacked",
             "itemtype": "method",
             "name": "addObject",
@@ -813,7 +813,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 71,
+            "line": 78,
             "description": "Unregister an instance of a klass",
             "itemtype": "method",
             "name": "removeObject",
@@ -829,7 +829,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 81,
+            "line": 88,
             "description": "Create an RPC from the supplied procedure and serialize functions.",
             "itemtype": "method",
             "name": "mkRpc",
@@ -854,7 +854,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 95,
+            "line": 102,
             "description": "Attach to a server connected through the socket object",
             "itemtype": "method",
             "name": "addServer",
@@ -865,12 +865,16 @@
                     "type": "Socket"
                 }
             ],
+            "return": {
+                "description": "The newly created Connection object",
+                "type": "Connection"
+            },
             "class": "Wasabi",
             "module": "Types"
         },
         {
             "file": "src/wasabi.js",
-            "line": 107,
+            "line": 115,
             "description": "Remove a server by its socket object. `sock` must be strictly equal\n(`===`) to the original socket.",
             "itemtype": "method",
             "name": "removeServer",
@@ -886,8 +890,8 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 123,
-            "description": "Attach a client connected through the given socket object. Currently\nthis must be a WebSocket or socket.io socket, or something that is API\ncompatible (i.e. has an `onmessage` callback and a `send` method).",
+            "line": 131,
+            "description": "Attach a client connected through the given socket object. Currently\nthis must be a WebSocket or socket.io socket, or something that is\nAPI compatible (i.e. has an `onmessage` callback and a `send`\nmethod).",
             "itemtype": "method",
             "name": "addClient",
             "params": [
@@ -902,12 +906,16 @@
                     "type": "Function"
                 }
             ],
+            "return": {
+                "description": "The newly created Connection object",
+                "type": "Connection"
+            },
             "class": "Wasabi",
             "module": "Types"
         },
         {
             "file": "src/wasabi.js",
-            "line": 139,
+            "line": 149,
             "description": "Remove a client by its socket object. `sock` must be strictly equal\n(`===`) to the original socket.",
             "itemtype": "method",
             "name": "removeClient",
@@ -923,7 +931,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 155,
+            "line": 165,
             "description": "Process the incoming and outgoing data for all connected clients and\nservers. This is typically called in your game's update loop",
             "itemtype": "method",
             "name": "processConnections",
@@ -932,7 +940,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 178,
+            "line": 188,
             "description": "Packs update data for `obj` into `bs`",
             "itemtype": "method",
             "name": "_packUpdate",
@@ -955,7 +963,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 190,
+            "line": 200,
             "description": "Unpacks update data from `bs`",
             "itemtype": "method",
             "name": "_unpackUpdate",
@@ -973,7 +981,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 206,
+            "line": 216,
             "description": "Packs data needed to instantiate a replicated version of obj",
             "itemtype": "method",
             "name": "_packGhost",
@@ -996,7 +1004,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 218,
+            "line": 228,
             "description": "Unpacks a newly replicated object from Bitstream",
             "itemtype": "method",
             "name": "_unpackGhost",
@@ -1014,7 +1022,23 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 244,
+            "line": 247,
+            "description": "Fired client-side when a ghost (the remote counterpart) of an\nobject is created. This occurs when the scope callback for this\nclient (on the server) returns an object when it did not\npreviously.\n\nThe `obj` will be a newly created instance of the class every\ntime this event is emitted, even when subsequent emissions refer\nto the same server-side instance. That is, Wasabi created a brand\nnew object every time it creates a ghost.\n\nNote that this event can be emitted multiple times per object, if\nobject comes in and out of scope.",
+            "itemtype": "event",
+            "name": "clientGhostCreate",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The newly created ghost",
+                    "type": "Object"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 268,
             "description": "Packs ghosts for needed objects into `bs`",
             "itemtype": "method",
             "name": "_packGhosts",
@@ -1037,7 +1061,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 264,
+            "line": 288,
             "description": "Unpack all needed ghosts from `bs`",
             "itemtype": "method",
             "name": "_unpackGhosts",
@@ -1055,7 +1079,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 279,
+            "line": 303,
             "description": "Packs removed ghosts for `objects` into `bs`",
             "itemtype": "method",
             "name": "_packRemovedGhosts",
@@ -1078,7 +1102,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 297,
+            "line": 321,
             "description": "Unpack all removed ghosts from bs. An object with its ghost unpacked\nin this way will be removed from the local Wasabi's registry",
             "itemtype": "method",
             "name": "_unpackRemovedGhosts",
@@ -1096,7 +1120,23 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 323,
+            "line": 336,
+            "description": "Fired client-side when a ghost (the remote counterpart) of an\nobject is about to be destroyed. This occurs when the scope\ncallback for this client (on the server) does not return the\nobject after it did previously.\n\nAlthough Wasabi can not acutally \"destroy\" the object (since\nJavaScript has no destructors), the particular instance will\nnever be referred to be Wasabi again.\n\nNote that this event can be emitted multiple times per\nobject, if object comes in and out of scope.",
+            "itemtype": "event",
+            "name": "clientGhostDestroy",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The ghost which is about to be destroyed",
+                    "type": "Object"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 361,
             "description": "Pack the given list of object update data into bs",
             "itemtype": "method",
             "name": "_packUpdates",
@@ -1119,7 +1159,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 340,
+            "line": 378,
             "description": "Unpack the given list of objects (with update data) from bs",
             "itemtype": "method",
             "name": "_unpackUpdates",
@@ -1137,7 +1177,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 361,
+            "line": 399,
             "description": "Pack an RPC invocation to the appropriate connections",
             "itemtype": "method",
             "name": "_invokeRpc",
@@ -1165,7 +1205,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 410,
+            "line": 448,
             "description": "Pack all RPC invocations in the specified `Connection`'s queue.",
             "itemtype": "method",
             "name": "_packRpcs",
@@ -1183,7 +1223,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 426,
+            "line": 464,
             "description": "Pack a call to a registered RP and the supplied arguments into bs",
             "itemtype": "method",
             "name": "_packRpc",
@@ -1216,7 +1256,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 446,
+            "line": 484,
             "description": "Unpack and execute a call to a registered RP using the supplied\narguments from bs",
             "itemtype": "method",
             "name": "_unpackRpc",
@@ -1239,7 +1279,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 479,
+            "line": 517,
             "description": "Returns a clone of the registry's object table. used as a fallback\nwhen no _scopeCallback is specified for a connection",
             "itemtype": "method",
             "name": "_getAllObjects",
@@ -1250,7 +1290,7 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 496,
+            "line": 534,
             "description": "Receive, process, and transmit data as needed for this connection",
             "itemtype": "method",
             "name": "_processConnection",

@@ -107,24 +107,25 @@ var iota = 0xFFFF;
  * @module Types
  */
 var fromString = {
-	sint: --iota,
-	uint: --iota, 
-	float: --iota
+    sint: --iota,
+    uint: --iota,
+    float: --iota
 };
 
-var fromValue = { };
-for(var k in fromString) {
-	if(fromString.hasOwnProperty(k)) {
-		fromValue[fromString[k]] = k;
-	}
+var fromValue = {};
+for (var k in fromString) {
+    if (fromString.hasOwnProperty(k)) {
+        fromValue[fromString[k]] = k;
+    }
 }
 
 var Types = {
-	fromString: fromString,
-	fromValue: fromValue
+    fromString: fromString,
+    fromValue: fromValue
 }
 
 module.exports = Types;
+
     </pre>
 </div>
 

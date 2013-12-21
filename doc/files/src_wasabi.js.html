@@ -104,6 +104,7 @@ var Bitstream = require(&#x27;./bitstream&#x27;);
 var Connection = require(&#x27;./connection&#x27;);
 var Registry = require(&#x27;./registry&#x27;);
 var Rpc = require(&#x27;./rpc&#x27;);
+var events = require(&#x27;events&#x27;);
 
 /**
  * Named and exported function that would otherwise be an IIFE. Used to
@@ -126,7 +127,13 @@ function makeWasabi() {
     var WABI_PACKET_STOP = --iota;
 
     /**
-     * Facade class for interacting with Wasabi
+     * Facade class for interacting with Wasabi.
+     *
+     * Note that Wasabi implements the Node.js &#x60;events.EventEmitter&#x60; interface
+     * for event handling, allowing use of &#x60;on&#x60;, &#x60;once&#x60;, &#x60;removeListener&#x60; and
+     * friends. See the related [Node.js events.EventEmitter docs](http://nodejs.org/api/events.html#events_class_events_eventemitter) for
+     * event handling methods.
+     *
      * @class Wasabi
      */
     var Wasabi = {
@@ -199,6 +206,7 @@ function makeWasabi() {
          * @method addServer
          * @param {Socket} sock The socket object used to communicate with the
          *     new server
+         * @return {Connection} The newly created Connection object
          */
         addServer: function (sock) {
             var conn = new Wasabi.Connection(sock, true, false);
@@ -224,13 +232,15 @@ function makeWasabi() {
 
         /**
          * Attach a client connected through the given socket object. Currently
-         * this must be a WebSocket or socket.io socket, or something that is API
-         * compatible (i.e. has an &#x60;onmessage&#x60; callback and a &#x60;send&#x60; method).
+         * this must be a WebSocket or socket.io socket, or something that is
+         * API compatible (i.e. has an &#x60;onmessage&#x60; callback and a &#x60;send&#x60;
+         * method).
          * @method addClient
          * @param {Socket} client The socket object used to communicate with the
          *     new client
          * @param {Function} scopeCallback See {{#crossLink
          *     &quot;Connection&quot;}}{{/crossLink}}
+         * @return {Connection} The newly created Connection object
          */
         addClient: function (client, scopeCallback) {
             var conn = new Wasabi.Connection(client, false, true, scopeCallback);
@@ -336,10 +346,24 @@ function makeWasabi() {
             obj.wabiInstance = this;
             this.registry.addObject(obj, serial);
 
-            // fire the onAddGhost callback if it exists
-            if (obj.onAddGhost &amp;&amp; (typeof obj.onAddGhost === &#x27;function&#x27;)) {
-                obj.onAddGhost();
-            }
+            /**
+             * Fired client-side when a ghost (the remote counterpart) of an
+             * object is created. This occurs when the scope callback for this
+             * client (on the server) returns an object when it did not
+             * previously.
+             *
+             * The &#x60;obj&#x60; will be a newly created instance of the class every
+             * time this event is emitted, even when subsequent emissions refer
+             * to the same server-side instance. That is, Wasabi created a brand
+             * new object every time it creates a ghost.
+             *
+             * Note that this event can be emitted multiple times per object, if
+             * object comes in and out of scope.
+             *
+             * @event clientGhostCreate
+             * @param {Object} obj The newly created ghost
+             */
+            this.emit(&#x27;clientGhostCreate&#x27;, obj);
             return obj;
         },
 
@@ -410,10 +434,24 @@ function makeWasabi() {
                 serial = bs.readUInt(16);
                 obj = this.registry.getObject(serial);
 
-                // fire the onRemoveGhost callback if it exists
-                if (obj.onRemoveGhost &amp;&amp; (typeof obj.onRemoveGhost === &#x27;function&#x27;)) {
-                    obj.onRemoveGhost();
-                }
+
+                /**
+                 * Fired client-side when a ghost (the remote counterpart) of an
+                 * object is about to be destroyed. This occurs when the scope
+                 * callback for this client (on the server) does not return the
+                 * object after it did previously.
+                 * 
+                 * Although Wasabi can not acutally &quot;destroy&quot; the object (since
+                 * JavaScript has no destructors), the particular instance will
+                 * never be referred to be Wasabi again.
+                 *
+                 * Note that this event can be emitted multiple times per
+                 * object, if object comes in and out of scope.
+                 *
+                 * @event clientGhostDestroy
+                 * @param {Object} obj The ghost which is about to be destroyed
+                 */
+                this.emit(&#x27;clientGhostDestroy&#x27;, obj);
 
                 this.removeObject(serial);
             }
@@ -669,12 +707,20 @@ function makeWasabi() {
     };
 
     Wasabi._sectionMap = {};
-    Wasabi._sectionMap[WABI_SECTION_GHOSTS]         = Wasabi._unpackGhosts;
+    Wasabi._sectionMap[WABI_SECTION_GHOSTS] = Wasabi._unpackGhosts;
     Wasabi._sectionMap[WABI_SECTION_REMOVED_GHOSTS] = Wasabi._unpackRemovedGhosts;
-    Wasabi._sectionMap[WABI_SECTION_UPDATES]        = Wasabi._unpackUpdates;
-    Wasabi._sectionMap[WABI_SECTION_RPC]            = Wasabi._unpackRpc;
+    Wasabi._sectionMap[WABI_SECTION_UPDATES] = Wasabi._unpackUpdates;
+    Wasabi._sectionMap[WABI_SECTION_RPC] = Wasabi._unpackRpc;
 
     Wasabi.registry = new Registry();
+
+    // mixin an event emitter
+    events.EventEmitter.call(Wasabi);
+    for(var k in events.EventEmitter.prototype) {
+        if(events.EventEmitter.prototype.hasOwnProperty(k)) {
+            Wasabi[k] = events.EventEmitter.prototype[k];
+        }
+    }
 
     return Wasabi;
 }
