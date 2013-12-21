@@ -2,6 +2,7 @@ var Bitstream = require('./bitstream');
 var Connection = require('./connection');
 var Registry = require('./registry');
 var Rpc = require('./rpc');
+var events = require('events');
 
 /**
  * Named and exported function that would otherwise be an IIFE. Used to
@@ -237,10 +238,7 @@ function makeWasabi() {
             obj.wabiInstance = this;
             this.registry.addObject(obj, serial);
 
-            // fire the onAddGhost callback if it exists
-            if (obj.onAddGhost && (typeof obj.onAddGhost === 'function')) {
-                obj.onAddGhost();
-            }
+            this.emit('clientGhostCreate', obj);
             return obj;
         },
 
@@ -311,10 +309,7 @@ function makeWasabi() {
                 serial = bs.readUInt(16);
                 obj = this.registry.getObject(serial);
 
-                // fire the onRemoveGhost callback if it exists
-                if (obj.onRemoveGhost && (typeof obj.onRemoveGhost === 'function')) {
-                    obj.onRemoveGhost();
-                }
+                this.emit('clientGhostDestroy', obj);
 
                 this.removeObject(serial);
             }
@@ -576,6 +571,14 @@ function makeWasabi() {
     Wasabi._sectionMap[WABI_SECTION_RPC] = Wasabi._unpackRpc;
 
     Wasabi.registry = new Registry();
+
+    // mixin an event emitter
+    events.EventEmitter.call(Wasabi);
+    for(var k in events.EventEmitter.prototype) {
+        if(events.EventEmitter.prototype.hasOwnProperty(k)) {
+            Wasabi[k] = events.EventEmitter.prototype[k];
+        }
+    }
 
     return Wasabi;
 }

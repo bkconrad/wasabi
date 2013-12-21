@@ -249,16 +249,10 @@ describe('Wasabi', function () {
     });
 
     it('triggers callbacks when ghosts are added or removed', function() {
-        var addDone = false, removeDone = false;
+        var createDone = false, destroyDone = false;
 
         function GhostCallbackTest() {
         }
-
-        GhostCallbackTest.prototype = {
-              serialize: function() { }
-            , onAddGhost: function() { addDone = true; }
-            , onRemoveGhost: function() { removeDone = true; }
-        };
 
         ws.addClass(GhostCallbackTest);
         wc1.addClass(GhostCallbackTest);
@@ -266,17 +260,27 @@ describe('Wasabi', function () {
         var obj = new GhostCallbackTest();
         ws.addObject(obj);
 
+        wc1.on('clientGhostCreate', function(remoteObj) {
+            createDone = true;
+            assert.equal(remoteObj.wabiSerialNumber, obj.wabiSerialNumber);
+        });
+
+        wc1.on('clientGhostDestroy', function(remoteObj) {
+            destroyDone = true;
+            assert.equal(remoteObj.wabiSerialNumber, obj.wabiSerialNumber);
+        });
+
         ws.processConnections();
         wc1.processConnections();
 
-        assert.ok(addDone);
+        assert.ok(createDone);
 
         ws.removeObject(obj);
 
         ws.processConnections();
         wc1.processConnections();
 
-        assert.ok(removeDone);
+        assert.ok(destroyDone);
     });
 
     it('queries a callback to determine which netobjects to ghost', function() {
