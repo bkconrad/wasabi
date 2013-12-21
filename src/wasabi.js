@@ -25,7 +25,13 @@ function makeWasabi() {
     var WABI_PACKET_STOP = --iota;
 
     /**
-     * Facade class for interacting with Wasabi
+     * Facade class for interacting with Wasabi.
+     *
+     * Note that Wasabi implements the Node.js `events.EventEmitter` interface
+     * for event handling, allowing use of `on`, `once`, `removeListener` and
+     * friends. See the related [Node.js events.EventEmitter docs](http://nodejs.org/api/events.html#events_class_events_eventemitter) for
+     * event handling methods.
+     *
      * @class Wasabi
      */
     var Wasabi = {
@@ -238,6 +244,23 @@ function makeWasabi() {
             obj.wabiInstance = this;
             this.registry.addObject(obj, serial);
 
+            /**
+             * Fired client-side when a ghost (the remote counterpart) of an
+             * object is created. This occurs when the scope callback for this
+             * client (on the server) returns an object when it did not
+             * previously.
+             *
+             * The `obj` will be a newly created instance of the class every
+             * time this event is emitted, even when subsequent emissions refer
+             * to the same server-side instance. That is, Wasabi created a brand
+             * new object every time it creates a ghost.
+             *
+             * Note that this event can be emitted multiple times per object, if
+             * object comes in and out of scope.
+             *
+             * @event clientGhostCreate
+             * @param {Object} obj The newly created ghost
+             */
             this.emit('clientGhostCreate', obj);
             return obj;
         },
@@ -309,6 +332,23 @@ function makeWasabi() {
                 serial = bs.readUInt(16);
                 obj = this.registry.getObject(serial);
 
+
+                /**
+                 * Fired client-side when a ghost (the remote counterpart) of an
+                 * object is about to be destroyed. This occurs when the scope
+                 * callback for this client (on the server) does not return the
+                 * object after it did previously.
+                 * 
+                 * Although Wasabi can not acutally "destroy" the object (since
+                 * JavaScript has no destructors), the particular instance will
+                 * never be referred to be Wasabi again.
+                 *
+                 * Note that this event can be emitted multiple times per
+                 * object, if object comes in and out of scope.
+                 *
+                 * @event clientGhostDestroy
+                 * @param {Object} obj The ghost which is about to be destroyed
+                 */
                 this.emit('clientGhostDestroy', obj);
 
                 this.removeObject(serial);
