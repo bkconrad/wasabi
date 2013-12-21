@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/kaen/wasabi.png?branch=master)](https://travis-ci.org/kaen/wasabi)
+
 # Wasabi
 
 A simple then powerful replication library using binary encoding over WebSockets. Released under the MIT License.
