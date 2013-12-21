@@ -27,11 +27,13 @@ doc`.
 Say you have a Player object you use in an existing (client-only) game:
 **old player.js**
 
-    function Player () {
-        this.x = Math.floor(Math.random() * 400);
-        this.y = Math.floor(Math.random() * 400);
-        this.health = 1.0;
-    }
+```javascript
+function Player () {
+    this.x = Math.floor(Math.random() * 400);
+    this.y = Math.floor(Math.random() * 400);
+    this.health = 1.0;
+}
+```
 
 To start replicating this class with Wasabi, just register it and write a
 `serialize` method for it.  Wasabi uses these `serialize` methods to
@@ -40,18 +42,20 @@ encode their maximum value.
 
 **new player.js**
 
-    function Player () {
-        this.x = Math.floor(Math.random() * 400);
-        this.y = Math.floor(Math.random() * 400);
-        this.health = 1.0;
-    }
-    
-    // serialize
-    Player.prototype.serialize = function (desc) {
-        desc.uint('x', 16); // a 16 bit unsigned integer named x
-        desc.uint('y', 16); // a 16 bit unsigned integer named y
-        desc.float('health', 16); // a normalized 16 bit signed float
-    }
+```javascript
+function Player () {
+    this.x = Math.floor(Math.random() * 400);
+    this.y = Math.floor(Math.random() * 400);
+    this.health = 1.0;
+}
+
+// serialize
+Player.prototype.serialize = function (desc) {
+    desc.uint('x', 16); // a 16 bit unsigned integer named x
+    desc.uint('y', 16); // a 16 bit unsigned integer named y
+    desc.float('health', 16); // a normalized 16 bit signed float
+}
+```
 
 The `desc` argument which Wasabi passes to `serialize` is a "description" of the
 object. The actual class of the `desc` object is determined by whether the
@@ -63,61 +67,67 @@ At this point you're ready to start replicating:
 
 **server.js**
 
-    var Player = require('./player.js')
-      , Wasabi = require('wasabi')
-      , WebSocket = require('ws')
-      ;
-    
-    Wasabi.addClass(Player);
-    
-    var webSockServer = new WebSocket.Server({port:1234}, function() {
-        setInterval(function() {
-            // handle connections
-            Wasabi.processConnections();
-            
-            // simulation update code goes here
-            
-        }, 50);
-    });
-  
-    webSockServer.on('connection', function(clientSock) {
-        // add the new client's connection to the server's Wasabi instance
-        Wasabi.addClient(clientSock);
+```javascript
+var Player = require('./player.js')
+  , Wasabi = require('wasabi')
+  , WebSocket = require('ws')
+  ;
+
+Wasabi.addClass(Player);
+
+var webSockServer = new WebSocket.Server({port:1234}, function() {
+    setInterval(function() {
+        // handle connections
+        Wasabi.processConnections();
         
-        // create the player's game object and add it to Wasabi
-        var newPlayer = new Player();
-        Wasabi.addObject(newPlayer);
-    });
+        // simulation update code goes here
+        
+    }, 50);
+});
+
+webSockServer.on('connection', function(clientSock) {
+    // add the new client's connection to the server's Wasabi instance
+    Wasabi.addClient(clientSock);
+    
+    // create the player's game object and add it to Wasabi
+    var newPlayer = new Player();
+    Wasabi.addObject(newPlayer);
+});
+```
 
 You probably want to then read the object from a socket on the client side:
 
 **client.js**
 
-    Wasabi.addClass(Player);
-    
-    var sock = new WebSocket('ws://localhost:1234');             
-    Wasabi.addServer(sock);
-    
-    sock.onopen = function() {
-        setInterval(function() {
-            // receive network stuff
-            Wasabi.processConnections();
-            
-            // client-side update code goes here
-            
-        }, 50);
-    }
+```javascript
+Wasabi.addClass(Player);
+
+var sock = new WebSocket('ws://localhost:1234');             
+Wasabi.addServer(sock);
+
+sock.onopen = function() {
+    setInterval(function() {
+        // receive network stuff
+        Wasabi.processConnections();
+        
+        // client-side update code goes here
+        
+    }, 50);
+}
+```
 
 ## Remote Procedure Calls
 ### Definition
 To define a class RPC, create a method prefixed with "rpc":
 
-    Player.prototype.rpcYell = function (times) {
-        var i;
-        for(i = 0; i < times; i++) {
-            console.log('SPAARTA!');
-        }
+```javascript
+Player.prototype.rpcYell = function (times) {
+    var i;
+    for(i = 0; i < times; i++) {
+        console.log('SPAARTA!');
     }
+}
+```
     
 Make sure that you call `addClass` only **after** defining RPCs, as Wasabi will
 look for any methods starting with `rpc` and replace them with the actual remote
@@ -126,7 +136,9 @@ invocation stubs.
 ### Invocation
 From the server side we can make a Player "yell" on the clients by saying:
 
-    player.rpcYell(3);
+```javascript
+player.rpcYell(3);
+```
 
 ### Performance Enhancement
 In order to allow rapid prototyping, Wasabi will infer the types of the
@@ -140,9 +152,11 @@ encode type information over the network.
 
 The args function for `rpcYell` above would look like:
 
-    Player.prototype.rpcYellArgs = function (desc) {
-        desc.uint('times', 8); // An 8-bit unsigned integer
-    }
+```javascript
+Player.prototype.rpcYellArgs = function (desc) {
+    desc.uint('times', 8); // An 8-bit unsigned integer
+}
+```
 
 # Benchmarks
 Wasabi has cpu and network usage benchmark which can be run via `sudo jake
