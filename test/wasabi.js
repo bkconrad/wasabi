@@ -1,4 +1,5 @@
 var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/wasabi')
+  , WasabiError = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/wasabi_error')
   , assert = require('chai').assert
   , WebSocket = require('ws')
   , MockSocket = require('./mock_socket.js')
@@ -89,7 +90,7 @@ describe('Wasabi', function () {
         assert.ok(wc1.registry.objects[foo.wabiSerialNumber]);
     });
 
-    it('calls RPCs on an associated netobject', function () {
+    it('calls RPCs from servers to clients on an associated netobject', function () {
         ws.addObject(foo1);
         foo1.rpcTest(1337);
 
@@ -98,6 +99,19 @@ describe('Wasabi', function () {
 
         assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
         assert.equal(wc1.registry.objects[foo1.wabiSerialNumber].testval, 1337);
+    });
+
+    it('calls RPCs from clients to servers on an associated netobject', function () {
+        ws.addObject(foo1);
+
+        ws.processConnections();
+        wc1.processConnections();
+
+        wc1.registry.objects[foo1.wabiSerialNumber].rpcTest(1337);
+
+        wc1.processConnections();
+        ws.processConnections();
+        assert.equal(foo1.testval, 1337);
     });
 
     it('passes a connection object to RPC invocations', function (done) {
@@ -353,13 +367,9 @@ describe('Wasabi', function () {
 
         assert.throws(function() {
             wc1.processConnections();
-        });
+        }, WasabiError);
     });
-    it('complains when receiving update data for an unknown object');
-    it('complains when receiving a call to an unknown RPC');
-    it('complains when receiving invalid arguments a known RPC');
-    it('complains when receiving anything except an object or falsey as the first argument to a known RPC');
-    it('uses the attribute name for RPCs when Function.name is empty');
+
     it('uses a sane default when no serialize function is given to RPCs', function(done) {
         function ClassWithSimpleRpc() { }
         ClassWithSimpleRpc.prototype.rpcOne = function rpcOne(a, b, c) {
@@ -380,4 +390,41 @@ describe('Wasabi', function () {
         wc1.processConnections();
 
     });
+    
+    it('complains when two RPC hashes collide', function() {
+        var rpc1 = ws.mkRpc(function foo() { });
+        assert.throws(function() {
+            var rpc2 = ws.mkRpc(function foo() { });
+        }, WasabiError)
+    });
+
+    it('complains when receiving update data for an unknown object', function() {
+        // First, we'll send the ghost properly
+        ws.addObject(foo1);
+        ws.processConnections();
+        wc1.processConnections();
+
+        // Now we change the serial number, so the client will not recognize the
+        // object anymore
+        foo1.wabiSerialNumber = 1337;
+
+        ws.processConnections();
+
+        assert.throws(function() {
+            wc1.processConnections();
+        }, WasabiError)
+    });
+
+    it('complains when receiving a call to an unknown RPC', function() {
+        var rpc = ws.mkRpc(function foo() { });
+        rpc();
+        ws.processConnections();
+
+        assert.throws(function() {
+            wc1.processConnections();
+        }, WasabiError);
+    });
+
+    it('complains when receiving invalid arguments a known RPC');
+    it('uses the attribute name for RPCs when Function.name is empty');
 });

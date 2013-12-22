@@ -2,6 +2,7 @@ var Bitstream = require('./bitstream');
 var Connection = require('./connection');
 var Registry = require('./registry');
 var Rpc = require('./rpc');
+var WasabiError = require('./wasabi_error');
 var events = require('events');
 
 /**
@@ -204,10 +205,10 @@ function makeWasabi() {
          * @private
          */
         _unpackUpdate: function (bs) {
-            var obj = this.registry.getObject(bs.readUInt(16));
+            var serial = bs.readUInt(16);
+            var obj = this.registry.getObject(serial);
             if (!obj) {
-                // TODO: throw error when unpacking an update for a non-existant object
-                return;
+                throw new WasabiError('Received update for unknown object ' + serial)
             }
             bs.unpack(obj);
             return obj;
@@ -237,7 +238,7 @@ function makeWasabi() {
             var serial = bs.readUInt(16);
             var obj;
             if (!T) {
-                throw new Error('Received ghost for unknown class with hash ' + hash);
+                throw new WasabiError('Received ghost for unknown class with hash ' + hash);
             }
             // TODO: raise an exception unpacking a ghost which already exists
             obj = new T();
@@ -503,7 +504,7 @@ function makeWasabi() {
             }
 
             if (!rpc) {
-                throw new Error('Unknown RPC with hash ' + hash);
+                throw new WasabiError('Unknown RPC with hash ' + hash);
             }
 
             args = [];

@@ -1,4 +1,5 @@
 var Rpc = require('./rpc');
+var WasabiError = require('./wasabi_error');
 
 /**
  * Manages the registration of classes for consistent
@@ -118,7 +119,7 @@ Registry.prototype = {
         var rpc;
         serialize = serialize || function () {};
         if (this.hashToRpc[hash] !== undefined) {
-            throw new Error('Invalid attempt to redefine RPC ' + fn.name + ' with hash ' + hash);
+            throw new WasabiError('Invalid attempt to redefine RPC ' + fn.name + ' with hash ' + hash);
         }
 
         rpc = new Rpc(fn, undefined, serialize);
