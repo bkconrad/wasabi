@@ -15,7 +15,7 @@ The main advantages of using Wasabi are:
  - Replicated object lifetimes can be managed based on a "scope" callback which
    may be set for each client (or not at all)
  - Remote RPC invocation works exactly like local function calls
- - Prototypal inheritance of is fully supported out-of-the-box
+ - Prototypal inheritance is fully supported out-of-the-box
  - You can get started without much boilerplate, then define additional
    functions to increase performance when you become production-ready
  - Reliable construction: A well-rounded test suite with [100% branch coverage](http://kaen.github.io/wasabi/cov/lcov-report/)
