@@ -1,4 +1,5 @@
 var Types = require('./types.js');
+var WasabiError = require('./wasabi_error.js');
 
 /**
  * A class which packs an object when passed to its .serialize function
@@ -30,6 +31,8 @@ InDescription.prototype = {
             type = 'sint';
         } else if (+val === val) {
             type = 'float';
+        } else {
+            throw new WasabiError('Can not serialize unsupported value ' + val.toString());
         }
 
         // Write the type specifier to the bitstream

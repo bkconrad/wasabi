@@ -245,6 +245,8 @@ describe('Wasabi', function () {
         assert.ok(result);
         assert.equal(result, w.clients[w.clients.length - 1]);
 
+        w.removeClient('not a socket');
+        assert.equal(w.clients.length, 1);
         w.removeClient(sock);
         assert.equal(w.clients.length, 0);
     });
@@ -256,6 +258,8 @@ describe('Wasabi', function () {
         assert.ok(result);
         assert.equal(result, w.servers[w.servers.length - 1]);
 
+        w.removeServer('not a socket');
+        assert.equal(w.servers.length, 1);
         w.removeServer(sock);
         assert.equal(w.servers.length, 0);
     });
@@ -394,6 +398,16 @@ describe('Wasabi', function () {
 
     });
 
+    it('complains when asked to serialize an RPC argument of an unsupported type', function() {
+        var dummy;
+        var fn = ws.mkRpc(function testRpc(arg) { dummy = arg; });
+        fn('test');
+
+        assert.throws(function() {
+            ws.processConnections();
+        }, WasabiError);
+    });
+
     it('complains when two RPC hashes collide', function () {
         ws.mkRpc(function foo() {
             this._dummy = 1;
@@ -432,6 +446,12 @@ describe('Wasabi', function () {
         assert.throws(function () {
             wc1.processConnections();
         }, WasabiError);
+    });
+
+    it('removes objects properly regardless of order', function() {
+        ws.addObject(foo1);
+        ws.addObject(foo2);
+        ws.removeObject(foo2);
     });
 
     it('complains when receiving invalid arguments a known RPC');

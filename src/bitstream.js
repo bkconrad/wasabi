@@ -362,7 +362,7 @@ Bitstream.prototype = {
         // We'll walk the prototype chain looking for .serialize methods,
         // and call them in order from child-most to parent-most
         // (arguably backwards, but it's easier to code)
-        var proto = obj.constructor ? obj.constructor.prototype : false;
+        var proto = obj.constructor.prototype;
         var serialize = obj.serialize;
         while (serialize && (typeof serialize === 'function')) {
             serialize.call(obj, description);

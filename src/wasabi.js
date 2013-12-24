@@ -412,8 +412,6 @@ function makeWasabi() {
             var k;
             var invocation;
 
-            args = args || [];
-
             // Extract connection list from supplied args
             // Note that RPCs expect exactly the number of arguments specified
             // in the original function's definition
@@ -473,7 +471,6 @@ function makeWasabi() {
          * @param {Bitstream} bs The target Bitstream
          */
         _packRpc: function (rpc, args, obj, bs) {
-            args = args || {};
             rpc._populateKeys(args);
             bs.writeUInt(obj ? obj.wabiSerialNumber : 0, 16);
             bs.writeUInt(this.registry.hash(rpc._fn), 16);
