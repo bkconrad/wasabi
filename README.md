@@ -18,6 +18,7 @@ The main advantages of using Wasabi are:
  - Prototypal inheritance of is fully supported out-of-the-box
  - You can get started without much boilerplate, then define additional
    functions to increase performance when you become production-ready
+ - Reliable construction: A well-rounded test suite with [100% branch coverage](http://kaen.github.io/wasabi/cov/lcov-report/)
 
 # Usage
 
