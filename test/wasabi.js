@@ -398,12 +398,13 @@ describe('Wasabi', function () {
 
     });
 
-    it('complains when asked to serialize an RPC argument of an unsupported type', function() {
-        var dummy;
-        var fn = ws.mkRpc(function testRpc(arg) { dummy = arg; });
+    it('complains when asked to serialize an RPC argument of an unsupported type', function () {
+        var fn = ws.mkRpc(function testRpc(arg) {
+            assert.ok(arg);
+        });
         fn('test');
 
-        assert.throws(function() {
+        assert.throws(function () {
             ws.processConnections();
         }, WasabiError);
     });
@@ -448,7 +449,7 @@ describe('Wasabi', function () {
         }, WasabiError);
     });
 
-    it('removes objects properly regardless of order', function() {
+    it('removes objects properly regardless of order', function () {
         ws.addObject(foo1);
         ws.addObject(foo2);
         ws.removeObject(foo2);
