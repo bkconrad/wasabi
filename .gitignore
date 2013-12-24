@@ -4,3 +4,8 @@ node_modules
 *.log
 doc/*
 *_browser.js
+*_browser_min.js
+build
+cov
+*.swp
+*.sublime-*
