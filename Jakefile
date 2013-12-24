@@ -60,6 +60,9 @@ task('test', function () {
     var mocha = new Mocha();
     var coverage = require('./coverage.js');
 
+    // make sure the library can survive Object.prototype modification
+    Object.prototype.foo = 'bar';
+
     coverage.hookRequire();
 
     srcFiles.forEach(function(name) {
