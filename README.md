@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/kaen/wasabi.png?branch=master)](https://travis-ci.org/kaen/wasabi)
+[![NPM version](https://badge.fury.io/js/wasabi.png)](http://badge.fury.io/js/wasabi)
 
 # Wasabi
 

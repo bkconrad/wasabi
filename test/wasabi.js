@@ -1,18 +1,17 @@
-var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/wasabi')
-  , WasabiError = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/wasabi_error')
-  , assert = require('chai').assert
-  , WebSocket = require('ws')
-  , MockSocket = require('./mock_socket.js')
-  , MockWasabi = require('./mock_wasabi.js')
-  ;
+var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/wasabi'),
+    WasabiError = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/wasabi_error'),
+    assert = require('chai').assert,
+    WebSocket = require('ws'),
+    MockSocket = require('./mock_socket.js'),
+    MockWasabi = require('./mock_wasabi.js');
 
 describe('Wasabi', function () {
-    var ws, wc1, wc2, server1, client1, server2, client2, bs, foo1;
+    var ws, wc1, wc2, server1, client1, server2, client2, bs, foo1, foo2;
 
-    beforeEach(function() {
+    beforeEach(function () {
 
         // a simple bitstream
-        bs = new Wasabi.Bitstream;
+        bs = new Wasabi.Bitstream();
 
         // a server and two linked clients
         ws = MockWasabi.make();
@@ -57,16 +56,15 @@ describe('Wasabi', function () {
         }
 
         assert.notEqual(0, newList.length);
-        for (var i = 0; i < newList.length; i++) {
+        for (i = 0; i < newList.length; i++) {
             assert.equal(newList[i].constructor, objList[i].constructor);
             newList[i].check(objList[i]);
         }
     });
 
-    it('orchestrates packing/unpacking data automatically in an update function', function() {
-        var i, hash, bs = new Wasabi.Bitstream;
+    it('orchestrates packing/unpacking data automatically in an update function', function () {
+        var foo = new MockWasabi.Foo();
 
-        var foo = new MockWasabi.Foo;
         ws.addObject(foo);
 
         ws._packGhost(foo, bs);
@@ -78,10 +76,9 @@ describe('Wasabi', function () {
     });
 
     it('packs and unpacks properly to out-of-sync registries', function () {
-        var i, hash, bs = new Wasabi.Bitstream;
-        ws.registry.nextSerialNumber += 1;
+        var foo = new MockWasabi.Foo();
 
-        var foo = new MockWasabi.Foo;
+        ws.registry.nextSerialNumber += 1;
         ws.addObject(foo);
 
         ws._packGhost(foo, bs);
@@ -116,13 +113,13 @@ describe('Wasabi', function () {
 
     it('passes a connection object to RPC invocations', function (done) {
         function ConnectionAsserter() {
+            this._dummy = true;
         }
 
         ConnectionAsserter.prototype = {
-            serialize: function () { }
-          , constructor: ConnectionAsserter
-          , rpcAssertConnection: function() {
-                var conn = arguments[0];
+            constructor: ConnectionAsserter,
+            rpcAssertConnection: function () {
+                var conn = Array.prototype.slice.call(arguments)[0];
                 assert.strictEqual(conn, wc1.servers[0]);
                 done();
             }
@@ -130,7 +127,7 @@ describe('Wasabi', function () {
 
         ws.addClass(ConnectionAsserter);
         wc1.addClass(ConnectionAsserter);
-        
+
         var obj = new ConnectionAsserter();
 
         ws.addObject(obj);
@@ -146,10 +143,7 @@ describe('Wasabi', function () {
         assert.ok(wc1.registry.objects[obj.wabiSerialNumber]);
     });
 
-    it('automatically manages ghosting and updates', function() {
-        var sent = false
-          , received = false;
-
+    it('automatically manages ghosting and updates', function () {
         foo1.foobar = 1337;
         ws.addObject(foo1);
 
@@ -171,7 +165,7 @@ describe('Wasabi', function () {
         assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
     });
 
-    it('can handle multiple foreign processConnection calls with a single local processConnection', function() {
+    it('can handle multiple foreign processConnection calls with a single local processConnection', function () {
         foo1.foobar = 1337;
         ws.addObject(foo1);
         ws.processConnections();
@@ -191,11 +185,12 @@ describe('Wasabi', function () {
         assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
     });
 
-    it('calls static RPCs without any associated object', function(done) {
-        var fn = function() {
-            assert.equal(arguments[0], wc1.servers[0]);
+    it('calls static RPCs without any associated object', function (done) {
+        var fn = function () {
+            var conn = Array.prototype.slice.call(arguments)[0];
+            assert.equal(conn, wc1.servers[0]);
             done();
-        }
+        };
 
         var rpcTest = ws.mkRpc(fn);
         wc1.mkRpc(fn);
@@ -206,20 +201,23 @@ describe('Wasabi', function () {
         wc1.processConnections();
     });
 
-    it('emits RPC invocations to a set of specified connections', function() {
+    it('emits RPC invocations to a set of specified connections', function () {
         var count = 0;
-        function TestClass() { }
+
+        function TestClass() {
+            this._dummy = 1;
+        }
         TestClass.prototype = {
-            constructor: TestClass
-          , rpcTest: function rpcTest() {
-                assert.equal(arguments[0], wc1.servers[0]);
+            constructor: TestClass,
+            rpcTest: function rpcTest() {
+                var conn = Array.prototype.slice.call(arguments)[0];
+                assert.equal(conn, wc1.servers[0]);
                 count++;
-            }
-          , rpcTestTwo: function rpcTestTwo() {
+            },
+            rpcTestTwo: function rpcTestTwo() {
                 throw new Error('Should never be called');
             }
-          , serialize: function() { }
-        }
+        };
 
         ws.addClass(TestClass);
         wc1.addClass(TestClass);
@@ -236,11 +234,11 @@ describe('Wasabi', function () {
         assert.equal(count, 1);
     });
 
-    it('does not choke on an empty receive bitstream', function() {
+    it('does not choke on an empty receive bitstream', function () {
         wc1.processConnections();
     });
 
-    it('adds and removes clients with a socket object', function() {
+    it('adds and removes clients with a socket object', function () {
         var w = MockWasabi.make();
         var sock = new MockSocket();
         var result = w.addClient(sock);
@@ -251,7 +249,7 @@ describe('Wasabi', function () {
         assert.equal(w.clients.length, 0);
     });
 
-    it('adds and removes servers with a socket object', function() {
+    it('adds and removes servers with a socket object', function () {
         var w = MockWasabi.make();
         var sock = new MockSocket();
         var result = w.addServer(sock);
@@ -262,10 +260,12 @@ describe('Wasabi', function () {
         assert.equal(w.servers.length, 0);
     });
 
-    it('triggers callbacks when ghosts are added or removed', function() {
-        var createDone = false, destroyDone = false;
+    it('triggers callbacks when ghosts are added or removed', function () {
+        var createDone = false,
+            destroyDone = false;
 
         function GhostCallbackTest() {
+            this._dummy = 1;
         }
 
         ws.addClass(GhostCallbackTest);
@@ -274,12 +274,12 @@ describe('Wasabi', function () {
         var obj = new GhostCallbackTest();
         ws.addObject(obj);
 
-        wc1.on('clientGhostCreate', function(remoteObj) {
+        wc1.on('clientGhostCreate', function (remoteObj) {
             createDone = true;
             assert.equal(remoteObj.wabiSerialNumber, obj.wabiSerialNumber);
         });
 
-        wc1.on('clientGhostDestroy', function(remoteObj) {
+        wc1.on('clientGhostDestroy', function (remoteObj) {
             destroyDone = true;
             assert.equal(remoteObj.wabiSerialNumber, obj.wabiSerialNumber);
         });
@@ -297,15 +297,15 @@ describe('Wasabi', function () {
         assert.ok(destroyDone);
     });
 
-    it('queries a callback to determine which netobjects to ghost', function() {
+    it('queries a callback to determine which netobjects to ghost', function () {
         ws.addObject(foo1);
         ws.addObject(foo2);
 
         // set the scope callback to read from the local variable `scope`
-        var scope = { };
-        ws.clients[0]._scopeCallback = function() {
+        var scope = {};
+        ws.clients[0]._scopeCallback = function () {
             return scope;
-        }
+        };
 
         // foo1 in scope, foo2 is not
         scope[foo1.wabiSerialNumber] = foo1;
@@ -315,7 +315,7 @@ describe('Wasabi', function () {
         assert.equal(wc1.registry.objects[foo2.wabiSerialNumber], undefined);
 
         // both foo1 and foo2 in scope
-        scope = { };
+        scope = {};
         scope[foo1.wabiSerialNumber] = foo1;
         scope[foo2.wabiSerialNumber] = foo2;
         ws.processConnections();
@@ -324,14 +324,14 @@ describe('Wasabi', function () {
         assert.ok(wc1.registry.objects[foo2.wabiSerialNumber]);
 
         // neither foo1 nor foo2 in scope
-        scope = { };
+        scope = {};
         ws.processConnections();
         wc1.processConnections();
         assert.equal(wc1.registry.objects[foo1.wabiSerialNumber], undefined);
         assert.equal(wc1.registry.objects[foo2.wabiSerialNumber], undefined);
     });
 
-    it('handles prototypal inheritance', function() {
+    it('handles prototypal inheritance', function () {
         var bar = new MockWasabi.Bar();
 
         ws.addObject(bar);
@@ -356,49 +356,56 @@ describe('Wasabi', function () {
 
     });
 
-    it('complains when receiving ghost data for an unknown class', function() {
+    it('complains when receiving ghost data for an unknown class', function () {
         function UnknownClass() {
+            this._dummy = 1;
         }
         ws.addClass(UnknownClass);
-        var obj = new UnknownClass;
+        var obj = new UnknownClass();
         ws.addObject(obj);
 
         ws.processConnections();
 
-        assert.throws(function() {
+        assert.throws(function () {
             wc1.processConnections();
         }, WasabiError);
     });
 
-    it('uses a sane default when no serialize function is given to RPCs', function(done) {
-        function ClassWithSimpleRpc() { }
+    it('uses a sane default when no serialize function is given to RPCs', function (done) {
+        function ClassWithSimpleRpc() {
+            this._dummy = 1;
+        }
         ClassWithSimpleRpc.prototype.rpcOne = function rpcOne(a, b, c) {
             assert.equal(a, 1337);
-            assert.closeTo(b, .123, .001);
+            assert.closeTo(b, 0.123, 0.001);
             assert.equal(c, -100);
             done();
-        }
+        };
 
         ws.addClass(ClassWithSimpleRpc);
         wc1.addClass(ClassWithSimpleRpc);
 
         var obj = new ClassWithSimpleRpc();
         ws.addObject(obj);
-        obj.rpcOne(1337, .123, -100);
+        obj.rpcOne(1337, 0.123, -100);
 
         ws.processConnections();
         wc1.processConnections();
 
     });
-    
-    it('complains when two RPC hashes collide', function() {
-        var rpc1 = ws.mkRpc(function foo() { });
-        assert.throws(function() {
-            var rpc2 = ws.mkRpc(function foo() { });
-        }, WasabiError)
+
+    it('complains when two RPC hashes collide', function () {
+        ws.mkRpc(function foo() {
+            this._dummy = 1;
+        });
+        assert.throws(function () {
+            ws.mkRpc(function foo() {
+                this._dummy = 1;
+            });
+        }, WasabiError);
     });
 
-    it('complains when receiving update data for an unknown object', function() {
+    it('complains when receiving update data for an unknown object', function () {
         // First, we'll send the ghost properly
         ws.addObject(foo1);
         ws.processConnections();
@@ -410,21 +417,24 @@ describe('Wasabi', function () {
 
         ws.processConnections();
 
-        assert.throws(function() {
+        assert.throws(function () {
             wc1.processConnections();
-        }, WasabiError)
+        }, WasabiError);
     });
 
-    it('complains when receiving a call to an unknown RPC', function() {
-        var rpc = ws.mkRpc(function foo() { });
+    it('complains when receiving a call to an unknown RPC', function () {
+        var rpc = ws.mkRpc(function foo() {
+            this._dummy = 1;
+        });
         rpc();
         ws.processConnections();
 
-        assert.throws(function() {
+        assert.throws(function () {
             wc1.processConnections();
         }, WasabiError);
     });
 
     it('complains when receiving invalid arguments a known RPC');
+    it('complains when receiving a ghost which already exists in this instance');
     it('uses the attribute name for RPCs when Function.name is empty');
 });

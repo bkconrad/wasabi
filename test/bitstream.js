@@ -1,12 +1,11 @@
-var Bitstream = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/bitstream')
-  , assert = require('chai').assert
-  , WebSocket = require('ws')
-  ;
+var Bitstream = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/bitstream'),
+    assert = require('chai').assert,
+    WebSocket = require('ws');
 
 
 describe('Bitstream', function () {
-    it('can tell if there is more data to read', function() {
-		var b = new Bitstream;
+    it('can tell if there is more data to read', function () {
+        var b = new Bitstream();
         b.writeUInt(0, 16);
         b._index = 0;
         assert.equal(16, b.bitsLeft());
@@ -18,122 +17,123 @@ describe('Bitstream', function () {
         assert.equal(0, b.bitsLeft());
     });
 
-	it('sets n bits at a time', function () {
-		var b = new Bitstream;
+    it('sets n bits at a time', function () {
+        var b = new Bitstream();
         b._setBits(0, 7, 127);
         assert.equal(b.arr[0], 127);
-	});
+    });
 
-	it('correctly overflows large values', function () {
-		var b = new Bitstream;
+    it('correctly overflows large values', function () {
+        var b = new Bitstream();
         b._setBits(0, 8, 129);
         assert.equal(b.arr[0], 1);
         assert.equal(b.arr[1], 1);
-	});
+    });
 
-	it('gets n bits at a time', function () {
-		var b = new Bitstream;
+    it('gets n bits at a time', function () {
+        var b = new Bitstream();
         b._setBits(0, 16, 1337);
         assert.equal(b._getBits(0, 16), 1337);
-	});
+    });
 
-	it('reads/writes unsigned integers', function () {
-		var b = new Bitstream;
-		var VALUE = 1337;
-		b.writeUInt(VALUE, 16);
-		assert.equal(b._index, 16);
+    it('reads/writes unsigned integers', function () {
+        var b = new Bitstream();
+        var VALUE = 1337;
+        b.writeUInt(VALUE, 16);
+        assert.equal(b._index, 16);
 
-		b._index = 0;
+        b._index = 0;
 
         assert.equal(b.peekUInt(16), VALUE);
         assert.equal(b._index, 0);
 
-		assert.equal(b.readUInt(16), VALUE);
-	});
-	it('reads/writes signed integers', function () {
-		var b = new Bitstream;
-		var negValue = -1337;
-		var posValue = 123;
-		b.writeSInt(negValue, 16);
-		b.writeSInt(posValue, 8);
+        assert.equal(b.readUInt(16), VALUE);
+    });
+    it('reads/writes signed integers', function () {
+        var b = new Bitstream();
+        var negValue = -1337;
+        var posValue = 123;
+        b.writeSInt(negValue, 16);
+        b.writeSInt(posValue, 8);
 
-		assert.equal(b._index, 24);
-		b._index = 0;
+        assert.equal(b._index, 24);
+        b._index = 0;
 
-		assert.equal(b.readSInt(16), negValue);
-		assert.equal(b.readSInt(8), posValue);
-	});
+        assert.equal(b.readSInt(16), negValue);
+        assert.equal(b.readSInt(8), posValue);
+    });
 
-	it('reads/writes float values', function () {
-		var b = new Bitstream;
-        var vals = [0.25, 0.0, -1.0, 1.0, .5, .3333, -.618];
+    it('reads/writes float values', function () {
+        var b = new Bitstream();
+        var vals = [0.25, 0.0, -1.0, 1.0, 0.5, 0.3333, -0.618];
         var i;
-        
+
         for (i = 0; i < vals.length; i++) {
             b.writeFloat(vals[i], 8);
         }
         assert.equal(b._index, 8 * vals.length);
 
-		b._index = 0;
+        b._index = 0;
 
-        var i = 0;
-        while(b.bitsLeft()) {
-            assert.closeTo(b.readFloat(8), vals[i], .01);
-            i += 1;
+        for (i = 0; b.bitsLeft(); i++) {
+            assert.closeTo(b.readFloat(8), vals[i], 0.01);
         }
-	});
+    });
 
-	it('complains on overread', function () {
-		var b = new Bitstream;
-		b.writeUInt(1337, 16);
+    it('complains on overread', function () {
+        var b = new Bitstream();
+        b.writeUInt(1337, 16);
         b._index = 0;
         b.readUInt(16);
-        assert.throws(function() { b.readUInt(1) });
-	});
+        assert.throws(function () {
+            b.readUInt(1);
+        });
+    });
 
-	it('encodes its value as an ArrayBuffer', function () {
-		var b = new Bitstream;
-		b.writeUInt(1337, 16);
-		b.writeUInt(1, 2);
-		b.writeUInt(127, 7);
+    it('encodes its value as an ArrayBuffer', function () {
+        var b = new Bitstream();
+        b.writeUInt(1337, 16);
+        b.writeUInt(1, 2);
+        b.writeUInt(127, 7);
 
-		var b2 = new Bitstream(b.toArrayBuffer());
+        var b2 = new Bitstream(b.toArrayBuffer());
         b2._index = 0;
 
-		assert.equal(1337, b2.readUInt(16));
-		assert.equal(1, b2.readUInt(2));
-		assert.equal(127, b2.readUInt(7));
-	});
+        assert.equal(1337, b2.readUInt(16));
+        assert.equal(1, b2.readUInt(2));
+        assert.equal(127, b2.readUInt(7));
+    });
 
-	it('should pack/unpack objects with .serialize methods', function () {
-		var bs = new Bitstream;
-		var testObj = {
-			foo: 1337,
-			bar: 7331,
+    it('should pack/unpack objects with .serialize methods', function () {
+        var k;
+        var bs = new Bitstream();
+        var resultObj;
+        var testObj = {
+            foo: 1337,
+            bar: 7331,
             baz: -123,
-			serialize: function (desc) {
-				desc.uint('foo', 16);
-				desc.uint('bar', 16);
-				desc.sint('baz', 7);
-			}
-		}
-		bs.pack(testObj);
-		// console.log(bs);
+            serialize: function (desc) {
+                desc.uint('foo', 16);
+                desc.uint('bar', 16);
+                desc.sint('baz', 7);
+            }
+        };
+        bs.pack(testObj);
 
-		bs._index = 0;
-		var resultObj = bs.unpack(testObj);
-        for (var k in testObj) {
-            if(testObj.hasOwnProperty(k)) {
+        bs._index = 0;
+        resultObj = bs.unpack(testObj);
+        for (k in testObj) {
+            if (testObj.hasOwnProperty(k)) {
                 assert.equal(testObj[k], resultObj[k]);
             }
         }
-	});
+    });
 
-	it('packs/unpacks objects with .serialize methods, following prototypal inheritance');
+    it('packs/unpacks objects with .serialize methods, following prototypal inheritance');
 
-    it('appends bits from character data', function() {
-		var b1 = new Bitstream();
-		var b2 = new Bitstream();
+    it('appends bits from character data', function () {
+        var b1 = new Bitstream();
+        var b2 = new Bitstream();
         b1.writeUInt(1337, 16);
         b1.writeUInt(4321, 16);
         b2.appendChars(b1.toChars());
@@ -144,9 +144,9 @@ describe('Bitstream', function () {
         assert.equal(4321, b2.readUInt(16));
     });
 
-    it('can be aligned to the next buffer byte', function() {
-		var b1 = new Bitstream();
-        var start, stop;
+    it('can be aligned to the next buffer byte', function () {
+        var b1 = new Bitstream();
+        var start;
         // this should actually be UTF-8 encoded binary, but whatever
         // 4 characters == 28 bits of binary data
         b1.appendChars("test");
@@ -170,9 +170,9 @@ describe('Bitstream', function () {
         assert.equal(b1._index, b1._nbits);
     });
 
-    it('checks for equivalence with another', function() {
-		var b1 = new Bitstream();
-		var b2 = new Bitstream();
+    it('checks for equivalence with another', function () {
+        var b1 = new Bitstream();
+        var b2 = new Bitstream();
         b1.writeUInt(1337, 16);
         b1.writeUInt(4321, 16);
         b2.writeUInt(1337, 16);
@@ -187,42 +187,45 @@ describe('Bitstream', function () {
         assert.ok(!b1.equals(b2));
     });
 
-	it('writes and reads objects to websockets', function (done) {
-		function TestObject () {}
-	        TestObject.prototype = {
-			foo: 0,
-			bar: 0,
-			serialize: function (desc) {
-				desc.uint('foo', 16);
-				desc.uint('bar', 16);
-			}
-		};
+    it('writes and reads objects to websockets', function (done) {
+        function TestObject() {
+            this.dummy = 1;
+        }
+        TestObject.prototype = {
+            foo: 0,
+            bar: 0,
+            serialize: function (desc) {
+                desc.uint('foo', 16);
+                desc.uint('bar', 16);
+            }
+        };
 
-		var sourceObj = new TestObject;
-		var destObj = new TestObject;
+        var sourceObj = new TestObject();
+        var destObj = new TestObject();
+        var sourceStream = new Bitstream();
+        var destStream;
 
-		sourceObj.foo = 1337;
-		sourceObj.bar = 7331;
+        sourceObj.foo = 1337;
+        sourceObj.bar = 7331;
 
-		var sourceStream = new Bitstream;
-		var destStream = undefined;
+        sourceStream.pack(sourceObj);
 
-		sourceStream.pack(sourceObj);
-
-		var server = new WebSocket.Server({port:31337}, function () {
-			var client = new WebSocket('ws://localhost:31337');
-			client.on('message', function (data) {
-				destStream = Bitstream.fromChars(data);
+        var server = new WebSocket.Server({
+            port: 31337
+        }, function () {
+            var client = new WebSocket('ws://localhost:31337');
+            client.on('message', function (data) {
+                destStream = Bitstream.fromChars(data);
                 destStream._index = 0;
-				destObj = destStream.unpack(destObj);
-				assert.equal(sourceObj.foo, destObj.foo);
-				assert.equal(sourceObj.bar, destObj.bar);
-				done();
-			});
-		});
+                destObj = destStream.unpack(destObj);
+                assert.equal(sourceObj.foo, destObj.foo);
+                assert.equal(sourceObj.bar, destObj.bar);
+                done();
+            });
+        });
 
-		server.on('connection', function (ssock) {
-			ssock.send(sourceStream.toChars());
-		});
-	});
+        server.on('connection', function (ssock) {
+            ssock.send(sourceStream.toChars());
+        });
+    });
 });

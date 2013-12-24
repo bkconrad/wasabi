@@ -150,7 +150,6 @@ Bitstream.prototype = {
      * @return A `Uint8Array` containing the data in this Bitstream
      */
     toArrayBuffer: function () {
-        // TODO: handle CELLSIZE > 8
         var buf = new ArrayBuffer(this.arr.length);
         var arr = new Uint8Array(buf);
         var i;
@@ -181,7 +180,6 @@ Bitstream.prototype = {
         for (i = 0; i < buffer.length; i++) {
             this.arr.push(buffer[i]);
         }
-        // TODO: figure out why this is seven
         this._extend(i * 7);
     },
 

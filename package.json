@@ -6,13 +6,19 @@
     "dependencies":{
     },
     "devDependencies":{
-        "browserify":"",
         "benchmark":"",
+        "browserify":"",
         "chai":"",
         "fibers":"",
+        "istanbul":"",
         "jake":"",
+        "js-beautify":"",
+        "jshint":"",
+        "jslint":"",
         "mocha":"",
-        "ws":""
+        "uglify-js":"",
+        "ws":"",
+        "yuidocjs":""
     },
     "keywords":[
         "multiplayer",
@@ -29,6 +35,6 @@
     "license":"MIT",
     "main":"src/wasabi",
     "scripts": {
-        "test": "mocha test"
+        "test": "jake lint && jake test && jake bench"
     }
 }

@@ -28,7 +28,7 @@ InDescription.prototype = {
         var val = this._target[name];
         if (val | 0 === val) {
             type = 'sint';
-        } else if (val + 0 === val) {
+        } else if (+val === val) {
             type = 'float';
         }
 

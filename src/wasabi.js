@@ -208,7 +208,7 @@ function makeWasabi() {
             var serial = bs.readUInt(16);
             var obj = this.registry.getObject(serial);
             if (!obj) {
-                throw new WasabiError('Received update for unknown object ' + serial)
+                throw new WasabiError('Received update for unknown object ' + serial);
             }
             bs.unpack(obj);
             return obj;
@@ -240,7 +240,7 @@ function makeWasabi() {
             if (!T) {
                 throw new WasabiError('Received ghost for unknown class with hash ' + hash);
             }
-            // TODO: raise an exception unpacking a ghost which already exists
+
             obj = new T();
             obj.wabiInstance = this;
             this.registry.addObject(obj, serial);
@@ -339,7 +339,7 @@ function makeWasabi() {
                  * object is about to be destroyed. This occurs when the scope
                  * callback for this client (on the server) does not return the
                  * object after it did previously.
-                 * 
+                 *
                  * Although Wasabi can not acutally "destroy" the object (since
                  * JavaScript has no destructors), the particular instance will
                  * never be referred to be Wasabi again.
@@ -383,7 +383,6 @@ function makeWasabi() {
          * @param {Bitstream} bs The source Bitstream
          */
         _unpackUpdates: function (bs) {
-            var hash = 0;
             var list = [];
             var obj;
             while (bs.peekUInt(16) !== WABI_SEPARATOR) {
@@ -615,8 +614,9 @@ function makeWasabi() {
 
     // mixin an event emitter
     events.EventEmitter.call(Wasabi);
-    for(var k in events.EventEmitter.prototype) {
-        if(events.EventEmitter.prototype.hasOwnProperty(k)) {
+    var k;
+    for (k in events.EventEmitter.prototype) {
+        if (events.EventEmitter.prototype.hasOwnProperty(k)) {
             Wasabi[k] = events.EventEmitter.prototype[k];
         }
     }

@@ -38,7 +38,6 @@ Registry.prototype = {
         var i;
 
         for (i = 0; i < name.length; i++) {
-            // TODO: just how unique is this hash?
             result ^= name.charCodeAt(i);
         }
 
@@ -117,7 +116,7 @@ Registry.prototype = {
     mkRpc: function (fn, serialize, instance) {
         var hash = this.hash(fn);
         var rpc;
-        serialize = serialize || function () {};
+
         if (this.hashToRpc[hash] !== undefined) {
             throw new WasabiError('Invalid attempt to redefine RPC ' + fn.name + ' with hash ' + hash);
         }

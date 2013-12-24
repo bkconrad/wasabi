@@ -1,12 +1,13 @@
 function MockSocket() {
+    this._target = null;
 }
 
 MockSocket.prototype = {
-    link: function(other) {
+    link: function (other) {
         this._target = other;
         other._target = this;
     },
-    send: function(data) {
+    send: function (data) {
         this._target.onmessage(data);
     },
 };

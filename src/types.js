@@ -11,7 +11,8 @@ var fromString = {
 };
 
 var fromValue = {};
-for (var k in fromString) {
+var k;
+for (k in fromString) {
     if (fromString.hasOwnProperty(k)) {
         fromValue[fromString[k]] = k;
     }
@@ -20,6 +21,6 @@ for (var k in fromString) {
 var Types = {
     fromString: fromString,
     fromValue: fromValue
-}
+};
 
 module.exports = Types;
