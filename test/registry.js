@@ -1,4 +1,4 @@
-var Registry = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/registry'),
+var Registry = require('../src/registry'),
     assert = require('chai').assert,
     WebSocket = require('ws');
 

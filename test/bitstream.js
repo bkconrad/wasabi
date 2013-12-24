@@ -1,4 +1,4 @@
-var Bitstream = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/bitstream'),
+var Bitstream = require('../src/bitstream'),
     assert = require('chai').assert,
     WebSocket = require('ws');
 

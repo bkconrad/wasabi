@@ -1,4 +1,4 @@
-var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/wasabi'),
+var Wasabi = require('../src/wasabi'),
     assert = require('chai').assert,
     MockSocket = require('./mock_socket'),
     MockWasabi = require('./mock_wasabi');

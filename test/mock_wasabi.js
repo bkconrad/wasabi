@@ -1,4 +1,4 @@
-var Wasabi = require(__dirname + '/..' + (process.env.COVERAGE ? '/src-cov' : '/src') + '/wasabi');
+var Wasabi = require('../src/wasabi');
 var assert = require('chai').assert;
 
 module.exports = (function () {
