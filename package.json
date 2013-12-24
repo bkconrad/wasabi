@@ -35,6 +35,7 @@
     "license":"MIT",
     "main":"src/wasabi",
     "scripts": {
-        "test": "jake lint && jake test && jake bench"
+        "test": "jake lint && jake test && jake bench",
+        "prepublish": "jake build"
     }
 }
