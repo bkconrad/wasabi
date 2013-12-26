@@ -329,7 +329,7 @@ Bitstream.prototype = {
     readString: function () {
         var chars = [];
         var c = this.readUInt(8);
-        while(c !== 0) {
+        while (c !== 0) {
             chars.push(c);
             c = this.readUInt(8);
         }
@@ -345,7 +345,7 @@ Bitstream.prototype = {
      */
     writeString: function (value) {
         var i;
-        for(i = 0; i < value.length; i++) {
+        for (i = 0; i < value.length; i++) {
             this.writeUInt(value.charCodeAt(i), 8);
         }
         this.writeUInt(0, 8);

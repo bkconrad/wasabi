@@ -165,8 +165,10 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
-        assert.equal(foo1.uintfoo, wc1.registry.objects[foo1.wabiSerialNumber].uintfoo);
+        var remoteFoo = wc1.registry.objects[foo1.wabiSerialNumber];
+        assert.ok(remoteFoo.wabiIsGhost);
+        assert.notOk(foo1.wabiIsGhost);
+        assert.equal(foo1.uintfoo, remoteFoo.uintfoo);
         assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
 
         foo2.uintfoo = 1234;

@@ -243,6 +243,7 @@ function makeWasabi() {
 
             obj = new T();
             obj.wabiInstance = this;
+            obj.wabiIsGhost = true;
             this.registry.addObject(obj, serial);
 
             /**
