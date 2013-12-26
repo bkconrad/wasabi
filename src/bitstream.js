@@ -330,8 +330,8 @@ Bitstream.prototype = {
         var chars = [];
         var c = this.readUInt(8);
         while(c !== 0) {
-            c = this.readUInt(8);
             chars.push(c);
+            c = this.readUInt(8);
         }
 
         return String.fromCharCode.apply(false, chars);

@@ -394,10 +394,11 @@ describe('Wasabi', function () {
         function ClassWithSimpleRpc() {
             this._dummy = 1;
         }
-        ClassWithSimpleRpc.prototype.rpcOne = function rpcOne(a, b, c) {
+        ClassWithSimpleRpc.prototype.rpcOne = function rpcOne(a, b, c, d) {
             assert.equal(a, 1337);
             assert.closeTo(b, 0.123, 0.001);
             assert.equal(c, -100);
+            assert.equal(d, 'test!');
             done();
         };
 
@@ -406,7 +407,7 @@ describe('Wasabi', function () {
 
         var obj = new ClassWithSimpleRpc();
         ws.addObject(obj);
-        obj.rpcOne(1337, 0.123, -100);
+        obj.rpcOne(1337, 0.123, -100, 'test!');
 
         ws.processConnections();
         wc1.processConnections();
@@ -417,7 +418,7 @@ describe('Wasabi', function () {
         var fn = ws.mkRpc(function testRpc(arg) {
             assert.ok(arg);
         });
-        fn('test');
+        fn([]);
 
         assert.throws(function () {
             ws.processConnections();
