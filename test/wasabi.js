@@ -159,44 +159,44 @@ describe('Wasabi', function () {
     });
 
     it('automatically manages ghosting and updates', function () {
-        foo1.foobar = 1337;
+        foo1.uintfoo = 1337;
         ws.addObject(foo1);
 
         ws.processConnections();
         wc1.processConnections();
 
         assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
-        assert.equal(foo1.foobar, wc1.registry.objects[foo1.wabiSerialNumber].foobar);
+        assert.equal(foo1.uintfoo, wc1.registry.objects[foo1.wabiSerialNumber].uintfoo);
         assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
 
-        foo2.foobar = 1234;
+        foo2.uintfoo = 1234;
         ws.addObject(foo2);
 
         ws.processConnections();
         wc1.processConnections();
 
         assert.ok(wc1.registry.objects[foo2.wabiSerialNumber]);
-        assert.equal(foo2.foobar, wc1.registry.objects[foo2.wabiSerialNumber].foobar);
+        assert.equal(foo2.uintfoo, wc1.registry.objects[foo2.wabiSerialNumber].uintfoo);
         assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
     });
 
     it('can handle multiple foreign processConnection calls with a single local processConnection', function () {
-        foo1.foobar = 1337;
+        foo1.uintfoo = 1337;
         ws.addObject(foo1);
         ws.processConnections();
 
-        foo2.foobar = 1234;
+        foo2.uintfoo = 1234;
         ws.addObject(foo2);
         ws.processConnections();
 
         wc1.processConnections();
 
         assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
-        assert.equal(foo1.foobar, wc1.registry.objects[foo1.wabiSerialNumber].foobar);
+        assert.equal(foo1.uintfoo, wc1.registry.objects[foo1.wabiSerialNumber].uintfoo);
         assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
 
         assert.ok(wc1.registry.objects[foo2.wabiSerialNumber]);
-        assert.equal(foo2.foobar, wc1.registry.objects[foo2.wabiSerialNumber].foobar);
+        assert.equal(foo2.uintfoo, wc1.registry.objects[foo2.wabiSerialNumber].uintfoo);
         assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
     });
 
@@ -354,13 +354,13 @@ describe('Wasabi', function () {
         var bar = new MockWasabi.Bar();
 
         ws.addObject(bar);
-        bar.foobar = 1234;
+        bar.uintfoo = 1234;
         bar.barbar = 4321;
         ws.processConnections();
         wc1.processConnections();
         var remoteBar = wc1.registry.getObject(bar.wabiSerialNumber);
         assert.ok(remoteBar);
-        assert.equal(remoteBar.foobar, bar.foobar);
+        assert.equal(remoteBar.uintfoo, bar.uintfoo);
         assert.equal(remoteBar.barbar, bar.barbar);
 
         bar.rpcTest(1337);

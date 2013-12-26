@@ -322,6 +322,36 @@ Bitstream.prototype = {
     },
 
     /**
+     * Read a zero-terminated string value
+     * @method readString
+     * @return the String read from the bitstream
+     */
+    readString: function () {
+        var chars = [];
+        var c = this.readUInt(8);
+        while(c !== 0) {
+            c = this.readUInt(8);
+            chars.push(c);
+        }
+
+        return String.fromCharCode.apply(false, chars);
+    },
+
+    /**
+     * Write a zero-terminated string
+     * number of bits
+     * @method writeString
+     * @param {String} value Value to write.
+     */
+    writeString: function (value) {
+        var i;
+        for(i = 0; i < value.length; i++) {
+            this.writeUInt(value.charCodeAt(i), 8);
+        }
+        this.writeUInt(0, 8);
+    },
+
+    /**
      * Pack an object with a `.serialize()` method into this bitstream
      * @method pack
      * @param {NetObject} obj The object to serialize

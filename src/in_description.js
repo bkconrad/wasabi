@@ -24,6 +24,10 @@ InDescription.prototype = {
         this._bitStream.writeFloat(this._target[name], bits);
     },
 
+    string: function (name) {
+        this._bitStream.writeString(this._target[name]);
+    },
+
     any: function (name, bits) {
         var type;
         var val = this._target[name];

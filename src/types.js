@@ -7,7 +7,8 @@ var iota = 0xFFFF;
 var fromString = {
     sint: --iota,
     uint: --iota,
-    float: --iota
+    float: --iota,
+    string: --iota
 };
 
 var fromValue = {};

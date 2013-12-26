@@ -22,6 +22,10 @@ OutDescription.prototype = {
         this._target[name] = this._bitStream.readFloat(bits);
     },
 
+    string: function (name) {
+        this._target[name] = this._bitStream.readString();
+    },
+
     any: function (name, bits) {
         var type = this._bitStream.readUInt(16);
         this[Types.fromValue[type]](name, bits);

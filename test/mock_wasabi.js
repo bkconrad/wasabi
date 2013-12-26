@@ -3,20 +3,25 @@ var assert = require('chai').assert;
 
 module.exports = (function () {
     function Foo() {
-        this.foobar = 1;
-        this.signedbar = -1;
-        this.floatbar = 0.618;
+        this.uintfoo = 1;
+        this.sintfoo = -1;
+        this.floatfoo = 0.618;
+        this.stringfoo = 'test';
     }
 
     Foo.prototype = {
         constructor: Foo,
         serialize: function (desc) {
-            desc.uint('foobar', 16);
-            desc.sint('signedbar', 16);
-            desc.float('floatbar', 8);
+            desc.uint('uintfoo', 16);
+            desc.sint('sintfoo', 16);
+            desc.float('floatfoo', 8);
+            desc.string('stringfoo');
         },
         check: function (that) {
-            assert.equal(this.foobar, that.foobar);
+            assert.equal(this.uintfoo, that.uintfoo);
+            assert.equal(this.sintfoo, that.sintfoo);
+            assert.equal(this.floatfoo, that.floatfoo);
+            assert.equal(this.stringfoo, that.stringfoo);
         },
         rpcTest: function rpcTest(val) {
             this.testval = val;
