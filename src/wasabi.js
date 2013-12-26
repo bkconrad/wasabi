@@ -493,8 +493,9 @@ function makeWasabi() {
             var rpc;
             var args;
 
-            if (obj) {
+            if (serialNumber) {
                 rpc = obj.constructor.wabiRpcs[hash];
+
             } else {
                 rpc = this.registry.getRpc(hash);
             }
@@ -565,10 +566,6 @@ function makeWasabi() {
                 conn._sendBitstream.writeUInt(WABI_SECTION_GHOSTS, 16);
                 this._packGhosts(newlyInScopeObjects, conn._sendBitstream);
 
-                // pack ghosts for those objects
-                conn._sendBitstream.writeUInt(WABI_SECTION_REMOVED_GHOSTS, 16);
-                this._packRemovedGhosts(newlyOutOfScopeObjects, conn._sendBitstream);
-
                 // pack updates for all objects
                 conn._sendBitstream.writeUInt(WABI_SECTION_UPDATES, 16);
                 this._packUpdates(newObjects, conn._sendBitstream);
@@ -577,6 +574,13 @@ function makeWasabi() {
             // pack all rpc invocations sent to this connection
             this._packRpcs(conn);
             conn._rpcQueue = [];
+
+            if (conn._ghostTo) {
+                // get list of objects which have come into scope
+                // pack ghost removals for those objects
+                conn._sendBitstream.writeUInt(WABI_SECTION_REMOVED_GHOSTS, 16);
+                this._packRemovedGhosts(newlyOutOfScopeObjects, conn._sendBitstream);
+            }
 
             conn._sendBitstream.writeUInt(WABI_PACKET_STOP, 16);
 

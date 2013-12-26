@@ -98,6 +98,21 @@ describe('Wasabi', function () {
         assert.equal(wc1.registry.objects[foo1.wabiSerialNumber].testval, 1337);
     });
 
+    it('supports calling RPCs and removing their subject in the same frame', function () {
+        ws.addObject(foo1);
+
+        ws.processConnections();
+        wc1.processConnections();
+
+        assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
+
+        foo1.rpcTest(1337);
+        ws.removeObject(foo1);
+
+        ws.processConnections();
+        wc1.processConnections();
+    });
+
     it('calls RPCs from clients to servers on an associated netobject', function () {
         ws.addObject(foo1);
 
@@ -452,7 +467,16 @@ describe('Wasabi', function () {
     it('removes objects properly regardless of order', function () {
         ws.addObject(foo1);
         ws.addObject(foo2);
+        assert.ok(ws._getAllObjects()[foo1.wabiSerialNumber]);
+        assert.ok(ws._getAllObjects()[foo2.wabiSerialNumber]);
+
         ws.removeObject(foo2);
+        assert.ok(ws._getAllObjects()[foo1.wabiSerialNumber]);
+        assert.notOk(ws._getAllObjects()[foo2.wabiSerialNumber]);
+
+        ws.removeObject(foo1);
+        assert.notOk(ws._getAllObjects()[foo1.wabiSerialNumber]);
+        assert.notOk(ws._getAllObjects()[foo2.wabiSerialNumber]);
     });
 
     it('complains when receiving invalid arguments a known RPC');

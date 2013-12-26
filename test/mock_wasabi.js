@@ -23,6 +23,9 @@ module.exports = (function () {
         },
         rpcTestArgs: function (desc) {
             desc.uint('val', 16);
+        },
+        rpcDefault: function (val) {
+            this.defaultVal = val;
         }
     };
 
