@@ -538,6 +538,4 @@ describe('Wasabi', function () {
     it('complains when receiving too few arguments to a known RPC');
     it('complains when receiving too many arguments to a known RPC');
     it('complains when receiving a ghost which already exists in this instance');
-    it('complains when receiving a ghost which already exists in this instance');
-    it('uses the attribute name for RPCs when Function.name is empty');
 });
