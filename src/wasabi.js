@@ -416,7 +416,16 @@ function makeWasabi() {
             // Extract connection list from supplied args
             // Note that RPCs expect exactly the number of arguments specified
             // in the original function's definition
-            var conns = args.slice(rpc._fn.length, args.length - rpc._fn.length);
+            var conns = args.splice(rpc._fn.length, args.length - rpc._fn.length);
+            for (i = 0; i < conns.length; i++) {
+                if (!(conns[i] instanceof Connection)) {
+                    throw new WasabiError('Expected connection but got ' + conns[i] + '. Did you pass too many arguments to ' + rpc._fn.name + '?');
+                }
+            }
+
+            if (args.length < rpc._fn.length) {
+                throw new WasabiError('Too few arguments passed to ' + rpc._fn.name);
+            }
 
             if (conns.length === 0) {
                 for (k in this.servers) {

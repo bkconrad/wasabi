@@ -534,8 +534,21 @@ describe('Wasabi', function () {
         }, WasabiError);
     });
 
-    it('complains when receiving invalid arguments to a known RPC');
-    it('complains when receiving too few arguments to a known RPC');
-    it('complains when receiving too many arguments to a known RPC');
+    it('complains when receiving too few arguments to a known RPC', function () {
+        ws.addObject(foo1);
+
+        assert.throws(function () {
+            foo1.rpcDefault();
+        }, WasabiError);
+    });
+
+    it('complains when receiving too many arguments to a known RPC', function () {
+        ws.addObject(foo1);
+
+        assert.throws(function () {
+            foo1.rpcDefault(1, 2, 3);
+        }, WasabiError);
+    });
+
     it('complains when receiving a ghost which already exists in this instance');
 });
