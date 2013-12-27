@@ -517,7 +517,7 @@ describe('Wasabi', function () {
         var Klass = function Klass() {
             this.dummy = 1;
         };
-        Klass.prototype.anonymousMethod = function () {
+        Klass.prototype.rpcAnonymousMethod = function () {
             this.dummy = 1;
         };
 

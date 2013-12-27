@@ -43,7 +43,9 @@ Registry.prototype = {
             name += '.' + fn2.name;
         }
 
+        // compute a 16 bit hash using wrap-around bitshifting and XOR
         for (i = 0; i < name.length; i++) {
+            result = ((result & 1) << 15) + (result >>> 1);
             result ^= name.charCodeAt(i);
         }
 
