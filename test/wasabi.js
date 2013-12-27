@@ -113,6 +113,15 @@ describe('Wasabi', function () {
         wc1.processConnections();
     });
 
+    it('handles calling RPCs when adding and removing their subject in the same frame', function () {
+        ws.addObject(foo1);
+        foo1.rpcTest(1337);
+        ws.removeObject(foo1);
+
+        ws.processConnections();
+        wc1.processConnections();
+    });
+
     it('calls RPCs from clients to servers on an associated netobject', function () {
         ws.addObject(foo1);
 
@@ -436,6 +445,18 @@ describe('Wasabi', function () {
                 this._dummy = 1;
             });
         }, WasabiError);
+
+        function RedefinedFoo() {
+            this._dummy = 1;
+        }
+        ws.registry.mkRpc(RedefinedFoo, function foo() {
+            this._dummy = 1;
+        });
+        assert.throws(function () {
+            ws.registry.mkRpc(RedefinedFoo, function foo() {
+                this._dummy = 1;
+            });
+        }, WasabiError);
     });
 
     it('complains when receiving update data for an unknown object', function () {
@@ -482,7 +503,12 @@ describe('Wasabi', function () {
         assert.notOk(ws._getAllObjects()[foo2.wabiSerialNumber]);
     });
 
-    it('complains when receiving invalid arguments a known RPC');
+    it('complains when receiving invalid arguments to a known RPC');
+    it('complains when receiving too few arguments to a known RPC');
+    it('complains when receiving too many arguments to a known RPC');
     it('complains when receiving a ghost which already exists in this instance');
+    it('complains when receiving a ghost which already exists in this instance');
+    it('complains when defining an anonymous RPC');
+    it('complains when defining an anonymous class');
     it('uses the attribute name for RPCs when Function.name is empty');
 });

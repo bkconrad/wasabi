@@ -54,7 +54,7 @@ function makeWasabi() {
          * @param {Function} klass The constructor of the class to add
          */
         addClass: function (klass) {
-            this.registry.addClass(klass);
+            this.registry.addClass(klass, this);
         },
 
         /**
@@ -97,7 +97,7 @@ function makeWasabi() {
          *     the RPC on a connection
          */
         mkRpc: function (fn, opt_serialize) {
-            return this.registry.mkRpc(fn, opt_serialize, this);
+            return this.registry.mkRpc(false, fn, opt_serialize, this);
         },
 
         /**
@@ -474,7 +474,7 @@ function makeWasabi() {
         _packRpc: function (rpc, args, obj, bs) {
             rpc._populateKeys(args);
             bs.writeUInt(obj ? obj.wabiSerialNumber : 0, 16);
-            bs.writeUInt(this.registry.hash(rpc._fn), 16);
+            bs.writeUInt(this.registry.hash(rpc._klass, rpc._fn), 16);
             args.serialize = rpc._serialize;
             bs.pack(args);
         },
@@ -494,12 +494,7 @@ function makeWasabi() {
             var rpc;
             var args;
 
-            if (serialNumber) {
-                rpc = obj.constructor.wabiRpcs[hash];
-
-            } else {
-                rpc = this.registry.getRpc(hash);
-            }
+            rpc = this.registry.getRpc(hash);
 
             if (!rpc) {
                 throw new WasabiError('Unknown RPC with hash ' + hash);
@@ -510,7 +505,15 @@ function makeWasabi() {
             bs.unpack(args);
             rpc._populateIndexes(args);
             args.push(conn);
-            rpc._fn.apply(obj, args);
+
+            if (serialNumber && !obj) {
+                // a serial number was specified, but the object wasn't found
+                // this can happen in normal operation if a server removes an object
+                // in the same frame that a client calls an RPC on it
+                return;
+            }
+
+            rpc._fn.apply(obj || false, args);
         },
 
         /**
@@ -577,7 +580,6 @@ function makeWasabi() {
             conn._rpcQueue = [];
 
             if (conn._ghostTo) {
-                // get list of objects which have come into scope
                 // pack ghost removals for those objects
                 conn._sendBitstream.writeUInt(WABI_SECTION_REMOVED_GHOSTS, 16);
                 this._packRemovedGhosts(newlyOutOfScopeObjects, conn._sendBitstream);

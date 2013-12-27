@@ -22,9 +22,9 @@ describe('Class registry', function () {
     }
 
     it('registers RPCs', function () {
-        r.mkRpc(rpcFoo);
-        r.mkRpc(rpcBar);
-        assert.notEqual(r.getRpc(r.hash(rpcFoo)), r.getRpc(r.hash(rpcBar)));
+        r.mkRpc(false, rpcFoo);
+        r.mkRpc(false, rpcBar);
+        assert.notEqual(r.getRpc(r.hash(false, rpcFoo)), r.getRpc(r.hash(false, rpcBar)));
     });
 
     it('throws an error if redefining RPCs', function () {
