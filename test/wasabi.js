@@ -142,7 +142,7 @@ describe('Wasabi', function () {
 
         ConnectionAsserter.prototype = {
             constructor: ConnectionAsserter,
-            rpcAssertConnection: function () {
+            rpcAssertConnection: function rpcAssertConnection() {
                 var conn = Array.prototype.slice.call(arguments)[0];
                 assert.strictEqual(conn, wc1.servers[0]);
                 done();
@@ -212,7 +212,7 @@ describe('Wasabi', function () {
     });
 
     it('calls static RPCs without any associated object', function (done) {
-        var fn = function () {
+        var fn = function connectionTestRpc() {
             var conn = Array.prototype.slice.call(arguments)[0];
             assert.equal(conn, wc1.servers[0]);
             done();
@@ -503,12 +503,37 @@ describe('Wasabi', function () {
         assert.notOk(ws._getAllObjects()[foo2.wabiSerialNumber]);
     });
 
+    it('complains when defining an anonymous class', function() {
+        var klass = function() { this.dummy = 1; };
+
+        assert.throws(function() {
+            ws.addClass(klass);
+        }, WasabiError)
+    });
+
+    it('complains when defining an anonymous RPC method', function() {
+        var Klass = function Klass() { this.dummy = 1; };
+        Klass.prototype.anonymousMethod = function() {
+            this.dummy = 1;
+        };
+
+        assert.throws(function() {
+            ws.addClass(Klass);
+        }, WasabiError)
+    });
+
+    it('complains when defining an anonymous static RPC', function() {
+        assert.throws(function() {
+            ws.mkRpc(function() {
+                this.dummy = 1;
+            });
+        }, WasabiError)
+    });
+
     it('complains when receiving invalid arguments to a known RPC');
     it('complains when receiving too few arguments to a known RPC');
     it('complains when receiving too many arguments to a known RPC');
     it('complains when receiving a ghost which already exists in this instance');
     it('complains when receiving a ghost which already exists in this instance');
-    it('complains when defining an anonymous RPC');
-    it('complains when defining an anonymous class');
     it('uses the attribute name for RPCs when Function.name is empty');
 });

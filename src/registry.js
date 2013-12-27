@@ -63,8 +63,13 @@ Registry.prototype = {
         var keyOfRealFunction;
         var hash = this.hash(klass);
         var args;
+
+        if(klass.name.length == 0) {
+            throw new WasabiError('Attempt to add anonymous class. Give it a name with "function NAME () { ... }"');
+        }
+
         if (this.hashToKlass[hash] !== undefined) {
-            throw 'Invalid attempt to redefine class ' + klass.name + ' with hash ' + hash;
+            throw new WasabiError('Invalid attempt to redefine class ' + klass.name + ' with hash ' + hash);
         }
 
         // register this class's RPCs
@@ -73,6 +78,7 @@ Registry.prototype = {
             // ending with "Args"
             if (typeof klass.prototype[k] === 'function' && k.indexOf('rpc') === 0 && k.indexOf('Args') !== k.length - 4) {
                 fn = klass.prototype[k];
+
                 // find the Args function (for rpcFoo this would be
                 // rpcFooArgs)
                 args = klass.prototype[k + 'Args'];
@@ -113,6 +119,10 @@ Registry.prototype = {
     mkRpc: function (klass, fn, serialize, instance) {
         var hash = this.hash(klass, fn);
         var rpc;
+
+        if(fn.name.length == 0) {
+            throw new WasabiError('Attempt to add anonymous RPC. Give it a name with "function NAME () { ... }"');
+        }
 
         if (this.hashToRpc[hash] !== undefined) {
             throw new WasabiError('Invalid attempt to redefine RPC ' + (klass ? klass.name + '#' : '') + fn.name + ' with hash ' + hash);
