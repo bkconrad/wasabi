@@ -36,7 +36,7 @@ describe('Class registry', function () {
     it('registers netobjects', function () {
         var foo = new Foo();
         r.addObject(foo);
-        assert.strictEqual(foo, r.getObject(foo.wabiSerialNumber));
+        assert.strictEqual(foo, r.getObject(foo.wsbSerialNumber));
     });
 
     it('registers netobjects with a set serial number', function () {

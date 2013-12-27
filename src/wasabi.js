@@ -18,12 +18,12 @@ function makeWasabi() {
 
     // packet control constants
     iota = 0xFFFF;
-    var WABI_SEPARATOR = iota;
-    var WABI_SECTION_GHOSTS = --iota;
-    var WABI_SECTION_REMOVED_GHOSTS = --iota;
-    var WABI_SECTION_UPDATES = --iota;
-    var WABI_SECTION_RPC = --iota;
-    var WABI_PACKET_STOP = --iota;
+    var WSB_SEPARATOR = iota;
+    var WSB_SECTION_GHOSTS = --iota;
+    var WSB_SECTION_REMOVED_GHOSTS = --iota;
+    var WSB_SECTION_UPDATES = --iota;
+    var WSB_SECTION_RPC = --iota;
+    var WSB_PACKET_STOP = --iota;
 
     /**
      * Facade class for interacting with Wasabi.
@@ -73,7 +73,7 @@ function makeWasabi() {
          */
         addObject: function (obj) {
             this.registry.addObject(obj);
-            obj.wabiInstance = this;
+            obj.wsbInstance = this;
         },
 
         /**
@@ -194,7 +194,7 @@ function makeWasabi() {
          * @private
          */
         _packUpdate: function (obj, bs) {
-            bs.writeUInt(obj.wabiSerialNumber, 16);
+            bs.writeUInt(obj.wsbSerialNumber, 16);
             bs.pack(obj);
         },
 
@@ -223,7 +223,7 @@ function makeWasabi() {
          */
         _packGhost: function (obj, bs) {
             bs.writeUInt(this.registry.hash(obj.constructor), 16);
-            bs.writeUInt(obj.wabiSerialNumber, 16);
+            bs.writeUInt(obj.wsbSerialNumber, 16);
         },
 
         /**
@@ -242,8 +242,8 @@ function makeWasabi() {
             }
 
             obj = new T();
-            obj.wabiInstance = this;
-            obj.wabiIsGhost = true;
+            obj.wsbInstance = this;
+            obj.wsbIsGhost = true;
             this.registry.addObject(obj, serial);
 
             /**
@@ -284,7 +284,7 @@ function makeWasabi() {
                 }
             }
 
-            bs.writeUInt(WABI_SEPARATOR, 16);
+            bs.writeUInt(WSB_SEPARATOR, 16);
         },
 
         /**
@@ -294,7 +294,7 @@ function makeWasabi() {
          * @param {Bitstream} bs The source Bitstream
          */
         _unpackGhosts: function (bs) {
-            while (bs.peekUInt(16) !== WABI_SEPARATOR) {
+            while (bs.peekUInt(16) !== WSB_SEPARATOR) {
                 this._unpackGhost(bs);
             }
 
@@ -317,7 +317,7 @@ function makeWasabi() {
                 }
             }
 
-            bs.writeUInt(WABI_SEPARATOR, 16);
+            bs.writeUInt(WSB_SEPARATOR, 16);
         },
 
         /**
@@ -330,7 +330,7 @@ function makeWasabi() {
         _unpackRemovedGhosts: function (bs) {
             var serial;
             var obj;
-            while (bs.peekUInt(16) !== WABI_SEPARATOR) {
+            while (bs.peekUInt(16) !== WSB_SEPARATOR) {
                 serial = bs.readUInt(16);
                 obj = this.registry.getObject(serial);
 
@@ -374,7 +374,7 @@ function makeWasabi() {
                     this._packUpdate(list[k], bs);
                 }
             }
-            bs.writeUInt(WABI_SEPARATOR, 16);
+            bs.writeUInt(WSB_SEPARATOR, 16);
         },
 
         /**
@@ -386,7 +386,7 @@ function makeWasabi() {
         _unpackUpdates: function (bs) {
             var list = [];
             var obj;
-            while (bs.peekUInt(16) !== WABI_SEPARATOR) {
+            while (bs.peekUInt(16) !== WSB_SEPARATOR) {
                 obj = this._unpackUpdate(bs);
                 list.push(obj);
             }
@@ -464,7 +464,7 @@ function makeWasabi() {
             var invocation;
             for (i = 0; i < conn._rpcQueue.length; i++) {
                 invocation = conn._rpcQueue[i];
-                conn._sendBitstream.writeUInt(WABI_SECTION_RPC, 16);
+                conn._sendBitstream.writeUInt(WSB_SECTION_RPC, 16);
                 this._packRpc(invocation.rpc, invocation.args, invocation.obj, invocation.bs);
             }
         },
@@ -482,7 +482,7 @@ function makeWasabi() {
          */
         _packRpc: function (rpc, args, obj, bs) {
             rpc._populateKeys(args);
-            bs.writeUInt(obj ? obj.wabiSerialNumber : 0, 16);
+            bs.writeUInt(obj ? obj.wsbSerialNumber : 0, 16);
             bs.writeUInt(this.registry.hash(rpc._klass, rpc._fn), 16);
             args.serialize = rpc._serialize;
             bs.pack(args);
@@ -576,11 +576,11 @@ function makeWasabi() {
                 conn._scopeObjects = newObjects;
 
                 // pack ghosts for those objects
-                conn._sendBitstream.writeUInt(WABI_SECTION_GHOSTS, 16);
+                conn._sendBitstream.writeUInt(WSB_SECTION_GHOSTS, 16);
                 this._packGhosts(newlyInScopeObjects, conn._sendBitstream);
 
                 // pack updates for all objects
-                conn._sendBitstream.writeUInt(WABI_SECTION_UPDATES, 16);
+                conn._sendBitstream.writeUInt(WSB_SECTION_UPDATES, 16);
                 this._packUpdates(newObjects, conn._sendBitstream);
             }
 
@@ -590,16 +590,16 @@ function makeWasabi() {
 
             if (conn._ghostTo) {
                 // pack ghost removals for those objects
-                conn._sendBitstream.writeUInt(WABI_SECTION_REMOVED_GHOSTS, 16);
+                conn._sendBitstream.writeUInt(WSB_SECTION_REMOVED_GHOSTS, 16);
                 this._packRemovedGhosts(newlyOutOfScopeObjects, conn._sendBitstream);
             }
 
-            conn._sendBitstream.writeUInt(WABI_PACKET_STOP, 16);
+            conn._sendBitstream.writeUInt(WSB_PACKET_STOP, 16);
 
             conn._receiveBitstream._index = 0;
             while (conn._receiveBitstream.bitsLeft() > 0) {
                 section = conn._receiveBitstream.readUInt(16);
-                if (section === WABI_PACKET_STOP) {
+                if (section === WSB_PACKET_STOP) {
                     // when a packet is terminated we must consume
                     // the bit padding from Bitstream#fromChars via
                     // the Bitstream#align
@@ -618,10 +618,10 @@ function makeWasabi() {
     };
 
     Wasabi._sectionMap = {};
-    Wasabi._sectionMap[WABI_SECTION_GHOSTS] = Wasabi._unpackGhosts;
-    Wasabi._sectionMap[WABI_SECTION_REMOVED_GHOSTS] = Wasabi._unpackRemovedGhosts;
-    Wasabi._sectionMap[WABI_SECTION_UPDATES] = Wasabi._unpackUpdates;
-    Wasabi._sectionMap[WABI_SECTION_RPC] = Wasabi._unpackRpc;
+    Wasabi._sectionMap[WSB_SECTION_GHOSTS] = Wasabi._unpackGhosts;
+    Wasabi._sectionMap[WSB_SECTION_REMOVED_GHOSTS] = Wasabi._unpackRemovedGhosts;
+    Wasabi._sectionMap[WSB_SECTION_UPDATES] = Wasabi._unpackUpdates;
+    Wasabi._sectionMap[WSB_SECTION_RPC] = Wasabi._unpackRpc;
 
     Wasabi.registry = new Registry();
 

@@ -72,7 +72,7 @@ describe('Wasabi', function () {
         bs._index = 0;
         wc1._unpackGhost(bs);
         wc1._unpackUpdates(bs);
-        assert.ok(wc1.registry.objects[foo.wabiSerialNumber]);
+        assert.ok(wc1.registry.objects[foo.wsbSerialNumber]);
     });
 
     it('packs and unpacks properly to out-of-sync registries', function () {
@@ -84,7 +84,7 @@ describe('Wasabi', function () {
         ws._packGhost(foo, bs);
         bs._index = 0;
         wc1._unpackGhost(bs);
-        assert.ok(wc1.registry.objects[foo.wabiSerialNumber]);
+        assert.ok(wc1.registry.objects[foo.wsbSerialNumber]);
     });
 
     it('calls RPCs from servers to clients on an associated netobject', function () {
@@ -94,8 +94,8 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
-        assert.equal(wc1.registry.objects[foo1.wabiSerialNumber].testval, 1337);
+        assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
+        assert.equal(wc1.registry.objects[foo1.wsbSerialNumber].testval, 1337);
     });
 
     it('supports calling RPCs and removing their subject in the same frame', function () {
@@ -104,7 +104,7 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
+        assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
 
         foo1.rpcTest(1337);
         ws.removeObject(foo1);
@@ -128,7 +128,7 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        wc1.registry.objects[foo1.wabiSerialNumber].rpcTest(1337);
+        wc1.registry.objects[foo1.wsbSerialNumber].rpcTest(1337);
 
         wc1.processConnections();
         ws.processConnections();
@@ -164,7 +164,7 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        assert.ok(wc1.registry.objects[obj.wabiSerialNumber]);
+        assert.ok(wc1.registry.objects[obj.wsbSerialNumber]);
     });
 
     it('automatically manages ghosting and updates', function () {
@@ -174,9 +174,9 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        var remoteFoo = wc1.registry.objects[foo1.wabiSerialNumber];
-        assert.ok(remoteFoo.wabiIsGhost);
-        assert.notOk(foo1.wabiIsGhost);
+        var remoteFoo = wc1.registry.objects[foo1.wsbSerialNumber];
+        assert.ok(remoteFoo.wsbIsGhost);
+        assert.notOk(foo1.wsbIsGhost);
         assert.equal(foo1.uintfoo, remoteFoo.uintfoo);
         assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
 
@@ -186,8 +186,8 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        assert.ok(wc1.registry.objects[foo2.wabiSerialNumber]);
-        assert.equal(foo2.uintfoo, wc1.registry.objects[foo2.wabiSerialNumber].uintfoo);
+        assert.ok(wc1.registry.objects[foo2.wsbSerialNumber]);
+        assert.equal(foo2.uintfoo, wc1.registry.objects[foo2.wsbSerialNumber].uintfoo);
         assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
     });
 
@@ -202,12 +202,12 @@ describe('Wasabi', function () {
 
         wc1.processConnections();
 
-        assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
-        assert.equal(foo1.uintfoo, wc1.registry.objects[foo1.wabiSerialNumber].uintfoo);
+        assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
+        assert.equal(foo1.uintfoo, wc1.registry.objects[foo1.wsbSerialNumber].uintfoo);
         assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
 
-        assert.ok(wc1.registry.objects[foo2.wabiSerialNumber]);
-        assert.equal(foo2.uintfoo, wc1.registry.objects[foo2.wabiSerialNumber].uintfoo);
+        assert.ok(wc1.registry.objects[foo2.wsbSerialNumber]);
+        assert.equal(foo2.uintfoo, wc1.registry.objects[foo2.wsbSerialNumber].uintfoo);
         assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
     });
 
@@ -306,12 +306,12 @@ describe('Wasabi', function () {
 
         wc1.on('clientGhostCreate', function (remoteObj) {
             createDone = true;
-            assert.equal(remoteObj.wabiSerialNumber, obj.wabiSerialNumber);
+            assert.equal(remoteObj.wsbSerialNumber, obj.wsbSerialNumber);
         });
 
         wc1.on('clientGhostDestroy', function (remoteObj) {
             destroyDone = true;
-            assert.equal(remoteObj.wabiSerialNumber, obj.wabiSerialNumber);
+            assert.equal(remoteObj.wsbSerialNumber, obj.wsbSerialNumber);
         });
 
         ws.processConnections();
@@ -338,27 +338,27 @@ describe('Wasabi', function () {
         };
 
         // foo1 in scope, foo2 is not
-        scope[foo1.wabiSerialNumber] = foo1;
+        scope[foo1.wsbSerialNumber] = foo1;
         ws.processConnections();
         wc1.processConnections();
-        assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
-        assert.equal(wc1.registry.objects[foo2.wabiSerialNumber], undefined);
+        assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
+        assert.equal(wc1.registry.objects[foo2.wsbSerialNumber], undefined);
 
         // both foo1 and foo2 in scope
         scope = {};
-        scope[foo1.wabiSerialNumber] = foo1;
-        scope[foo2.wabiSerialNumber] = foo2;
+        scope[foo1.wsbSerialNumber] = foo1;
+        scope[foo2.wsbSerialNumber] = foo2;
         ws.processConnections();
         wc1.processConnections();
-        assert.ok(wc1.registry.objects[foo1.wabiSerialNumber]);
-        assert.ok(wc1.registry.objects[foo2.wabiSerialNumber]);
+        assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
+        assert.ok(wc1.registry.objects[foo2.wsbSerialNumber]);
 
         // neither foo1 nor foo2 in scope
         scope = {};
         ws.processConnections();
         wc1.processConnections();
-        assert.equal(wc1.registry.objects[foo1.wabiSerialNumber], undefined);
-        assert.equal(wc1.registry.objects[foo2.wabiSerialNumber], undefined);
+        assert.equal(wc1.registry.objects[foo1.wsbSerialNumber], undefined);
+        assert.equal(wc1.registry.objects[foo2.wsbSerialNumber], undefined);
     });
 
     it('handles prototypal inheritance', function () {
@@ -369,7 +369,7 @@ describe('Wasabi', function () {
         bar.barbar = 4321;
         ws.processConnections();
         wc1.processConnections();
-        var remoteBar = wc1.registry.getObject(bar.wabiSerialNumber);
+        var remoteBar = wc1.registry.getObject(bar.wsbSerialNumber);
         assert.ok(remoteBar);
         assert.equal(remoteBar.uintfoo, bar.uintfoo);
         assert.equal(remoteBar.barbar, bar.barbar);
@@ -467,7 +467,7 @@ describe('Wasabi', function () {
 
         // Now we change the serial number, so the client will not recognize the
         // object anymore
-        foo1.wabiSerialNumber = 1337;
+        foo1.wsbSerialNumber = 1337;
 
         ws.processConnections();
 
@@ -491,16 +491,16 @@ describe('Wasabi', function () {
     it('removes objects properly regardless of order', function () {
         ws.addObject(foo1);
         ws.addObject(foo2);
-        assert.ok(ws._getAllObjects()[foo1.wabiSerialNumber]);
-        assert.ok(ws._getAllObjects()[foo2.wabiSerialNumber]);
+        assert.ok(ws._getAllObjects()[foo1.wsbSerialNumber]);
+        assert.ok(ws._getAllObjects()[foo2.wsbSerialNumber]);
 
         ws.removeObject(foo2);
-        assert.ok(ws._getAllObjects()[foo1.wabiSerialNumber]);
-        assert.notOk(ws._getAllObjects()[foo2.wabiSerialNumber]);
+        assert.ok(ws._getAllObjects()[foo1.wsbSerialNumber]);
+        assert.notOk(ws._getAllObjects()[foo2.wsbSerialNumber]);
 
         ws.removeObject(foo1);
-        assert.notOk(ws._getAllObjects()[foo1.wabiSerialNumber]);
-        assert.notOk(ws._getAllObjects()[foo2.wabiSerialNumber]);
+        assert.notOk(ws._getAllObjects()[foo1.wsbSerialNumber]);
+        assert.notOk(ws._getAllObjects()[foo2.wsbSerialNumber]);
     });
 
     it('complains when defining an anonymous class', function () {

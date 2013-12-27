@@ -88,7 +88,7 @@ Registry.prototype = {
                 // if this class was already added to a different Wasabi
                 // instance, we'll use the real method instead of the
                 // replacement we create later in this function
-                keyOfRealFunction = 'wabiReal' + k;
+                keyOfRealFunction = 'wsbReal' + k;
                 if (klass.prototype[keyOfRealFunction] !== undefined) {
                     fn = klass.prototype[keyOfRealFunction];
                 } else {
@@ -142,7 +142,7 @@ Registry.prototype = {
         return function () {
             var args = Array.prototype.slice.call(arguments);
             if (klass) {
-                this.wabiInstance._invokeRpc(rpc, this, args);
+                this.wsbInstance._invokeRpc(rpc, this, args);
             } else {
                 instance._invokeRpc(rpc, false, args);
             }
@@ -157,9 +157,9 @@ Registry.prototype = {
      *     falsy, the nextSerialNumber will be used
      */
     addObject: function (obj, serial) {
-        obj.wabiSerialNumber = serial || this.nextSerialNumber;
+        obj.wsbSerialNumber = serial || this.nextSerialNumber;
         this.nextSerialNumber += 1;
-        this.objects[obj.wabiSerialNumber] = obj;
+        this.objects[obj.wsbSerialNumber] = obj;
     },
 
     removeObject: function (arg) {
