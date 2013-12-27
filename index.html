@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Wasabi : Spicy, low-calorie object replication over binary WebSockets." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Wasabi</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/kaen/wasabi">View on GitHub</a>
+
+          <h1 id="project_title">Wasabi</h1>
+          <h2 id="project_tagline">Spicy, low-calorie object replication over binary WebSockets.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/kaen/wasabi/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/kaen/wasabi/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p><a href="https://travis-ci.org/kaen/wasabi"><img src="https://travis-ci.org/kaen/wasabi.png?branch=master" alt="Build Status"></a>
+<a href="http://badge.fury.io/js/wasabi"><img src="https://badge.fury.io/js/wasabi.png" alt="NPM version"></a></p>
+
+<h1>
+<a name="wasabi" class="anchor" href="#wasabi"><span class="octicon octicon-link"></span></a>Wasabi</h1>
+
+<p>A simple then powerful replication library using binary encoding over WebSockets. Released under the MIT License.</p>
+
+<pre><code>npm install wasabi
+</code></pre>
+
+<p>The main advantages of using Wasabi are:</p>
+
+<ul>
+<li>All data is tightly packed as binary rather than JSON, with user-specified
+precision.</li>
+<li>You only need to write a single short function per class to start replicating</li>
+<li>Replicated object lifetimes can be managed based on a "scope" callback which
+may be set for each client (or not at all)</li>
+<li>Remote RPC invocation works exactly like local function calls</li>
+<li>Prototypal inheritance is fully supported out-of-the-box</li>
+<li>You can get started without much boilerplate, then define additional
+functions to increase performance when you become production-ready</li>
+<li>Reliable construction: A well-rounded test suite with <a href="http://kaen.github.io/wasabi/cov/lcov-report/">100% branch coverage</a>
+</li>
+</ul><h1>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h1>
+
+<p>For further reading, make sure to look at the <a href="http://kaen.github.io/wasabi/doc/">API Docs on
+GitHub</a> or build your own locally with <code>jake
+doc</code>.</p>
+
+<h2>
+<a name="simple-replication" class="anchor" href="#simple-replication"><span class="octicon octicon-link"></span></a>Simple Replication</h2>
+
+<p>Say you have a Player object you use in an existing (client-only) game:
+<strong>old player.js</strong></p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">function</span> <span class="nx">Player</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="mi">400</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">y</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="mi">400</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">health</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>To start replicating this class with Wasabi, just register it and write a
+<code>serialize</code> method for it.  Wasabi uses these <code>serialize</code> methods to
+describe the replicated attributes, their types, and the bits required to
+encode their maximum value.</p>
+
+<p><strong>new player.js</strong></p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">function</span> <span class="nx">Player</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="mi">400</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">y</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="mi">400</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">health</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// serialize</span>
+<span class="nx">Player</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">serialize</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">desc</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">desc</span><span class="p">.</span><span class="nx">uint</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="mi">16</span><span class="p">);</span> <span class="c1">// a 16 bit unsigned integer named x</span>
+    <span class="nx">desc</span><span class="p">.</span><span class="nx">uint</span><span class="p">(</span><span class="s1">'y'</span><span class="p">,</span> <span class="mi">16</span><span class="p">);</span> <span class="c1">// a 16 bit unsigned integer named y</span>
+    <span class="nx">desc</span><span class="p">.</span><span class="kr">float</span><span class="p">(</span><span class="s1">'health'</span><span class="p">,</span> <span class="mi">16</span><span class="p">);</span> <span class="c1">// a normalized 16 bit signed float</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>The <code>desc</code> argument which Wasabi passes to <code>serialize</code> is a "description" of the
+object. The actual class of the <code>desc</code> object is determined by whether the
+object is being packed or unpacked. Using this one weird trick, you only have to
+write a single function and Wasabi will figure out how to take your object in
+<em>and</em> out of the network.</p>
+
+<p>At this point you're ready to start replicating:</p>
+
+<p><strong>server.js</strong></p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">Player</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./player.js'</span><span class="p">)</span>
+  <span class="p">,</span> <span class="nx">Wasabi</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'wasabi'</span><span class="p">)</span>
+  <span class="p">,</span> <span class="nx">WebSocket</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'ws'</span><span class="p">)</span>
+  <span class="p">;</span>
+
+<span class="nx">Wasabi</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">Player</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">webSockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WebSocket</span><span class="p">.</span><span class="nx">Server</span><span class="p">({</span><span class="nx">port</span><span class="o">:</span><span class="mi">1234</span><span class="p">},</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">setInterval</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// handle connections</span>
+        <span class="nx">Wasabi</span><span class="p">.</span><span class="nx">processConnections</span><span class="p">();</span>
+
+        <span class="c1">// simulation update code goes here</span>
+
+    <span class="p">},</span> <span class="mi">50</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">webSockServer</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'connection'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">clientSock</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// add the new client's connection to the server's Wasabi instance</span>
+    <span class="nx">Wasabi</span><span class="p">.</span><span class="nx">addClient</span><span class="p">(</span><span class="nx">clientSock</span><span class="p">);</span>
+
+    <span class="c1">// create the player's game object and add it to Wasabi</span>
+    <span class="kd">var</span> <span class="nx">newPlayer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Player</span><span class="p">();</span>
+    <span class="nx">Wasabi</span><span class="p">.</span><span class="nx">addObject</span><span class="p">(</span><span class="nx">newPlayer</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>You probably want to then read the object from a socket on the client side:</p>
+
+<p><strong>client.js</strong></p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">Wasabi</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">Player</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">sock</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WebSocket</span><span class="p">(</span><span class="s1">'ws://localhost:1234'</span><span class="p">);</span>             
+<span class="nx">Wasabi</span><span class="p">.</span><span class="nx">addServer</span><span class="p">(</span><span class="nx">sock</span><span class="p">);</span>
+
+<span class="nx">sock</span><span class="p">.</span><span class="nx">onopen</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">setInterval</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// receive network stuff</span>
+        <span class="nx">Wasabi</span><span class="p">.</span><span class="nx">processConnections</span><span class="p">();</span>
+
+        <span class="c1">// client-side update code goes here</span>
+
+    <span class="p">},</span> <span class="mi">50</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+<h2>
+<a name="remote-procedure-calls" class="anchor" href="#remote-procedure-calls"><span class="octicon octicon-link"></span></a>Remote Procedure Calls</h2>
+
+<h3>
+<a name="definition" class="anchor" href="#definition"><span class="octicon octicon-link"></span></a>Definition</h3>
+
+<p>To define a class RPC, create a method prefixed with "rpc":</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">Player</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">rpcYell</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">times</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">i</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">times</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'SPAARTA!'</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>Make sure that you call <code>addClass</code> only <strong>after</strong> defining RPCs, as Wasabi will
+look for any methods starting with <code>rpc</code> and replace them with the actual remote
+invocation stubs.</p>
+
+<h3>
+<a name="invocation" class="anchor" href="#invocation"><span class="octicon octicon-link"></span></a>Invocation</h3>
+
+<p>From the server side we can make a Player "yell" on the clients by saying:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">player</span><span class="p">.</span><span class="nx">rpcYell</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+</pre></div>
+
+<h3>
+<a name="performance-enhancement" class="anchor" href="#performance-enhancement"><span class="octicon octicon-link"></span></a>Performance Enhancement</h3>
+
+<p>In order to allow rapid prototyping, Wasabi will infer the types of the
+arguments (float, uint, etc.) upon invocation by default. There is significant
+CPU and network overhead involved in doing this, so it is highly recommended
+that production code includes "args" functions for each RPC. The args function
+is written like the serialize function for an object, but is applied to the
+arguments on the RPC. The benefit of writing these functions is that Wasabi
+doesn't have to detect the types of the arguments, and also does not have to
+encode type information over the network.</p>
+
+<p>The args function for <code>rpcYell</code> above would look like:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">Player</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">rpcYellArgs</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">desc</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">desc</span><span class="p">.</span><span class="nx">uint</span><span class="p">(</span><span class="s1">'times'</span><span class="p">,</span> <span class="mi">8</span><span class="p">);</span> <span class="c1">// An 8-bit unsigned integer</span>
+<span class="p">}</span>
+</pre></div>
+
+<h1>
+<a name="benchmarks" class="anchor" href="#benchmarks"><span class="octicon octicon-link"></span></a>Benchmarks</h1>
+
+<p>Wasabi has cpu and network usage benchmark which can be run via <code>sudo jake
+bench</code> (you need sudo because it measures network usage with pcap... patches
+welcome). Here is the performance of Wasabi v0.1.3 on a 2.8Ghz CPU:</p>
+
+<pre><code>One connection, 1000 objects x 148 ops/sec ±0.83% (86 runs sampled)
+Ten connections, 100 objects x 144 ops/sec ±0.93% (84 runs sampled)
+100 connections, ten objects x 109 ops/sec ±1.06% (82 runs sampled)
+Ten connections, ten objects x 1,165 ops/sec ±0.82% (98 runs sampled)
+
+Start of TCP session between 127.0.0.1:47099 and 127.0.0.1:31337
+1 clients with 100 objects for 1000 iterations
+End of TCP session between 127.0.0.1:47099 and 127.0.0.1:31337
+client -&gt; server: 9.15kB (61.42kB with transport)
+0.92kB/s at 15hz
+server -&gt; client: 820.59kB (872.85kB with transport)
+13.09kB/s at 15hz
+</code></pre>
+
+<h1>
+<a name="contact" class="anchor" href="#contact"><span class="octicon octicon-link"></span></a>Contact</h1>
+
+<p>If you have bug reports, feature requests, questions, or pull requests, drop by
+the <a href="https://github.com/kaen/wasabi">github repo</a>. If you have lavish praise or
+eloquent maledictions, email me at <a href="mailto:bkconrad@gmail.com">bkconrad@gmail.com</a>.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Wasabi maintained by <a href="https://github.com/kaen">kaen</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-46701437-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src/bitstream.js</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Bitstream.html">Bitstream</a></li>
+            
+                <li><a href="../classes/Connection.html">Connection</a></li>
+            
+                <li><a href="../classes/InDescription.html">InDescription</a></li>
+            
+                <li><a href="../classes/OutDescription.html">OutDescription</a></li>
+            
+                <li><a href="../classes/Registry.html">Registry</a></li>
+            
+                <li><a href="../classes/Rpc.html">Rpc</a></li>
+            
+                <li><a href="../classes/Wasabi.html">Wasabi</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/Types.html">Types</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: src/bitstream.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+var InDescription = require(&#x27;./in_description&#x27;);
+var OutDescription = require(&#x27;./out_description&#x27;);
+
+/*global Uint8Array, ArrayBuffer*/
+
+/**
+ * Manages the packing/unpacking of values as a set number of bits
+ * @class Bitstream
+ * @constructor
+ * @param {Array} buffer an array of 7-bit integers representing the intial
+ * data for this Bitstream
+ */
+
+function Bitstream(buffer) {
+    this.arr = [];
+    this._nbits = 0;
+    this._index = 0;
+    if (buffer) {
+        this.fromArrayBuffer(buffer);
+    }
+}
+
+Bitstream.prototype = {
+    constructor: Bitstream,
+
+    /**
+     * @method bitsLeft
+     * @return {Number} the number of bits which can be read without causing an
+     *     overread
+     */
+    bitsLeft: function () {
+        return this._nbits - this._index;
+    },
+
+    /**
+     * Empty the buffer and reset the index
+     * @method empty
+     */
+    empty: function () {
+        this.arr = [];
+        this._index = 0;
+        this._nbits = 0;
+    },
+
+    /**
+     * Move the _index to the first position &gt;= the current index which is the
+     * beginning of a cell. Used to burn off padding when processing data from
+     * &quot;appendData&quot; since it pads to the nearest multiple of CELLSIZE
+     * @method align
+     */
+    align: function () {
+        var delta = this._index % 7;
+        if (delta === 0) {
+            return;
+        }
+        this._advance(7 - delta);
+    },
+
+    /**
+     * Set the &#x60;n&#x60; bits starting at &#x60;offset&#x60; to contain the unsigned integer
+     * &#x60;value&#x60;
+     * @method _setBits
+     * @private
+     * @param {Number} offset The zero-based bit offset to start at
+     * @param {Number} n The number of bits to pack the value in to
+     * @param {Number} value The value to pack. Will be cast to an unsigned
+     *     integer and truncated or padded to n bits
+     */
+    _setBits: function (offset, n, value) {
+        var bits;
+        var cell;
+        var cellOffset;
+        var mask;
+        var nbits;
+        cell = Math.floor(offset / 7);
+        cellOffset = offset % 7;
+
+        while (n &gt; 0) {
+            // determine how many bits will fit into the current cell
+            nbits = Math.min(n, 7 - cellOffset);
+
+            // make an all-set bitmask with length of nbits
+            mask = (1 &lt;&lt; nbits) - 1;
+
+            // get the next nbits bits from the value
+            bits = value &amp; mask;
+
+            // move the bits and mask to the correct cell offset
+            bits &lt;&lt;= cellOffset;
+            mask &lt;&lt;= cellOffset;
+
+            // set the cells bits
+            this.arr[cell] = (this.arr[cell] &amp; (~mask)) | bits;
+
+            // prepare for next iteration
+            value &gt;&gt;= nbits;
+            n -= nbits;
+            cellOffset = 0;
+            cell++;
+        }
+    },
+
+    /**
+     * Return the value of the first n bits starting at offset
+     * @private
+     * @method _getBits
+     * @param {Number} offset The zero-based bit offset to start at
+     * @param {Number} n The number of bits to unpack the value from
+     * @return {Number} The unsigned value after unpacking
+     */
+    _getBits: function (offset, n) {
+        var bits;
+        var cell;
+        var cellOffset;
+        var mask;
+        var nbits;
+        var value;
+        var valueOffset;
+        cell = Math.floor(offset / 7);
+        cellOffset = offset % 7;
+        value = 0;
+        valueOffset = 0;
+
+        while (n &gt; 0) {
+            // determine how many bits can be retrieved from this cell
+            nbits = Math.min(n, 7 - cellOffset);
+
+            // make an all-set bitmask with length of nbits
+            mask = (1 &lt;&lt; nbits) - 1;
+
+            mask &lt;&lt;= cellOffset;
+            bits = this.arr[cell] &amp; mask;
+            bits &gt;&gt;= cellOffset;
+
+            value |= bits &lt;&lt; valueOffset;
+
+            // prepare for next iteration
+            n -= nbits;
+            cellOffset = 0;
+            cell++;
+            valueOffset += nbits;
+        }
+        return value;
+    },
+
+    /**
+     * Convert the data in this &#x60;Bitstream&#x60; to a &#x60;Uint8Array&#x60; containing an
+     * &#x60;ArrayBuffer&#x60; suitable for transmitting this data over a binary websocket
+     * @method toArrayBuffer
+     * @return A &#x60;Uint8Array&#x60; containing the data in this Bitstream
+     */
+    toArrayBuffer: function () {
+        // TODO: handle CELLSIZE &gt; 8
+        var buf = new ArrayBuffer(this.arr.length);
+        var arr = new Uint8Array(buf);
+        var i;
+
+        for (i = 0; i &lt; this.arr.length; i++) {
+            arr[i] = this.arr[i];
+        }
+        return arr;
+    },
+
+    /**
+     * Populate the data in this Bitstream from an ArrayBuffer received over a
+     * binary websocket
+     * @method fromArrayBuffer
+     */
+    fromArrayBuffer: function (buffer) {
+        this.empty();
+        this.appendData(buffer);
+    },
+
+    /**
+     * Append data from an ArrayBuffer received over a binary websocket to this
+     * Bitstream
+     * @method appendData
+     */
+    appendData: function (buffer) {
+        var i;
+        for (i = 0; i &lt; buffer.length; i++) {
+            this.arr.push(buffer[i]);
+        }
+        // TODO: figure out why this is seven
+        this._extend(i * 7);
+    },
+
+    /**
+     * Append UTF-8 encoded data from a string to this Bitstream
+     * @method appendChars
+     */
+    appendChars: function (chars) {
+        var data = [];
+        var i;
+        for (i = 0; i &lt; chars.length; i++) {
+            data.push(chars.charCodeAt(i));
+        }
+
+        this.appendData(data);
+    },
+
+    /**
+     * Convert the data to a valid UTF-8 string
+     * @method toChars
+     */
+    toChars: function () {
+        var i;
+        var result = &#x27;&#x27;;
+        for (i = 0; i &lt; this.arr.length; i++) {
+            result += String.fromCharCode(this.arr[i]);
+        }
+        return result;
+    },
+
+    /**
+     * Read an unsigned integer *without* consuming any bits
+     * @method peekUInt
+     * @param {Number} bits The number of bits to unpack
+     */
+    peekUInt: function (bits) {
+        var result = this._getBits(this._index, bits);
+        return result;
+    },
+
+    /**
+     * Read an unsigned integer consuming the specified number of bits
+     * @method readUInt
+     * @param {Number} bits The number of bits to unpack
+     */
+    readUInt: function (bits) {
+        var result = this.peekUInt(bits);
+        this._advance(bits);
+        return result;
+    },
+
+    /**
+     * Write an unsigned integer using the specified number of bits
+     * @method writeUInt
+     * @param {Number} value Value to write.
+     * @param {Number} bits The number of bits to unpack
+     */
+    writeUInt: function (value, bits) {
+        this._setBits(this._index, bits, value);
+        this._extend(bits);
+    },
+
+    /**
+     * Read a signed integer without consuming any bits
+     * @method peekSInt
+     * @param {Number} bits The number of bits to peek at
+     */
+    peekSInt: function (bits) {
+        var result = this._getBits(this._index, bits - 1);
+        result *= this._getBits(this._index + bits - 1, 1) ? -1 : 1;
+        return result;
+    },
+
+    /**
+     * Read a signed integer consuming the specified number of bits
+     * @method readSInt
+     * @param {Number} bits The number of bits to unpack
+     */
+    readSInt: function (bits) {
+        var result = this.peekSInt(bits);
+        this._advance(bits);
+        return result;
+    },
+
+    /**
+     * write a signed integer using the specified number of bits
+     * @method writeSInt
+     * @param {Number} value Value to write. Will be truncated or padded
+     * to the specified number of bits
+     * @param {Number} bits The number of bits to unpack
+     */
+    writeSInt: function (value, bits) {
+        this._setBits(this._index, bits - 1, Math.abs(value));
+        this._extend(bits - 1);
+        this._setBits(this._index, 1, value &lt; 0);
+        this._extend(1);
+    },
+
+    /**
+     * Read a normalized float without consuming any bits
+     * @method peekFloat
+     * @param {Number} bits The number of bits to peek at
+     */
+    peekFloat: function (bits) {
+        // We unpack the signed integer representation divided by the
+        // maximum value a number with this number of bits can hold. By
+        // definition the result is in the range [0.0, 1.0]
+        var result = this._getBits(this._index, bits - 1) / (Math.pow(2, bits - 1) - 1);
+        // Then the sign bit
+        result *= this._getBits(this._index + bits - 1, 1) ? -1 : 1;
+        return result;
+    },
+
+    /**
+     * Read a float value, consuming the specified number of bits
+     * @method readFloat
+     * @param {Number} bits The number of bits to unpack
+     */
+    readFloat: function (bits) {
+        var result = this.peekFloat(bits);
+        this._advance(bits);
+        return result;
+    },
+
+    /**
+     * Write a normalized float in the range &#x60;[0.0, 1.0]&#x60; using the specified
+     * number of bits
+     * @method writeFloat
+     * @param {Number} value Value to write.
+     * @param {Number} bits The number of bits to unpack
+     */
+    writeFloat: function (value, bits) {
+        var absValue = Math.abs(value);
+        // The absolute normalized value * the maximum value of this bitlength
+        this._setBits(this._index, bits - 1, absValue * (Math.pow(2, bits - 1) - 1));
+        this._extend(bits - 1);
+        // Then the sign bit
+        this._setBits(this._index, 1, (value &lt; 0));
+        this._extend(1);
+    },
+
+    /**
+     * Pack an object with a &#x60;.serialize()&#x60; method into this bitstream
+     * @method pack
+     * @param {NetObject} obj The object to serialize
+     */
+    pack: function (obj) {
+        var description = new InDescription();
+        description._bitStream = this;
+        description._target = obj;
+
+        this._serializeObject(obj, description);
+    },
+
+    /**
+     * Unpack an object with a .serialize() method from this bitstream
+     * @method unpack
+     * @param {NetObject} obj The object to deserialize to
+     */
+    unpack: function (obj) {
+        var description = new OutDescription();
+        description._bitStream = this;
+        description._target = obj;
+
+        this._serializeObject(obj, description);
+
+        return description._target;
+    },
+
+    /**
+     * Calls all serialize methods in this object&#x27;s prototype chain with
+     * &#x60;description&#x60; as its argument. This allows packing and unpacking classes
+     * which use prototypal inheritance.
+     * @method _serializeObject
+     * @param {NetObject} obj The object to serialize
+     * @param {Description} description The description to serialize through
+     * @private
+     */
+    _serializeObject: function (obj, description) {
+        // We&#x27;ll walk the prototype chain looking for .serialize methods,
+        // and call them in order from child-most to parent-most
+        // (arguably backwards, but it&#x27;s easier to code)
+        var proto = obj.constructor ? obj.constructor.prototype : false;
+        var serialize = obj.serialize;
+        while (serialize &amp;&amp; (typeof serialize === &#x27;function&#x27;)) {
+            serialize.call(obj, description);
+            proto = Object.getPrototypeOf(proto);
+            serialize = proto ? proto.serialize : false;
+        }
+    },
+
+    /**
+     * See if the contents and byte length of the buffer of this Bitstream
+     * and &#x60;other&#x60; are exactly equal
+     * @method equals
+     * @param {Bitstream} other The bitstream to compare with
+     * @return {Boolean} &#x60;true&#x60; if the bistreams are effectively equal
+     */
+    equals: function (other) {
+        var i;
+        if (other.arr.length !== this.arr.length) {
+            return false;
+        }
+
+        for (i = 0; i &lt; this.arr.length; i++) {
+            if (this.arr[i] !== other.arr[i]) {
+                return false;
+            }
+        }
+        return true;
+    },
+
+    /**
+     * Advance the head by the specified number of bits and check for overread
+     * @method _advance
+     * @private
+     * @param {Number} bits The number of bits to advance the index by
+     */
+    _advance: function (bits) {
+        this._index += bits;
+        if (this._index &gt; this._nbits) {
+            throw new Error(&#x27;Bitstream overread&#x27;);
+        }
+    },
+
+    /**
+     * Extend the buffer size by the specified number of bits. Also
+     * advances the index
+     * @method _extend
+     * @private
+     * @param {Number} bits The number of bits to expand the buffer by
+     */
+    _extend: function (bits) {
+        this._nbits += bits;
+        this._index += bits;
+    }
+};
+
+/**
+ * Create a bitstream from a valid UTF-8 string
+ * @static
+ * @method fromChars
+ */
+Bitstream.fromChars = function (str) {
+    var chars = [];
+    var i;
+    var bs;
+    for (i = 0; i &lt; str.length; i++) {
+        chars.push(str.charCodeAt(i));
+    }
+    bs = new Bitstream(chars);
+    return bs;
+};
+
+module.exports = Bitstream;
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>
