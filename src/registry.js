@@ -64,7 +64,7 @@ Registry.prototype = {
         var hash = this.hash(klass);
         var args;
 
-        if(klass.name.length == 0) {
+        if (!klass.name.length) {
             throw new WasabiError('Attempt to add anonymous class. Give it a name with "function NAME () { ... }"');
         }
 
@@ -120,7 +120,7 @@ Registry.prototype = {
         var hash = this.hash(klass, fn);
         var rpc;
 
-        if(fn.name.length == 0) {
+        if (!fn.name.length) {
             throw new WasabiError('Attempt to add anonymous RPC. Give it a name with "function NAME () { ... }"');
         }
 

@@ -503,31 +503,35 @@ describe('Wasabi', function () {
         assert.notOk(ws._getAllObjects()[foo2.wabiSerialNumber]);
     });
 
-    it('complains when defining an anonymous class', function() {
-        var klass = function() { this.dummy = 1; };
-
-        assert.throws(function() {
-            ws.addClass(klass);
-        }, WasabiError)
-    });
-
-    it('complains when defining an anonymous RPC method', function() {
-        var Klass = function Klass() { this.dummy = 1; };
-        Klass.prototype.anonymousMethod = function() {
+    it('complains when defining an anonymous class', function () {
+        var klass = function () {
             this.dummy = 1;
         };
 
-        assert.throws(function() {
-            ws.addClass(Klass);
-        }, WasabiError)
+        assert.throws(function () {
+            ws.addClass(klass);
+        }, WasabiError);
     });
 
-    it('complains when defining an anonymous static RPC', function() {
-        assert.throws(function() {
-            ws.mkRpc(function() {
+    it('complains when defining an anonymous RPC method', function () {
+        var Klass = function Klass() {
+            this.dummy = 1;
+        };
+        Klass.prototype.anonymousMethod = function () {
+            this.dummy = 1;
+        };
+
+        assert.throws(function () {
+            ws.addClass(Klass);
+        }, WasabiError);
+    });
+
+    it('complains when defining an anonymous static RPC', function () {
+        assert.throws(function () {
+            ws.mkRpc(function () {
                 this.dummy = 1;
             });
-        }, WasabiError)
+        }, WasabiError);
     });
 
     it('complains when receiving invalid arguments to a known RPC');
