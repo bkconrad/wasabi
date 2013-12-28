@@ -428,16 +428,21 @@ function makeWasabi() {
             }
 
             if (conns.length === 0) {
-                for (k in this.servers) {
-                    if (this.servers.hasOwnProperty(k)) {
-                        conns.push(this.servers[k]);
+                // process server connections
+                if(rpc._toServer) {
+                    for (k in this.servers) {
+                        if (this.servers.hasOwnProperty(k)) {
+                            conns.push(this.servers[k]);
+                        }
                     }
                 }
 
                 // process client connections
-                for (k in this.clients) {
-                    if (this.clients.hasOwnProperty(k)) {
-                        conns.push(this.clients[k]);
+                if(rpc._toClient) {
+                    for (k in this.clients) {
+                        if (this.clients.hasOwnProperty(k)) {
+                            conns.push(this.clients[k]);
+                        }
                     }
                 }
             }

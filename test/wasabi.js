@@ -534,19 +534,53 @@ describe('Wasabi', function () {
         }, WasabiError);
     });
 
-    it('complains when receiving too few arguments to a known RPC', function () {
+    it('complains when receiving too few arguments to a known RPC', function() {
         ws.addObject(foo1);
 
-        assert.throws(function () {
+        assert.throws(function() {
             foo1.rpcDefault();
         }, WasabiError);
     });
 
-    it('complains when receiving too many arguments to a known RPC', function () {
+    it('complains when receiving too many arguments to a known RPC', function() {
         ws.addObject(foo1);
 
-        assert.throws(function () {
+        assert.throws(function() {
             foo1.rpcDefault(1, 2, 3);
         }, WasabiError);
+    });
+
+    it('supports unidirectional RPCs', function() {
+        var remoteFoo;
+        ws.addObject(foo1);
+
+        ws.processConnections();
+        wc1.processConnections();
+
+        remoteFoo = wc1._getAllObjects()[foo1.wsbSerialNumber];
+
+        foo1.s2cTest('test');
+        remoteFoo.s2cTest('test');
+
+        ws.processConnections();
+        wc1.processConnections();
+
+        assert.equal('test', remoteFoo.testval);
+        assert.notEqual('test', foo1.testval);
+
+        foo1.testval = undefined;
+        remoteFoo.testval = undefined;
+
+        foo1.c2sTest('test');
+        remoteFoo.c2sTest('test');
+
+        ws.processConnections();
+        wc1.processConnections();
+        ws.processConnections();
+        wc1.processConnections();
+
+        assert.notEqual('test', remoteFoo.testval);
+        assert.equal('test', foo1.testval);
+
     });
 });

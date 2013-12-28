@@ -78,7 +78,11 @@ Registry.prototype = {
         for (k in klass.prototype) {
             // search for a function property starting with "rpc" and not
             // ending with "Args"
-            if (typeof klass.prototype[k] === 'function' && k.indexOf('rpc') === 0 && k.indexOf('Args') !== k.length - 4) {
+            if (
+                typeof klass.prototype[k] === 'function' && // a function
+                k.indexOf('Args') !== k.length - 4       && // not ending in Args
+                /^(rpc|c2s|s2c)/.test(k)                    // starting with rpc, c2s, or s2c
+            ) {
                 fn = klass.prototype[k];
 
                 // find the Args function (for rpcFoo this would be

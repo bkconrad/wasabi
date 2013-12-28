@@ -31,6 +31,12 @@ module.exports = (function () {
         },
         rpcDefault: function rpcDefault(val) {
             this.defaultVal = val;
+        },
+        s2cTest: function s2cTest(val) {
+            this.testval = val;
+        },
+        c2sTest: function c2sTest(val) {
+            this.testval = val;
         }
     };
 

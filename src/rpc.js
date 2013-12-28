@@ -8,6 +8,19 @@ function Rpc(fn, klass, serialize) {
     this._klass = klass;
     this._serialize = serialize || Rpc._makeDefaultSerialize(fn.length);
 
+    // directionality is determined by the prefix, rpc for bidirectional, s2c
+    // for server -> client, or c2s for client -> server
+    this._toClient = false;
+    this._toServer = false;
+    if(/^s2c/.test(fn.name)) {
+        this._toClient = true;
+    } else if(/^c2s/.test(fn.name)) {
+        this._toServer = true;
+    } else {
+        this._toClient = true;
+        this._toServer = true;
+    }
+
     // Many thanks to http://mattsnider.com/parsing-javascript-function-argument-names/
     var funStr = fn.toString();
     this._args =  funStr.slice(funStr.indexOf('(') + 1, funStr.indexOf(')')).match(/([\w]+)/g) || [];
