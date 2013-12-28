@@ -414,22 +414,28 @@ function makeWasabi() {
             var invocation;
 
             // Extract connection list from supplied args
-            // Note that RPCs expect exactly the number of arguments specified
-            // in the original function's definition
             var conns = args.splice(rpc._fn.length, args.length - rpc._fn.length);
+
+            // Note that RPCs expect exactly the number of arguments specified
+            // in the original function's definition, so any arguments passed
+            // after that must be Connections to send the invocation on
             for (i = 0; i < conns.length; i++) {
                 if (!(conns[i] instanceof Connection)) {
                     throw new WasabiError('Expected connection but got ' + conns[i] + '. Did you pass too many arguments to ' + rpc._fn.name + '?');
                 }
             }
 
+            // check for argument underflow
             if (args.length < rpc._fn.length) {
                 throw new WasabiError('Too few arguments passed to ' + rpc._fn.name);
             }
 
+            // if no Connections are specified, send the invocation to either
+            // servers, clients, or both, depending on the RPC's definition (see
+            // the Rpc constructor for details)
             if (conns.length === 0) {
                 // process server connections
-                if(rpc._toServer) {
+                if (rpc._toServer) {
                     for (k in this.servers) {
                         if (this.servers.hasOwnProperty(k)) {
                             conns.push(this.servers[k]);
@@ -438,7 +444,7 @@ function makeWasabi() {
                 }
 
                 // process client connections
-                if(rpc._toClient) {
+                if (rpc._toClient) {
                     for (k in this.clients) {
                         if (this.clients.hasOwnProperty(k)) {
                             conns.push(this.clients[k]);
@@ -447,6 +453,7 @@ function makeWasabi() {
                 }
             }
 
+            // add the invocation to the proper connections' rpc queues
             for (i = 0; i < conns.length; i++) {
                 invocation = {
                     rpc: rpc,
@@ -508,26 +515,31 @@ function makeWasabi() {
             var rpc;
             var args;
 
+            // look up the Rpc by the hash
             rpc = this.registry.getRpc(hash);
-
             if (!rpc) {
                 throw new WasabiError('Unknown RPC with hash ' + hash);
             }
 
+            // unpack the arguments
             args = [];
             args.serialize = rpc._serialize;
             bs.unpack(args);
             rpc._populateIndexes(args);
+
+            // add the connection this invocation was received through to the
+            // argument list
             args.push(conn);
 
             if (serialNumber && !obj) {
                 // a serial number was specified, but the object wasn't found
-                // this can happen in normal operation if a server removes an object
-                // in the same frame that a client calls an RPC on it
+                // this can happen in normal operation if a server removes an
+                // object in the same frame that a client calls an RPC on it
                 return;
             }
 
-            rpc._fn.apply(obj || false, args);
+            // invoke the real function
+            rpc._fn.apply(obj, args);
         },
 
         /**
@@ -560,31 +572,38 @@ function makeWasabi() {
             var newlyOutOfScopeObjects;
             var section;
 
+            // connections with ghostTo set (i.e. clients)
             if (conn._ghostTo) {
+
                 // get list of objects which have come into scope
                 oldObjects = conn._scopeObjects;
                 newObjects = conn._scopeCallback ? conn._scopeCallback() : this._getAllObjects();
                 newlyInScopeObjects = {};
                 newlyOutOfScopeObjects = {};
+
+                // an object in newObjects, but not in oldObjects must be newly
+                // in scope this frame
                 for (k in newObjects) {
                     if (newObjects.hasOwnProperty(k) && oldObjects[k] === undefined) {
                         newlyInScopeObjects[k] = newObjects[k];
                     }
                 }
-
+                // an object in oldObjects, but not in newObjects must be newly
+                // out of scope this frame
                 for (k in oldObjects) {
                     if (oldObjects.hasOwnProperty(k) && newObjects[k] === undefined) {
                         newlyOutOfScopeObjects[k] = oldObjects[k];
                     }
                 }
 
+                // set the connections new scope object collection
                 conn._scopeObjects = newObjects;
 
-                // pack ghosts for those objects
+                // pack ghosts for newly in-scope objects
                 conn._sendBitstream.writeUInt(WSB_SECTION_GHOSTS, 16);
                 this._packGhosts(newlyInScopeObjects, conn._sendBitstream);
 
-                // pack updates for all objects
+                // pack updates for all objects in scope this frame
                 conn._sendBitstream.writeUInt(WSB_SECTION_UPDATES, 16);
                 this._packUpdates(newObjects, conn._sendBitstream);
             }
@@ -594,20 +613,22 @@ function makeWasabi() {
             conn._rpcQueue = [];
 
             if (conn._ghostTo) {
-                // pack ghost removals for those objects
+                // pack ghost removals for newly out-of-scope objects
                 conn._sendBitstream.writeUInt(WSB_SECTION_REMOVED_GHOSTS, 16);
                 this._packRemovedGhosts(newlyOutOfScopeObjects, conn._sendBitstream);
             }
 
+            // write a packet terminator
             conn._sendBitstream.writeUInt(WSB_PACKET_STOP, 16);
 
+            // new we'll process the incoming data on this connection
             conn._receiveBitstream._index = 0;
             while (conn._receiveBitstream.bitsLeft() > 0) {
                 section = conn._receiveBitstream.readUInt(16);
                 if (section === WSB_PACKET_STOP) {
                     // when a packet is terminated we must consume
                     // the bit padding from Bitstream#fromChars via
-                    // the Bitstream#align
+                    // the Bitstream#align method
                     conn._receiveBitstream.align();
                 } else {
                     // otherwise invoke the appropriate unpack
@@ -616,12 +637,22 @@ function makeWasabi() {
                 }
             }
 
-            conn._socket.send(conn._sendBitstream.toChars());
+            // send the actual data
+            try {
+                conn._socket.send(conn._sendBitstream.toChars());
+            } catch (e) {
+                this.emit('sendError', conn, e);
+                this.removeClient(conn._socket);
+                this.removeServer(conn._socket);
+            }
+
+            // clear the bit streams
             conn._sendBitstream.empty();
             conn._receiveBitstream.empty();
         }
     };
 
+    // a simple section marker -> method map
     Wasabi._sectionMap = {};
     Wasabi._sectionMap[WSB_SECTION_GHOSTS] = Wasabi._unpackGhosts;
     Wasabi._sectionMap[WSB_SECTION_REMOVED_GHOSTS] = Wasabi._unpackRemovedGhosts;
@@ -630,7 +661,7 @@ function makeWasabi() {
 
     Wasabi.registry = new Registry();
 
-    // mixin an event emitter
+    // mixin a Node event emitter
     events.EventEmitter.call(Wasabi);
     var k;
     for (k in events.EventEmitter.prototype) {

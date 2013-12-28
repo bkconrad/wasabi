@@ -12,16 +12,17 @@ function Rpc(fn, klass, serialize) {
     // for server -> client, or c2s for client -> server
     this._toClient = false;
     this._toServer = false;
-    if(/^s2c/.test(fn.name)) {
+    if (/^s2c/.test(fn.name)) {
         this._toClient = true;
-    } else if(/^c2s/.test(fn.name)) {
+    } else if (/^c2s/.test(fn.name)) {
         this._toServer = true;
     } else {
         this._toClient = true;
         this._toServer = true;
     }
 
-    // Many thanks to http://mattsnider.com/parsing-javascript-function-argument-names/
+    // parse the number and names of the arguments in the function definition
+    // this seems ridiculously hacky, but works on any ECMA-compliant platform
     var funStr = fn.toString();
     this._args =  funStr.slice(funStr.indexOf('(') + 1, funStr.indexOf(')')).match(/([\w]+)/g) || [];
 }

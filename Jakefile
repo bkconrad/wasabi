@@ -94,6 +94,7 @@ task('lint', function () {
 
     var JSBEAUTIFY_OPTS = {
         jslint_happy: true,
+        good_stuff: true,
         indent_size: 4
     };
 

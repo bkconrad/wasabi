@@ -534,23 +534,23 @@ describe('Wasabi', function () {
         }, WasabiError);
     });
 
-    it('complains when receiving too few arguments to a known RPC', function() {
+    it('complains when receiving too few arguments to a known RPC', function () {
         ws.addObject(foo1);
 
-        assert.throws(function() {
+        assert.throws(function () {
             foo1.rpcDefault();
         }, WasabiError);
     });
 
-    it('complains when receiving too many arguments to a known RPC', function() {
+    it('complains when receiving too many arguments to a known RPC', function () {
         ws.addObject(foo1);
 
-        assert.throws(function() {
+        assert.throws(function () {
             foo1.rpcDefault(1, 2, 3);
         }, WasabiError);
     });
 
-    it('supports unidirectional RPCs', function() {
+    it('supports unidirectional RPCs', function () {
         var remoteFoo;
         ws.addObject(foo1);
 
@@ -582,5 +582,23 @@ describe('Wasabi', function () {
         assert.notEqual('test', remoteFoo.testval);
         assert.equal('test', foo1.testval);
 
+    });
+
+    it('provides callbacks for handling send errors', function() {
+        var done = false;
+        ws.on('sendError', function(connection, err) {
+            assert.strictEqual(ws.clients[0], connection);
+            assert.ok(err instanceof Error);
+            done = true;
+        });
+
+        wc1.servers[0]._socket.onmessage = function() {
+            throw new WasabiError('Send error!');
+        };
+
+        ws.processConnections();
+
+        assert.ok(done);
+        assert.equal(ws.clients.length, 1);
     });
 });
