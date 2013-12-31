@@ -1,0 +1,8 @@
+<h4>{{include.category | capitalize}}</h4>
+<ul>
+	{% for p in site.pages %}
+		{% if p.category == include.category %}
+			<li><a href="{{ p.url }}">{{ p.title }}</a></li>
+		{% endif %}
+	{% endfor %}
+</ul>

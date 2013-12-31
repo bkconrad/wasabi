@@ -1,0 +1,253 @@
+/*
+
+Contents
+================================
+
+1. Shared Styles
+	a. Fonts
+    b. Extends
+2. Header Section
+3. Entries
+    a. Pagination
+    b. Post Style
+4. Footer
+================================
+
+*/
+
+
+// 1. Shared Styles
+// --------------------------------------------------
+
+body{
+    background-color: rgb(134, 165, 76);
+}
+
+main.container, main.content > .container{
+    width:60em;
+}
+
+hr{
+    border-top: 1px solid lighten($grayLight, 20%);
+    border-bottom: none;
+}
+
+::-moz-selection {
+    color: #fff;
+    text-shadow: none;
+    background: #778da8;
+}
+
+::selection {
+    color: #fff;
+    text-shadow: none;
+    background: #778da8;
+}
+
+// 1. a Font
+// --------------------------------------------------
+
+
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Raleway'), url(http://themes.googleusercontent.com/static/fonts/raleway/v6/IczWvq5y_Cwwv_rBjOtT0w.woff) format('woff');
+}
+
+// 1. b Extends
+// --------------------------------------------------
+
+.a-hover{
+        color: $grayDark;
+        @include transition(0.3s linear);
+
+        &:hover{
+            color: $grayDark;
+            text-decoration:none;
+            @include opacity(50);
+        }    
+}
+
+// 2. Header Section
+// --------------------------------------------------
+
+.content{
+    background-color: #f9f7f4;
+
+    & > .container{
+       min-height: 58em;  
+    }
+}
+
+.content {
+
+    h1{
+        font-family: 'Raleway';
+        text-transform: uppercase;
+        font-weight: normal;
+        font-size: 4.1em;  
+        margin-top: 1em;
+        letter-spacing: 0.04em;
+        color: $greenSpotify;
+    }
+
+    .sub-title{
+        font-family: 'Raleway';
+        font-size: 1.8em;
+        margin: 0.8em 0 3em;
+        color: $grayLight;
+    }
+}
+
+
+
+// 3. Entries
+// --------------------------------------------------
+
+.entries{
+
+    list-style: none;
+    margin:2em 0 0;
+
+    li{
+        border-bottom: 1px solid lighten($grayLight, 20%);
+        margin-bottom: 3em;
+        padding-bottom: 2.2em;
+    }
+
+    time{
+        font-size: 1.1em;
+        letter-spacing: 0.1em;
+        float: right;
+        margin-top: -1.9em;
+        color: $gray;
+    }
+
+    h3{
+        font-family: 'Raleway';
+        color: $greenSpotify;
+        font-weight: normal;
+        font-size: 2em;
+        margin-top: 0.2em;
+        @extend .a-hover;
+    }
+
+    a{
+        @extend .a-hover;
+    }
+
+    div{
+        font-family: georgia, times, serif;
+        line-height: 1.6em;
+        font-size: 1.15em;
+        color: $gray;
+    }
+}
+
+
+// 3. a Pagination
+// --------------------------------------------------
+
+.pages{
+
+    list-style: none;    
+}
+
+.next{
+    float: right;
+    margin-top: -2em;
+}
+
+.prev{
+    float: left;   
+}
+
+#post-pagination{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    margin-bottom: 3em;
+}
+
+// 3. b Post Style
+// --------------------------------------------------
+
+.home-icon{
+
+     font-size: 2.2em;
+     margin: 1.9em 0 -1.1em 1em;
+     float: left;
+     background-color: $greenSpotify;
+     padding: 0.65em;
+     @include border-radius(2em);
+
+     a{
+        @extend .a-hover; 
+        color: $white;
+     } 
+}
+
+.post{
+
+    width: 40em;
+    float: left;
+    margin-top: -2em; 
+    margin-left: 2em;
+
+    h5{
+        margin:0.4em 0 2.5em 0;
+        font-weight: normal;
+        letter-spacing: 0.1em;
+        padding-bottom: 1.1em;
+        border-bottom: 1px solid lighten($grayLight, 20%);
+    }
+
+    h2{
+        font-family: 'Raleway';
+        font-weight: normal;
+        font-size: 2em;
+        padding: 1.1em 0 0.2em;
+        letter-spacing: 0.05em;
+        color: $greenSpotify;
+
+        span{
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+    }
+
+    section{
+        font-family: georgia,times,serif;
+        line-height: 1.9em;
+        font-size: 1.15em;
+        color: darken($grayLight, 10%);
+    }
+}
+
+.navmenu {
+    float: right;
+    margin-top: 12em;
+    width: 10em;
+
+    ul{
+        list-style: none;
+    }
+
+    h4{
+        color: $greenSpotify;
+        font-weight: normal;
+    }
+}
+
+// 4. Footer
+// --------------------------------------------------
+
+footer .container{
+    color: $white;
+    padding: 2em 0;
+    font-size: 0.8em;
+    text-align: center;
+
+    a{
+        color: $white;
+        text-decoration: underline;
+    }    
+}
