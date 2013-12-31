@@ -1,0 +1,1367 @@
+{
+    "project": {},
+    "files": {
+        "src/bitstream.js": {
+            "name": "src/bitstream.js",
+            "modules": {},
+            "classes": {
+                "Bitstream": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/connection.js": {
+            "name": "src/connection.js",
+            "modules": {},
+            "classes": {
+                "Connection": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/in_description.js": {
+            "name": "src/in_description.js",
+            "modules": {},
+            "classes": {
+                "InDescription": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/out_description.js": {
+            "name": "src/out_description.js",
+            "modules": {},
+            "classes": {
+                "OutDescription": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/registry.js": {
+            "name": "src/registry.js",
+            "modules": {},
+            "classes": {
+                "Registry": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/rpc.js": {
+            "name": "src/rpc.js",
+            "modules": {},
+            "classes": {
+                "Rpc": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/types.js": {
+            "name": "src/types.js",
+            "modules": {
+                "Types": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/wasabi.js": {
+            "name": "src/wasabi.js",
+            "modules": {},
+            "classes": {
+                "Wasabi": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {
+        "Types": {
+            "name": "Types",
+            "submodules": {},
+            "classes": {
+                "Bitstream": 1,
+                "Connection": 1,
+                "InDescription": 1,
+                "OutDescription": 1,
+                "Registry": 1,
+                "Rpc": 1,
+                "Wasabi": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "src/wasabi.js",
+            "line": 28,
+            "description": "An enum of types that are serializable by Wasabi"
+        }
+    },
+    "classes": {
+        "Bitstream": {
+            "name": "Bitstream",
+            "shortname": "Bitstream",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Types",
+            "file": "src/bitstream.js",
+            "line": 6,
+            "description": "Manages the packing/unpacking of values as a set number of bits",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "buffer",
+                    "description": "an array of 7-bit integers representing the intial\ndata for this Bitstream",
+                    "type": "Array"
+                }
+            ]
+        },
+        "Connection": {
+            "name": "Connection",
+            "shortname": "Connection",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Types",
+            "file": "src/connection.js",
+            "line": 3,
+            "description": "Represents a connection to another Wasabi instance",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "socket",
+                    "description": "The socket.io socket used to communicate with\nthe remote host",
+                    "type": "Socket"
+                },
+                {
+                    "name": "ghostFrom",
+                    "description": "Accept ghosted NetObject from this client",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "ghostTo",
+                    "description": "Ghost NetObjects to this client",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "scopeCallback",
+                    "description": "The function to call in order\nto determine which local objects are in scope for this client.\nThis function takes no parameters and should return an Array\nof NetObjects in scope.",
+                    "type": "Function"
+                }
+            ]
+        },
+        "InDescription": {
+            "name": "InDescription",
+            "shortname": "InDescription",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Types",
+            "file": "src/in_description.js",
+            "line": 4,
+            "description": "A class which packs an object when passed to its .serialize function",
+            "is_constructor": 1
+        },
+        "OutDescription": {
+            "name": "OutDescription",
+            "shortname": "OutDescription",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Types",
+            "file": "src/out_description.js",
+            "line": 2,
+            "description": "A class which unpacks an object when passed to its .serialize function",
+            "is_constructor": 1
+        },
+        "Registry": {
+            "name": "Registry",
+            "shortname": "Registry",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Types",
+            "file": "src/registry.js",
+            "line": 4,
+            "description": "Manages the registration of classes for consistent\nserialization/unserialization",
+            "is_constructor": 1
+        },
+        "Rpc": {
+            "name": "Rpc",
+            "shortname": "Rpc",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Types",
+            "file": "src/rpc.js",
+            "line": 1,
+            "is_constructor": 1
+        },
+        "Wasabi": {
+            "name": "Wasabi",
+            "shortname": "Wasabi",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "Types",
+            "namespace": "",
+            "file": "src/wasabi.js",
+            "line": 28,
+            "description": "Facade class for interacting with Wasabi.\n\nNote that Wasabi implements the Node.js `events.EventEmitter` interface\nfor event handling, allowing use of `on`, `once`, `removeListener` and\nfriends. See the related [Node.js events.EventEmitter docs](http://nodejs.org/api/events.html#events_class_events_eventemitter) for\nevent handling methods."
+        }
+    },
+    "classitems": [
+        {
+            "file": "src/bitstream.js",
+            "line": 26,
+            "itemtype": "method",
+            "name": "bitsLeft",
+            "return": {
+                "description": "the number of bits which can be read without causing an\n    overread",
+                "type": "Number"
+            },
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 35,
+            "description": "Empty the buffer and reset the index",
+            "itemtype": "method",
+            "name": "empty",
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 45,
+            "description": "Move the _index to the first position >= the current index which is the\nbeginning of a cell. Used to burn off padding when processing data from\n\"appendData\" since it pads to the nearest multiple of CELLSIZE",
+            "itemtype": "method",
+            "name": "align",
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 59,
+            "description": "Set the `n` bits starting at `offset` to contain the unsigned integer\n`value`",
+            "itemtype": "method",
+            "name": "_setBits",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "offset",
+                    "description": "The zero-based bit offset to start at",
+                    "type": "Number"
+                },
+                {
+                    "name": "n",
+                    "description": "The number of bits to pack the value in to",
+                    "type": "Number"
+                },
+                {
+                    "name": "value",
+                    "description": "The value to pack. Will be cast to an unsigned\n    integer and truncated or padded to n bits",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 103,
+            "description": "Return the value of the first n bits starting at offset",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "_getBits",
+            "params": [
+                {
+                    "name": "offset",
+                    "description": "The zero-based bit offset to start at",
+                    "type": "Number"
+                },
+                {
+                    "name": "n",
+                    "description": "The number of bits to unpack the value from",
+                    "type": "Number"
+                }
+            ],
+            "return": {
+                "description": "The unsigned value after unpacking",
+                "type": "Number"
+            },
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 146,
+            "description": "Convert the data in this `Bitstream` to a `Uint8Array` containing an\n`ArrayBuffer` suitable for transmitting this data over a binary websocket",
+            "itemtype": "method",
+            "name": "toArrayBuffer",
+            "return": {
+                "description": "A `Uint8Array` containing the data in this Bitstream"
+            },
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 163,
+            "description": "Populate the data in this Bitstream from an ArrayBuffer received over a\nbinary websocket",
+            "itemtype": "method",
+            "name": "fromArrayBuffer",
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 173,
+            "description": "Append data from an ArrayBuffer received over a binary websocket to this\nBitstream",
+            "itemtype": "method",
+            "name": "appendData",
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 186,
+            "description": "Append UTF-8 encoded data from a string to this Bitstream",
+            "itemtype": "method",
+            "name": "appendChars",
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 200,
+            "description": "Convert the data to a valid UTF-8 string",
+            "itemtype": "method",
+            "name": "toChars",
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 213,
+            "description": "Read an unsigned integer *without* consuming any bits",
+            "itemtype": "method",
+            "name": "peekUInt",
+            "params": [
+                {
+                    "name": "bits",
+                    "description": "The number of bits to unpack",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 223,
+            "description": "Read an unsigned integer consuming the specified number of bits",
+            "itemtype": "method",
+            "name": "readUInt",
+            "params": [
+                {
+                    "name": "bits",
+                    "description": "The number of bits to unpack",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 234,
+            "description": "Write an unsigned integer using the specified number of bits",
+            "itemtype": "method",
+            "name": "writeUInt",
+            "params": [
+                {
+                    "name": "value",
+                    "description": "Value to write.",
+                    "type": "Number"
+                },
+                {
+                    "name": "bits",
+                    "description": "The number of bits to unpack",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 245,
+            "description": "Read a signed integer without consuming any bits",
+            "itemtype": "method",
+            "name": "peekSInt",
+            "params": [
+                {
+                    "name": "bits",
+                    "description": "The number of bits to peek at",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 256,
+            "description": "Read a signed integer consuming the specified number of bits",
+            "itemtype": "method",
+            "name": "readSInt",
+            "params": [
+                {
+                    "name": "bits",
+                    "description": "The number of bits to unpack",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 267,
+            "description": "write a signed integer using the specified number of bits",
+            "itemtype": "method",
+            "name": "writeSInt",
+            "params": [
+                {
+                    "name": "value",
+                    "description": "Value to write. Will be truncated or padded\nto the specified number of bits",
+                    "type": "Number"
+                },
+                {
+                    "name": "bits",
+                    "description": "The number of bits to unpack",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 281,
+            "description": "Read a normalized float without consuming any bits",
+            "itemtype": "method",
+            "name": "peekFloat",
+            "params": [
+                {
+                    "name": "bits",
+                    "description": "The number of bits to peek at",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 296,
+            "description": "Read a float value, consuming the specified number of bits",
+            "itemtype": "method",
+            "name": "readFloat",
+            "params": [
+                {
+                    "name": "bits",
+                    "description": "The number of bits to unpack",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 307,
+            "description": "Write a normalized float in the range `[0.0, 1.0]` using the specified\nnumber of bits",
+            "itemtype": "method",
+            "name": "writeFloat",
+            "params": [
+                {
+                    "name": "value",
+                    "description": "Value to write.",
+                    "type": "Number"
+                },
+                {
+                    "name": "bits",
+                    "description": "The number of bits to unpack",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 324,
+            "description": "Read a zero-terminated string value",
+            "itemtype": "method",
+            "name": "readString",
+            "return": {
+                "description": "the String read from the bitstream"
+            },
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 340,
+            "description": "Write a zero-terminated string\nnumber of bits",
+            "itemtype": "method",
+            "name": "writeString",
+            "params": [
+                {
+                    "name": "value",
+                    "description": "Value to write.",
+                    "type": "String"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 354,
+            "description": "Pack an object with a `.serialize()` method into this bitstream",
+            "itemtype": "method",
+            "name": "pack",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The object to serialize",
+                    "type": "NetObject"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 367,
+            "description": "Unpack an object with a .serialize() method from this bitstream",
+            "itemtype": "method",
+            "name": "unpack",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The object to deserialize to",
+                    "type": "NetObject"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 382,
+            "description": "Calls all serialize methods in this object's prototype chain with\n`description` as its argument. This allows packing and unpacking classes\nwhich use prototypal inheritance.",
+            "itemtype": "method",
+            "name": "_serializeObject",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The object to serialize",
+                    "type": "NetObject"
+                },
+                {
+                    "name": "description",
+                    "description": "The description to serialize through",
+                    "type": "Description"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 404,
+            "description": "See if the contents and byte length of the buffer of this Bitstream\nand `other` are exactly equal",
+            "itemtype": "method",
+            "name": "equals",
+            "params": [
+                {
+                    "name": "other",
+                    "description": "The bitstream to compare with",
+                    "type": "Bitstream"
+                }
+            ],
+            "return": {
+                "description": "`true` if the bistreams are effectively equal",
+                "type": "Boolean"
+            },
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 425,
+            "description": "Advance the head by the specified number of bits and check for overread",
+            "itemtype": "method",
+            "name": "_advance",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "bits",
+                    "description": "The number of bits to advance the index by",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 438,
+            "description": "Extend the buffer size by the specified number of bits. Also\nadvances the index",
+            "itemtype": "method",
+            "name": "_extend",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "bits",
+                    "description": "The number of bits to expand the buffer by",
+                    "type": "Number"
+                }
+            ],
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/bitstream.js",
+            "line": 451,
+            "description": "Create a bitstream from a valid UTF-8 string",
+            "static": 1,
+            "itemtype": "method",
+            "name": "fromChars",
+            "class": "Bitstream"
+        },
+        {
+            "file": "src/registry.js",
+            "line": 28,
+            "description": "Return a unique hash from one or two functions suitable for entering into\nthe registry's klass or rpc tables. Note that the supplied functions must\nhave a valid `name` property",
+            "itemtype": "method",
+            "name": "hash",
+            "params": [
+                {
+                    "name": "fn1",
+                    "description": "The first function to hash",
+                    "type": "Function"
+                },
+                {
+                    "name": "fn2",
+                    "description": "The (optional) second function to hash",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "The XOR hash of the characters of\nklass.prototype.constructor.name",
+                "type": "Number"
+            },
+            "class": "Registry"
+        },
+        {
+            "file": "src/registry.js",
+            "line": 61,
+            "description": "Register a class with Wasabi, allowing it to transmit instances of\nthis class through a Connection",
+            "itemtype": "method",
+            "name": "addClass",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "The constructor of the class to add",
+                    "type": "Function"
+                },
+                {
+                    "name": "instance",
+                    "description": "The Wasabi instance to invoke the RPC through",
+                    "type": "Wasabi"
+                }
+            ],
+            "class": "Registry"
+        },
+        {
+            "file": "src/registry.js",
+            "line": 120,
+            "description": "Create an RPC from the supplied procedure function and serialize\nfunction. `instance` must be a {{#crossLink \"Wasabi\"}}{{/crossLink}}\ninstance",
+            "itemtype": "method",
+            "name": "mkRpc",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "The klass this rpc is associated with, or `false`\n    for static RPCs",
+                    "type": "Function"
+                },
+                {
+                    "name": "fn",
+                    "description": "The local function to call when the RPC is invoked\n    on a remote host",
+                    "type": "Function"
+                },
+                {
+                    "name": "serialize",
+                    "description": "A serialize function describing the arguments\n    used by this RPC",
+                    "type": "Function"
+                },
+                {
+                    "name": "instance",
+                    "description": "The Wasabi instance to invoke this RPC through",
+                    "type": "Wasabi"
+                }
+            ],
+            "return": {
+                "description": "The function you should call remotely to invoke the\n    RPC on a connection",
+                "type": "Function"
+            },
+            "class": "Registry"
+        },
+        {
+            "file": "src/registry.js",
+            "line": 171,
+            "description": "Register an instance of a klass",
+            "itemtype": "method",
+            "name": "addObject",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The object to add to the registry",
+                    "type": "NetObject"
+                },
+                {
+                    "name": "serial",
+                    "description": "The serial number to assign to this object. If\n    falsy, the nextSerialNumber will be used",
+                    "type": "Nunmber"
+                }
+            ],
+            "class": "Registry"
+        },
+        {
+            "file": "src/registry.js",
+            "line": 184,
+            "description": "Remove an instance of a klass",
+            "itemtype": "method",
+            "name": "removeObject",
+            "params": [
+                {
+                    "name": "arg",
+                    "description": "The object or serial number of an object to\n    remove from the registry",
+                    "type": "NetObject|number"
+                }
+            ],
+            "class": "Registry"
+        },
+        {
+            "file": "src/registry.js",
+            "line": 204,
+            "description": "Get an instance of a klass by serial number",
+            "itemtype": "method",
+            "name": "getObject",
+            "class": "Registry"
+        },
+        {
+            "file": "src/registry.js",
+            "line": 212,
+            "description": "Get the function/constructor/klass represented by the given hash",
+            "itemtype": "method",
+            "name": "getClass",
+            "class": "Registry"
+        },
+        {
+            "file": "src/registry.js",
+            "line": 220,
+            "description": "get the RPC function associated with the hash",
+            "itemtype": "method",
+            "name": "getRpc",
+            "class": "Registry"
+        },
+        {
+            "file": "src/rpc.js",
+            "line": 30,
+            "description": "Populate `obj` with keys corresponding to the names of the argument in the\nnth position of the original function and values from the indexed values in\n`obj`",
+            "itemtype": "method",
+            "name": "_populateKeys",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The target object containing indexed values",
+                    "type": "Object"
+                }
+            ],
+            "class": "Rpc"
+        },
+        {
+            "file": "src/rpc.js",
+            "line": 45,
+            "description": "Populate `obj` with keys corresponding to the names of the argument in the\nnth position of the original function and values from the indexed values in\n`obj`",
+            "itemtype": "method",
+            "name": "_populateIndexes",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The target object containing indexed values",
+                    "type": "Object"
+                }
+            ],
+            "class": "Rpc"
+        },
+        {
+            "file": "src/rpc.js",
+            "line": 62,
+            "description": "Creates a default serialization function for an RPC definition when no args\nfunction is supplied. The resultant function simply calls `desc.any(i, 16)`\nthe appropriate number of times. This means that by default, RPC arguments\nhave 16 bit precision.",
+            "itemtype": "method",
+            "name": "_makeDefaultSerialize",
+            "static": 1,
+            "params": [
+                {
+                    "name": "nargs",
+                    "description": "The number of arguments to serialize",
+                    "type": "Number"
+                }
+            ],
+            "return": {
+                "description": "The serialize function"
+            },
+            "class": "Rpc"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 8,
+            "description": "Named and exported function that would otherwise be an IIFE. Used to\ninstantiate a second Wasabi module for use in tests (to simulate a remote\nclient)",
+            "itemtype": "method",
+            "name": "makeWasabi",
+            "static": 1,
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 50,
+            "description": "Register a class with Wasabi, allowing it to transmit instances of\nthis class through a Connection",
+            "itemtype": "method",
+            "name": "addClass",
+            "params": [
+                {
+                    "name": "klass",
+                    "description": "The constructor of the class to add",
+                    "type": "Function"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 60,
+            "description": "Register an instance of a klass, which can then be sent to\nconnected clients as needed (based on the results of their\n`scopeCallback`s).\n\n*Note: This method should only be called manually on\nauthoritative peers (i.e. server-side).* Wasabi clients will\nautomatically add instances to the Registry when their ghosts\nare unpacked",
+            "itemtype": "method",
+            "name": "addObject",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The object to add to the registry",
+                    "type": "NetObject"
+                },
+                {
+                    "name": "serial",
+                    "description": "The serial number to assign to this object. If\nfalsy, the nextSerialNumber will be used",
+                    "type": "Number"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 79,
+            "description": "Unregister an instance of a klass",
+            "itemtype": "method",
+            "name": "removeObject",
+            "params": [
+                {
+                    "name": "arg",
+                    "description": "Either a NetObject or a serial number to be\nremoved from the registry",
+                    "type": "Mixed"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 89,
+            "description": "Create an RPC from the supplied procedure and serialize functions.",
+            "itemtype": "method",
+            "name": "mkRpc",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "The local function to call when the RPC is\n    invoked on a remote host",
+                    "type": "Function"
+                },
+                {
+                    "name": "opt_serialize",
+                    "description": "An optional serialize function\n    describing the arguments used by this RPC",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "The function you should call remotely to invoke\n    the RPC on a connection",
+                "type": "Function"
+            },
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 103,
+            "description": "Attach to a server connected through the socket object",
+            "itemtype": "method",
+            "name": "addServer",
+            "params": [
+                {
+                    "name": "sock",
+                    "description": "The socket object used to communicate with the\n    new server",
+                    "type": "Socket"
+                }
+            ],
+            "return": {
+                "description": "The newly created Connection object",
+                "type": "Connection"
+            },
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 116,
+            "description": "Remove a server by its socket object. `sock` must be strictly equal\n(`===`) to the original socket.",
+            "itemtype": "method",
+            "name": "removeServer",
+            "params": [
+                {
+                    "name": "sock",
+                    "description": "The socket object originally passed to addServer",
+                    "type": "Socket"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 132,
+            "description": "Attach a client connected through the given socket object. Currently\nthis must be a WebSocket or socket.io socket, or something that is\nAPI compatible (i.e. has an `onmessage` callback and a `send`\nmethod).",
+            "itemtype": "method",
+            "name": "addClient",
+            "params": [
+                {
+                    "name": "client",
+                    "description": "The socket object used to communicate with the\n    new client",
+                    "type": "Socket"
+                },
+                {
+                    "name": "scopeCallback",
+                    "description": "See {{#crossLink\n    \"Connection\"}}{{/crossLink}}",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "The newly created Connection object",
+                "type": "Connection"
+            },
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 150,
+            "description": "Remove a client by its socket object. `sock` must be strictly equal\n(`===`) to the original socket.",
+            "itemtype": "method",
+            "name": "removeClient",
+            "params": [
+                {
+                    "name": "sock",
+                    "description": "The socket object originally passed to addClient",
+                    "type": "Socket"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 166,
+            "description": "Process the incoming and outgoing data for all connected clients and\nservers. This is typically called in your game's update loop",
+            "itemtype": "method",
+            "name": "processConnections",
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 189,
+            "description": "Packs update data for `obj` into `bs`",
+            "itemtype": "method",
+            "name": "_packUpdate",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The object to pack",
+                    "type": "Object"
+                },
+                {
+                    "name": "bs",
+                    "description": "The bitstream to pack into",
+                    "type": "BitStream"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 201,
+            "description": "Unpacks update data from `bs`",
+            "itemtype": "method",
+            "name": "_unpackUpdate",
+            "params": [
+                {
+                    "name": "bs",
+                    "description": "The bitstream to unpack from",
+                    "type": "BitStream"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 217,
+            "description": "Packs data needed to instantiate a replicated version of obj",
+            "itemtype": "method",
+            "name": "_packGhost",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The object to pack",
+                    "type": "Object"
+                },
+                {
+                    "name": "bs",
+                    "description": "The bitstream to pack into",
+                    "type": "BitStream"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 229,
+            "description": "Unpacks a newly replicated object from Bitstream",
+            "itemtype": "method",
+            "name": "_unpackGhost",
+            "params": [
+                {
+                    "name": "bs",
+                    "description": "The target bitstream",
+                    "type": "Bitstream"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 249,
+            "description": "Fired client-side when a ghost (the remote counterpart) of an\nobject is created. This occurs when the scope callback for this\nclient (on the server) returns an object when it did not\npreviously.\n\nThe `obj` will be a newly created instance of the class every\ntime this event is emitted, even when subsequent emissions refer\nto the same server-side instance. That is, Wasabi created a brand\nnew object every time it creates a ghost.\n\nNote that this event can be emitted multiple times per object, if\nobject comes in and out of scope.",
+            "itemtype": "event",
+            "name": "clientGhostCreate",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The newly created ghost",
+                    "type": "Object"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 270,
+            "description": "Packs ghosts for needed objects into `bs`",
+            "itemtype": "method",
+            "name": "_packGhosts",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "objects",
+                    "description": "An Array or map of objects to pack ghosts for",
+                    "type": "Array"
+                },
+                {
+                    "name": "bs",
+                    "description": "The target Bitstream",
+                    "type": "Bitstream"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 290,
+            "description": "Unpack all needed ghosts from `bs`",
+            "itemtype": "method",
+            "name": "_unpackGhosts",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "bs",
+                    "description": "The source Bitstream",
+                    "type": "Bitstream"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 305,
+            "description": "Packs removed ghosts for `objects` into `bs`",
+            "itemtype": "method",
+            "name": "_packRemovedGhosts",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "objects",
+                    "description": "An Array or map of objects to remove",
+                    "type": "Object"
+                },
+                {
+                    "name": "bs",
+                    "description": "The target Bitstream",
+                    "type": "Bitstream"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 323,
+            "description": "Unpack all removed ghosts from bs. An object with its ghost unpacked\nin this way will be removed from the local Wasabi's registry",
+            "itemtype": "method",
+            "name": "_unpackRemovedGhosts",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "bs",
+                    "description": "The source Bitstream",
+                    "type": "Bitstream"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 338,
+            "description": "Fired client-side when a ghost (the remote counterpart) of an\nobject is about to be destroyed. This occurs when the scope\ncallback for this client (on the server) does not return the\nobject after it did previously.\n\nAlthough Wasabi can not acutally \"destroy\" the object (since\nJavaScript has no destructors), the particular instance will\nnever be referred to be Wasabi again.\n\nNote that this event can be emitted multiple times per\nobject, if object comes in and out of scope.",
+            "itemtype": "event",
+            "name": "clientGhostDestroy",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "The ghost which is about to be destroyed",
+                    "type": "Object"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 363,
+            "description": "Pack the given list of object update data into bs",
+            "itemtype": "method",
+            "name": "_packUpdates",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "list",
+                    "description": "An Array or map of objects to pack updates for",
+                    "type": "Object"
+                },
+                {
+                    "name": "bs",
+                    "description": "The target Bitstream",
+                    "type": "Bitstream"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 380,
+            "description": "Unpack the given list of objects (with update data) from bs",
+            "itemtype": "method",
+            "name": "_unpackUpdates",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "bs",
+                    "description": "The source Bitstream",
+                    "type": "Bitstream"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 400,
+            "description": "Pack an RPC invocation to the appropriate connections",
+            "itemtype": "method",
+            "name": "_invokeRpc",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "rpc",
+                    "description": "the rpc to invoke",
+                    "type": "Rpc"
+                },
+                {
+                    "name": "obj",
+                    "description": "the obj to use as the context the invocation,\n    or false for static invocations",
+                    "type": "NetObject"
+                },
+                {
+                    "name": "args",
+                    "description": "the arguments to the rpc, followed by an optional\n    list of connections to emit the invocation to. If no connections\n    are specified, the invocation is emitted to all connections",
+                    "type": "Array"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 468,
+            "description": "Pack all RPC invocations in the specified `Connection`'s queue.",
+            "itemtype": "method",
+            "name": "_packRpcs",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "conn",
+                    "description": "The connection to pack RPC invocations for",
+                    "type": "Connection"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 484,
+            "description": "Pack a call to a registered RP and the supplied arguments into bs",
+            "itemtype": "method",
+            "name": "_packRpc",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "rpc",
+                    "description": "The RPC to pack",
+                    "type": "Rpc"
+                },
+                {
+                    "name": "args",
+                    "description": "The arguments to be serialized into this\n    invocation",
+                    "type": "Array"
+                },
+                {
+                    "name": "obj",
+                    "description": "The NetObject to apply the RPC to (or falsy\n    for \"static\" RPC invocation",
+                    "type": "NetObject"
+                },
+                {
+                    "name": "bs",
+                    "description": "The target Bitstream",
+                    "type": "Bitstream"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 503,
+            "description": "Unpack and execute a call to a registered RP using the supplied\narguments from bs",
+            "itemtype": "method",
+            "name": "_unpackRpc",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "bs",
+                    "description": "The source Bitstream",
+                    "type": "Bitstream"
+                },
+                {
+                    "name": "conn",
+                    "description": "The connection this RPC was invoked from",
+                    "type": "Connection"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 545,
+            "description": "Returns a clone of the registry's object table. used as a fallback\nwhen no _scopeCallback is specified for a connection",
+            "itemtype": "method",
+            "name": "_getAllObjects",
+            "access": "private",
+            "tagname": "",
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 562,
+            "description": "Receive, process, and transmit data as needed for this connection",
+            "itemtype": "method",
+            "name": "_processConnection",
+            "access": "private",
+            "tagname": "",
+            "class": "Wasabi",
+            "module": "Types"
+        }
+    ],
+    "warnings": []
+}
