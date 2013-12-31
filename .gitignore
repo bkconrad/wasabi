@@ -1,0 +1,8 @@
+_site/*
+doc/*
+.bundle/
+.sass-cache/
+Gemfile.lock
+node_modules/
+wasabi.sublime-project
+wasabi.sublime-workspace
