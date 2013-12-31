@@ -17,7 +17,7 @@ Why Would You Do This?
 I concede that there are some mental gymnastics needed to justify the existence of such a contraption. My reasoning is basically as follows:
 
   1. JavaScript is the most easily deployed programming language in existence (no installation or downloads, just distribute a URL)
-  2. In modern browsers, JavaScript has nearly all of the faculties needed for modern realtime games (3D graphics, audio, hardware acceleration, performant execution, low level networking support)
+  2. In modern browsers, JavaScript has nearly all of the faculties needed for modern realtime games (3D graphics, audio, hardware acceleration, performant execution, networking support)
   3. The only thing missing is a bandwidth-efficient network library built for this purpose
   4. The code-sharing enabled by NodeJS makes it an ideal platform for backend servers
 

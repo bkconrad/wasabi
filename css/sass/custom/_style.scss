@@ -98,6 +98,10 @@ hr{
         margin: 0.8em 0 3em;
         color: $grayLight;
     }
+
+    .li {
+        margin-bottom: .5em;
+    }
 }
 
 
@@ -174,7 +178,7 @@ hr{
 .home-icon{
 
      font-size: 2.2em;
-     margin: 1.9em 0 -1.1em 1em;
+     margin: 1em 0 -1.1em 1em;
      float: left;
      background-color: $greenSpotify;
      padding: 0.65em;
@@ -229,11 +233,13 @@ hr{
 
     ul{
         list-style: none;
+        margin-left: 1em;
     }
 
     h4{
         color: $greenSpotify;
         font-weight: normal;
+        text-decoration: underline;
     }
 }
 

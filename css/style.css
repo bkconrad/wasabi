@@ -1940,7 +1940,7 @@ hr {
 
 .home-icon {
   font-size: 2.2em;
-  margin: 1.9em 0 -1.1em 1em;
+  margin: 1em 0 -1.1em 1em;
   float: left;
   background-color: #81b71a;
   padding: 0.65em;
@@ -1981,10 +1981,12 @@ hr {
   margin-top: 12em;
   width: 10em; }
   .navmenu ul {
-    list-style: none; }
+    list-style: none;
+    margin-left: 1em; }
   .navmenu h4 {
     color: #81b71a;
-    font-weight: normal; }
+    font-weight: normal;
+    text-decoration: underline; }
 
 footer .container {
   color: white;
