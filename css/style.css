@@ -1898,6 +1898,8 @@ hr {
   font-size: 1.8em;
   margin: 0.8em 0 3em;
   color: #999999; }
+.content .li {
+  margin-bottom: .5em; }
 
 .entries {
   list-style: none;
@@ -1975,6 +1977,8 @@ hr {
     line-height: 1.9em;
     font-size: 1.15em;
     color: gray; }
+  .post code {
+    color: #36454f; }
 
 .navmenu {
   float: right;

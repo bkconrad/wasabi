@@ -224,6 +224,10 @@ hr{
         font-size: 1.15em;
         color: darken($grayLight, 10%);
     }
+
+    code{
+        color: $grayCharcoal;
+    }
 }
 
 .navmenu {
