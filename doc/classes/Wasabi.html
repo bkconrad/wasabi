@@ -366,6 +366,13 @@ event handling methods.</p>
                                 
                             </li>
                         
+                            <li class="index-item event">
+                                <a href="#event_sendError">sendError</a>
+
+                                
+                                
+                            </li>
+                        
                     </ul>
                 </div>
             
@@ -3130,6 +3137,97 @@ object, if object comes in and out of scope.</p>
 
                     <div class="param-description">
                         <p>The ghost which is about to be destroyed</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+
+    
+</div>
+
+                
+                    <div id="event_sendError" class="events item">
+    <h3 class="name"><code>sendError</code></h3>
+    <span class="type"></span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_wasabi.js.html#l645"><code>src&#x2F;wasabi.js:645</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Fired when Wasabi receives an error while sending data over a
+connection. Note that Wasabi will remove the connection from
+its list of clients and servers immediately after emitting
+this event.</p>
+<p>An event is used in order to give user code a chance to react
+to the error without interupting the processing of other
+connections within the same <code>processConnections</code> call.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Event Payload:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">conn</code>
+                        <span class="type"><a href="../classes/Connection.html" class="crosslink">Connection</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The connection which generated the
+    error.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">e</code>
+                        <span class="type">Error</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The original error</p>
 
                     </div>
 

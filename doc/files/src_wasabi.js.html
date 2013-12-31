@@ -743,6 +743,22 @@ function makeWasabi() {
             try {
                 conn._socket.send(conn._sendBitstream.toChars());
             } catch (e) {
+
+                /**
+                 * Fired when Wasabi receives an error while sending data over a
+                 * connection. Note that Wasabi will remove the connection from
+                 * its list of clients and servers immediately after emitting
+                 * this event.
+                 *
+                 * An event is used in order to give user code a chance to react
+                 * to the error without interupting the processing of other
+                 * connections within the same &#x60;processConnections&#x60; call.
+                 *
+                 * @event sendError
+                 * @param {Connection} conn The connection which generated the
+                 *     error.
+                 * @param {Error} e The original error
+                 */
                 this.emit(&#x27;sendError&#x27;, conn, e);
                 this.removeClient(conn._socket);
                 this.removeServer(conn._socket);

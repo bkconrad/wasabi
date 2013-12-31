@@ -1361,6 +1361,27 @@
             "tagname": "",
             "class": "Wasabi",
             "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 645,
+            "description": "Fired when Wasabi receives an error while sending data over a\nconnection. Note that Wasabi will remove the connection from\nits list of clients and servers immediately after emitting\nthis event.\n\nAn event is used in order to give user code a chance to react\nto the error without interupting the processing of other\nconnections within the same `processConnections` call.",
+            "itemtype": "event",
+            "name": "sendError",
+            "params": [
+                {
+                    "name": "conn",
+                    "description": "The connection which generated the\n    error.",
+                    "type": "Connection"
+                },
+                {
+                    "name": "e",
+                    "description": "The original error",
+                    "type": "Error"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
         }
     ],
     "warnings": []
