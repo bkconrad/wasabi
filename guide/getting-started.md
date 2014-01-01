@@ -94,3 +94,7 @@ Wasabi.processConnections();
 {% endhighlight %}
 
 That's it! Just call that in a loop on both the client and server, and the client's copy will be updated to match the servers automatically.
+
+Next Steps
+---
+If you have a fairly good grasp on the content of this guide, you might want to read more about the concepts in Wasabi in the Concepts section. You can also look at [an example game](https://github.com/kaen/wasabi_example) to see Wasabi in action, or the [API docs]({{ site.baseurl }}/doc/) if you're ready to dive right in.
