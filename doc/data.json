@@ -133,7 +133,7 @@
             "params": [
                 {
                     "name": "socket",
-                    "description": "The socket.io socket used to communicate with\nthe remote host",
+                    "description": "The socket.io socket used to communicate with the\n    remote host",
                     "type": "Socket"
                 },
                 {
@@ -148,7 +148,7 @@
                 },
                 {
                     "name": "scopeCallback",
-                    "description": "The function to call in order\nto determine which local objects are in scope for this client.\nThis function takes no parameters and should return an Array\nof NetObjects in scope.",
+                    "description": "The function to call in order to determine\n    which local objects are in scope for this client. This function takes no\n    parameters and should return an Array of NetObjects in scope.",
                     "type": "Function"
                 }
             ]
@@ -1364,7 +1364,49 @@
         },
         {
             "file": "src/wasabi.js",
-            "line": 645,
+            "line": 628,
+            "description": "Fired before Wasabi processes incoming data. Useful for\nmeasuring data transmission statistics.\n\nNote that this event fires during `processConnections`, and is\nnot meant to replace the `onmessage` handler for typical\nWebSockets or socket.io sockets.",
+            "itemtype": "event",
+            "name": "receive",
+            "params": [
+                {
+                    "name": "conn",
+                    "description": "The connection being processed",
+                    "type": "Connection"
+                },
+                {
+                    "name": "data",
+                    "description": "The data being received over the connection",
+                    "type": "String"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 655,
+            "description": "Fired before Wasabi sends data over a connection. Useful for\nmeasuring data transmission statistics.",
+            "itemtype": "event",
+            "name": "send",
+            "params": [
+                {
+                    "name": "conn",
+                    "description": "The connection being processed",
+                    "type": "Connection"
+                },
+                {
+                    "name": "data",
+                    "description": "The data being sent over the connection",
+                    "type": "String"
+                }
+            ],
+            "class": "Wasabi",
+            "module": "Types"
+        },
+        {
+            "file": "src/wasabi.js",
+            "line": 670,
             "description": "Fired when Wasabi receives an error while sending data over a\nconnection. Note that Wasabi will remove the connection from\nits list of clients and servers immediately after emitting\nthis event.\n\nAn event is used in order to give user code a chance to react\nto the error without interupting the processing of other\nconnections within the same `processConnections` call.",
             "itemtype": "event",
             "name": "sendError",
