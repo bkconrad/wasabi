@@ -1,7 +1,7 @@
 {
     "name":"wasabi",
     "description":"A realtime game networking or general-purpose replication library using binary transports.",
-    "version":"0.1.11",
+    "version":"0.1.12",
     "author":"Bryan Conrad",
     "dependencies":{
     },
