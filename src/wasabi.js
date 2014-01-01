@@ -566,10 +566,11 @@ function makeWasabi() {
          */
         _processConnection: function (conn) {
             var k;
-            var oldObjects;
+            var data;
             var newObjects;
             var newlyInScopeObjects;
             var newlyOutOfScopeObjects;
+            var oldObjects;
             var section;
 
             // connections with ghostTo set (i.e. clients)
@@ -621,8 +622,22 @@ function makeWasabi() {
             // write a packet terminator
             conn._sendBitstream.writeUInt(WSB_PACKET_STOP, 16);
 
-            // new we'll process the incoming data on this connection
+            // now we'll process the incoming data on this connection
             conn._receiveBitstream._index = 0;
+
+            /**
+             * Fired before Wasabi processes incoming data. Useful for
+             * measuring data transmission statistics.
+             *
+             * Note that this event fires during `processConnections`, and is
+             * not meant to replace the `onmessage` handler for typical
+             * WebSockets or socket.io sockets.
+             *
+             * @event receive
+             * @param {Connection} conn The connection being processed
+             * @param {String} data The data being received over the connection
+             */
+            this.emit('receive', conn, conn._receiveBitstream.toChars());
             while (conn._receiveBitstream.bitsLeft() > 0) {
                 section = conn._receiveBitstream.readUInt(16);
                 if (section === WSB_PACKET_STOP) {
@@ -637,9 +652,19 @@ function makeWasabi() {
                 }
             }
 
-            // send the actual data
+            /**
+             * Fired before Wasabi sends data over a connection. Useful for
+             * measuring data transmission statistics.
+             *
+             * @event send
+             * @param {Connection} conn The connection being processed
+             * @param {String} data The data being sent over the connection
+             */
+            data = conn._sendBitstream.toChars();
+            this.emit('send', conn, data);
             try {
-                conn._socket.send(conn._sendBitstream.toChars());
+                // send the actual data
+                conn._socket.send(data);
             } catch (e) {
 
                 /**

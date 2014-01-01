@@ -584,15 +584,15 @@ describe('Wasabi', function () {
 
     });
 
-    it('provides callbacks for handling send errors', function() {
+    it('provides callbacks for handling send errors', function () {
         var done = false;
-        ws.on('sendError', function(connection, err) {
+        ws.on('sendError', function (connection, err) {
             assert.strictEqual(ws.clients[0], connection);
             assert.ok(err instanceof Error);
             done = true;
         });
 
-        wc1.servers[0]._socket.onmessage = function() {
+        wc1.servers[0]._socket.onmessage = function () {
             throw new WasabiError('Send error!');
         };
 
@@ -600,5 +600,35 @@ describe('Wasabi', function () {
 
         assert.ok(done);
         assert.equal(ws.clients.length, 1);
+    });
+
+    it('provides callbacks for sending data', function () {
+        var done = false;
+        ws.removeClient(client2);
+        ws.on('send', function (connection, data) {
+            assert.strictEqual(ws.clients[0], connection);
+            assert.ok(data.length);
+            done = true;
+        });
+
+        ws.processConnections();
+
+        assert.ok(done);
+    });
+
+    it('provides callbacks for receiving data', function () {
+        var done = false;
+        ws.removeClient(client2);
+        wc1.on('receive', function (connection, data) {
+            assert.strictEqual(wc1.servers[0], connection);
+
+            assert.ok(data.length);
+            done = true;
+        });
+
+        ws.processConnections();
+        wc1.processConnections();
+
+        assert.ok(done);
     });
 });
