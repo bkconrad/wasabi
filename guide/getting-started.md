@@ -4,7 +4,7 @@ category: overview
 layout: guide
 ---
 
-The following is a crash course in setting up Wasabi. If you already understand prototypal inheritance, it should be fairly intuitive.
+The following is a crash course in setting up Wasabi. If you already understand prototypal inheritance and network game programming, it should be fairly intuitive.
 
 Adding A Class
 ---
