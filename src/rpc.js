@@ -12,9 +12,12 @@ function Rpc(fn, klass, serialize) {
     // for server -> client, or c2s for client -> server
     this._toClient = false;
     this._toServer = false;
-    if (/^s2c/.test(fn.name)) {
+
+    var name = fn.name || fn.wasabiFnName;
+
+    if (/^s2c/.test(name)) {
         this._toClient = true;
-    } else if (/^c2s/.test(fn.name)) {
+    } else if (/^c2s/.test(name)) {
         this._toServer = true;
     } else {
         this._toClient = true;
