@@ -332,29 +332,29 @@ describe('Wasabi', function () {
         ws.addObject(foo2);
 
         // set the scope callback to read from the local variable `scope`
-        var scope = {};
+        var scope = [];
         ws.clients[0]._scopeCallback = function () {
             return scope;
         };
 
         // foo1 in scope, foo2 is not
-        scope[foo1.wsbSerialNumber] = foo1;
+        scope.push(foo1);
         ws.processConnections();
         wc1.processConnections();
         assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
         assert.equal(wc1.registry.objects[foo2.wsbSerialNumber], undefined);
 
         // both foo1 and foo2 in scope
-        scope = {};
-        scope[foo1.wsbSerialNumber] = foo1;
-        scope[foo2.wsbSerialNumber] = foo2;
+        scope = [];
+        scope.push(foo1);
+        scope.push(foo2);
         ws.processConnections();
         wc1.processConnections();
         assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
         assert.ok(wc1.registry.objects[foo2.wsbSerialNumber]);
 
         // neither foo1 nor foo2 in scope
-        scope = {};
+        scope = [];
         ws.processConnections();
         wc1.processConnections();
         assert.equal(wc1.registry.objects[foo1.wsbSerialNumber], undefined);

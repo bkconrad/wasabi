@@ -275,11 +275,11 @@ function makeWasabi() {
          * @param {Bitstream} bs The target Bitstream
          */
         _packGhosts: function (objects, bs) {
-            var serial;
+            var i;
             var obj;
-            for (serial in objects) {
-                if (objects.hasOwnProperty(serial)) {
-                    obj = this.registry.getObject(serial);
+            for (i in objects) {
+                if (objects.hasOwnProperty(i)) {
+                    obj = objects[i];
                     this._packGhost(obj, bs);
                 }
             }
@@ -310,10 +310,12 @@ function makeWasabi() {
          * @param {Bitstream} bs The target Bitstream
          */
         _packRemovedGhosts: function (objects, bs) {
-            var serial;
-            for (serial in objects) {
-                if (objects.hasOwnProperty(serial)) {
-                    bs.writeUInt(serial, 16);
+            var k;
+            var obj;
+            for (k in objects) {
+                if (objects.hasOwnProperty(k)) {
+                    obj = objects[k];
+                    bs.writeUInt(obj.wsbSerialNumber, 16);
                 }
             }
 
