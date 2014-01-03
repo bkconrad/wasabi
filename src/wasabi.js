@@ -421,13 +421,13 @@ function makeWasabi() {
             // after that must be Connections to send the invocation on
             for (i = 0; i < conns.length; i++) {
                 if (!(conns[i] instanceof Connection)) {
-                    throw new WasabiError('Expected connection but got ' + conns[i] + '. Did you pass too many arguments to ' + rpc._fn.name + '?');
+                    throw new WasabiError('Expected connection but got ' + conns[i] + '. Did you pass too many arguments to ' + rpc._fn.wasabiFnName + '?');
                 }
             }
 
             // check for argument underflow
             if (args.length < rpc._fn.length) {
-                throw new WasabiError('Too few arguments passed to ' + rpc._fn.name);
+                throw new WasabiError('Too few arguments passed to ' + rpc._fn.wasabiFnName);
             }
 
             // if no Connections are specified, send the invocation to either
