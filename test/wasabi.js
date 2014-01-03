@@ -513,17 +513,17 @@ describe('Wasabi', function () {
         }, WasabiError);
     });
 
-    it('complains when defining an anonymous RPC method', function () {
+    it('uses the key name for anonymous RPC methods', function () {
         var Klass = function Klass() {
             this.dummy = 1;
         };
+
         Klass.prototype.rpcAnonymousMethod = function () {
             this.dummy = 1;
         };
 
-        assert.throws(function () {
-            ws.addClass(Klass);
-        }, WasabiError);
+        ws.addClass(Klass);
+        assert.ok(Klass.prototype.wsbReal_rpcAnonymousMethod.wsbFnName);
     });
 
     it('complains when defining an anonymous static RPC', function () {
