@@ -42,7 +42,7 @@ InDescription.prototype = {
         }
 
         // Write the type specifier to the bitstream
-        this._bitStream.writeUInt(Types.fromString[type], 16);
+        this._bitStream.writeUInt(Types.fromString[type], Types.bitsNeeded);
         // Invoke the appropriate function for the detected type
         this[type](name, bits);
     }

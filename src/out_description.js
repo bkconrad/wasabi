@@ -27,7 +27,7 @@ OutDescription.prototype = {
     },
 
     any: function (name, bits) {
-        var type = this._bitStream.readUInt(16);
+        var type = this._bitStream.readUInt(Types.bitsNeeded);
         this[Types.fromValue[type]](name, bits);
     }
 };

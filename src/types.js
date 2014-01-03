@@ -1,13 +1,13 @@
 /**
  * An enum of types that are serializable by Wasabi
- * @module Types
+ * @class Types
  */
 var iota = 0;
 var fromString = {
-    sint: ++iota,
-    uint: ++iota,
-    float: ++iota,
-    string: ++iota
+    sint: iota++,
+    uint: iota++,
+    float: iota++,
+    string: iota++
 };
 
 var fromValue = {};
@@ -20,7 +20,10 @@ for (k in fromString) {
 
 var Types = {
     fromString: fromString,
-    fromValue: fromValue
+    fromValue: fromValue,
+    // bits needed to encode the type data
+    // ceiling of log base 2 of the number of types
+    bitsNeeded: Math.ceil(Math.log(iota) / Math.log(2))
 };
 
 module.exports = Types;
