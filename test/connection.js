@@ -22,4 +22,8 @@ describe("Connection", function () {
 
         assert.ok(serverConn._sendBitstream.equals(clientConn._receiveBitstream));
     });
+
+    it('tolerates removeGroup called before any groups have been assigned', function () {
+        clientConn.removeGroup(1);
+    });
 });

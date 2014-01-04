@@ -32,7 +32,7 @@ function Connection(socket, ghostFrom, ghostTo, scopeCallback) {
     this._ghostTo = ghostTo || false;
 
     this._scopeCallback = scopeCallback;
-    this._groups = [];
+    this._groups = false;
     this._visibleObjects = {};
 
     // configure socket to dump received data into the receive bitstream
@@ -50,20 +50,24 @@ Connection.prototype = {};
  * @param {Group} group The group to add
  */
 Connection.prototype.addGroup = function (group) {
-    this._groups.push(group);
+    this._groups = this._groups || {};
+    this._groups[group._id] = group;
 };
 
 /**
  * Remove a group from this connection
  * @method removeGroup
- * @param {Group|Number} group The group or index to remove
+ * @param {Group|Number} arg The group or ID to remove
  */
-Connection.prototype.removeGroup = function (group) {
-    var i;
-    for (i = this._groups.length - 1; i >= 0; i--) {
-        if (group === i || this._groups[i] === group) {
-            this._groups.splice(i, 1);
-        }
+Connection.prototype.removeGroup = function (arg) {
+    if (!this._groups) {
+        return;
+    }
+
+    if (typeof arg === 'number') {
+        delete this._groups[arg];
+    } else {
+        delete this._groups[arg._id];
     }
 };
 
@@ -73,15 +77,25 @@ Connection.prototype.removeGroup = function (group) {
  * @return {Object} A hash of serial numbers -> objects
  */
 Connection.prototype.getObjectsInGroups = function () {
-    var i;
-    var k;
+    var id;
+    var group;
+    var serial;
     var obj;
     var result = {};
-    for (i = 0; i < this._groups.length; i++) {
-        for (k in this._groups[i]._objects) {
-            if (this._groups[i]._objects.hasOwnProperty(k)) {
-                obj = this._groups[i]._objects[k];
-                result[obj.wsbSerialNumber] = obj;
+
+    // for each group on this connection
+    for (id in this._groups) {
+        if (this._groups.hasOwnProperty(id)) {
+            group = this._groups[id];
+
+            // for each object in that group
+            for (serial in group._objects) {
+                if (group._objects.hasOwnProperty(serial)) {
+                    obj = group._objects[serial];
+
+                    // add the object to the result
+                    result[obj.wsbSerialNumber] = obj;
+                }
             }
         }
     }

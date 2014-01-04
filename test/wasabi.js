@@ -708,7 +708,8 @@ describe('Wasabi', function () {
         assert.notOk(wc2.registry.getObject(foo1.wsbSerialNumber));
 
         // remove group2 from wc2
-        clientConn2.removeGroup(group2);
+        clientConn2.removeGroup(group2._id);
+        assert.notOk(clientConn2._groups[group2._id]);
 
         ws.processConnections();
         wc1.processConnections();
