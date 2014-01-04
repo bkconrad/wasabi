@@ -609,106 +609,139 @@ describe('Wasabi', function () {
         assert.ok(done);
     });
 
-    it('sends objects in visible groups', function () {
-        var group1 = Wasabi.createGroup();
-        var group2 = Wasabi.createGroup();
+    describe('visibility', function () {
+        var group1;
+        var group2;
 
-        // add the objects to the server
-        ws.addObject(foo1);
-        ws.addObject(foo2);
+        beforeEach(function () {
+            group1 = Wasabi.createGroup();
+            group2 = Wasabi.createGroup();
+            Wasabi.addObject(foo1);
+            Wasabi.addObject(foo2);
+        });
 
-        ws.processConnections();
-        wc1.processConnections();
-        wc2.processConnections();
+        it('sends objects in visible groups', function () {
+            // add the objects to the server
+            ws.addObject(foo1);
+            ws.addObject(foo2);
 
-        // all objects will be sent to all connections by default
-        assert.ok(wc1.registry.getObject(foo1.wsbSerialNumber));
-        assert.ok(wc2.registry.getObject(foo1.wsbSerialNumber));
-        assert.ok(wc1.registry.getObject(foo2.wsbSerialNumber));
-        assert.ok(wc2.registry.getObject(foo2.wsbSerialNumber));
+            ws.processConnections();
+            wc1.processConnections();
+            wc2.processConnections();
 
-        // setting a scope callback can be used to control visibility
-        clientConn1._scopeCallback = function() { return {}; };
-        clientConn2._scopeCallback = function() { return {}; };
+            // all objects will be sent to all connections by default
+            assert.ok(wc1.registry.getObject(foo1.wsbSerialNumber));
+            assert.ok(wc2.registry.getObject(foo1.wsbSerialNumber));
+            assert.ok(wc1.registry.getObject(foo2.wsbSerialNumber));
+            assert.ok(wc2.registry.getObject(foo2.wsbSerialNumber));
+        });
 
-        ws.processConnections();
-        wc1.processConnections();
-        wc2.processConnections();
+        it('supports scope callbacks', function () {
+            // setting a scope callback can be used to control visibility
+            clientConn1._scopeCallback = function () {
+                var result = {};
+                result[foo1.wsbSerialNumber] = foo1;
+                return result;
+            };
 
-        // the callback returns an empty set, so no objects will be visible
-        assert.notOk(wc1.registry.getObject(foo1.wsbSerialNumber));
-        assert.notOk(wc2.registry.getObject(foo1.wsbSerialNumber));
-        assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
-        assert.notOk(wc2.registry.getObject(foo2.wsbSerialNumber));
+            clientConn2._scopeCallback = function () {
+                var result = {};
+                result[foo2.wsbSerialNumber] = foo2;
+                return result;
+            };
 
-        // add the first group to both clients
-        clientConn1.addGroup(group1);
-        clientConn2.addGroup(group1);
+            ws.processConnections();
+            wc1.processConnections();
+            wc2.processConnections();
 
-        // add foo1 to the group 
-        group1.addObject(foo1);
+            // foo1 goes to client1, foo2 goes to client2
+            assert.ok(wc1.registry.getObject(foo1.wsbSerialNumber));
+            assert.notOk(wc2.registry.getObject(foo1.wsbSerialNumber));
+            assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
+            assert.ok(wc2.registry.getObject(foo2.wsbSerialNumber));
+        });
 
-        ws.processConnections();
-        wc1.processConnections();
-        wc2.processConnections();
+        it('supports visibility groups and prefers them to scope callbacks', function () {
+            clientConn1._scopeCallback = function () {
+                var result = {};
+                result[foo1.wsbSerialNumber] = foo1;
+                return result;
+            };
 
-        // adding a group will override any scope callback
-        // foo1 will be sent to both connections
-        assert.ok(wc1.registry.getObject(foo1.wsbSerialNumber));
-        assert.ok(wc2.registry.getObject(foo1.wsbSerialNumber));
+            clientConn2._scopeCallback = function () {
+                var result = {};
+                result[foo2.wsbSerialNumber] = foo2;
+                return result;
+            };
 
+            // add the first group to both clients
+            // adding a group will override any scope callback
+            clientConn1.addGroup(group1);
+            clientConn2.addGroup(group1);
 
-        // unset the scope callbacks
-        delete clientConn1._scopeCallback;
-        delete clientConn2._scopeCallback;
+            // add foo1 to the group 
+            group1.addObject(foo1);
 
-        // remove group2 from wc2
-        clientConn2.removeGroup(group2);
+            ws.processConnections();
+            wc1.processConnections();
+            wc2.processConnections();
 
-        ws.processConnections();
-        wc1.processConnections();
-        wc2.processConnections();
+            // foo1 will be sent to both connections
+            assert.ok(wc1.registry.getObject(foo1.wsbSerialNumber));
+            assert.ok(wc2.registry.getObject(foo1.wsbSerialNumber));
 
-        // foo2 will not be on either
-        assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
-        assert.notOk(wc2.registry.getObject(foo2.wsbSerialNumber));
+            // remove the scope callbacks
+            delete clientConn1._scopeCallback;
+            delete clientConn2._scopeCallback;
 
-        // add foo2 to group2, then group2 to wc2
-        group2.addObject(foo2);
-        clientConn2.addGroup(group2);
+            // remove group2 from wc2
+            clientConn2.removeGroup(group2);
 
-        ws.processConnections();
-        wc1.processConnections();
-        wc2.processConnections();
+            ws.processConnections();
+            wc1.processConnections();
+            wc2.processConnections();
 
-        // foo1 will still be there
-        assert.ok(wc1.registry.getObject(foo1.wsbSerialNumber));
-        assert.ok(wc2.registry.getObject(foo1.wsbSerialNumber));
+            // foo2 will not be on either
+            assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
+            assert.notOk(wc2.registry.getObject(foo2.wsbSerialNumber));
 
-        // foo2 will be on wc2 but not wc1
-        assert.ok(wc2.registry.getObject(foo2.wsbSerialNumber));
-        assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
+            // add foo2 to group2, then group2 to wc2
+            group2.addObject(foo2);
+            clientConn2.addGroup(group2);
 
-        // remove foo1 from group1
-        group1.removeObject(foo1);
+            ws.processConnections();
+            wc1.processConnections();
+            wc2.processConnections();
 
-        ws.processConnections();
-        wc1.processConnections();
-        wc2.processConnections();
+            // foo1 will still be there
+            assert.ok(wc1.registry.getObject(foo1.wsbSerialNumber));
+            assert.ok(wc2.registry.getObject(foo1.wsbSerialNumber));
 
-        // foo1 will no longer be on either instance
-        assert.notOk(wc1.registry.getObject(foo1.wsbSerialNumber));
-        assert.notOk(wc2.registry.getObject(foo1.wsbSerialNumber));
+            // foo2 will be on wc2 but not wc1
+            assert.ok(wc2.registry.getObject(foo2.wsbSerialNumber));
+            assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
 
-        // remove group2 from wc2
-        clientConn2.removeGroup(group2);
+            // remove foo1 from group1
+            group1.removeObject(foo1);
 
-        ws.processConnections();
-        wc1.processConnections();
-        wc2.processConnections();
+            ws.processConnections();
+            wc1.processConnections();
+            wc2.processConnections();
 
-        // foo2 will not be on either
-        assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
-        assert.notOk(wc2.registry.getObject(foo2.wsbSerialNumber));
+            // foo1 will no longer be on either instance
+            assert.notOk(wc1.registry.getObject(foo1.wsbSerialNumber));
+            assert.notOk(wc2.registry.getObject(foo1.wsbSerialNumber));
+
+            // remove group2 from wc2
+            clientConn2.removeGroup(group2);
+
+            ws.processConnections();
+            wc1.processConnections();
+            wc2.processConnections();
+
+            // foo2 will not be on either
+            assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
+            assert.notOk(wc2.registry.getObject(foo2.wsbSerialNumber));
+        });
     });
 });

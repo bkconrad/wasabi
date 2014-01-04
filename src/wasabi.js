@@ -589,10 +589,10 @@ function makeWasabi() {
             if (conn._ghostTo) {
 
                 // get list of objects which are visible this frame
-                if(conn._groups.length) {
+                if (conn._groups.length) {
                     // use visibility groups if at least one has been defined
                     newObjects = conn.getObjectsInGroups();
-                } else if(conn._scopeCallback) {
+                } else if (conn._scopeCallback) {
                     // otherwise look for a scope callback
                     newObjects = conn._scopeCallback();
                 } else {

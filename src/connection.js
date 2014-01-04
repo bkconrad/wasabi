@@ -22,7 +22,7 @@ var Bitstream = require('./bitstream');
 
 function Connection(socket, ghostFrom, ghostTo, scopeCallback) {
     var receiveBitstream = new Bitstream();
-    
+
     this._sendBitstream = new Bitstream();
     this._receiveBitstream = receiveBitstream;
     this._socket = socket;
