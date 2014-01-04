@@ -4,7 +4,7 @@ layout: guide
 category: concepts
 ---
 
-In Wasabi, updating refers to the process of synchronizing a client's version of an object with the server's version of the same object. Updates are sent for all objects in a client's scope during each call to `processConnections`.
+In Wasabi, updating refers to the process of synchronizing a client's version of an object with the server's version of the same object. Updates are sent for all objects visible to a client during each call to `processConnections`.
 
 To control which properties should be synchronized, and how, you must define a
 `serialize` method for your classes.
