@@ -6,7 +6,18 @@ var Wasabi = require('../src/wasabi'),
     MockWasabi = require('./mock_wasabi.js');
 
 describe('Wasabi', function () {
-    var ws, wc1, wc2, server1, client1, server2, client2, bs, foo1, foo2;
+    var ws;
+    var wc1;
+    var wc2;
+    var server1;
+    var client1;
+    var server2;
+    var client2;
+    var bs;
+    var foo1;
+    var foo2;
+    var clientConn1;
+    var clientConn2;
 
     beforeEach(function () {
 
@@ -29,8 +40,8 @@ describe('Wasabi', function () {
         server2.link(client2);
 
         // attach connections
-        ws.addClient(client1);
-        ws.addClient(client2);
+        clientConn1 = ws.addClient(client1);
+        clientConn2 = ws.addClient(client2);
         wc1.addServer(server1);
         wc2.addServer(server2);
 
@@ -327,40 +338,6 @@ describe('Wasabi', function () {
         assert.ok(destroyDone);
     });
 
-    it('queries a callback to determine which netobjects to ghost', function () {
-        ws.addObject(foo1);
-        ws.addObject(foo2);
-
-        // set the scope callback to read from the local variable `scope`
-        var scope = [];
-        ws.clients[0]._scopeCallback = function () {
-            return scope;
-        };
-
-        // foo1 in scope, foo2 is not
-        scope.push(foo1);
-        ws.processConnections();
-        wc1.processConnections();
-        assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
-        assert.equal(wc1.registry.objects[foo2.wsbSerialNumber], undefined);
-
-        // both foo1 and foo2 in scope
-        scope = [];
-        scope.push(foo1);
-        scope.push(foo2);
-        ws.processConnections();
-        wc1.processConnections();
-        assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
-        assert.ok(wc1.registry.objects[foo2.wsbSerialNumber]);
-
-        // neither foo1 nor foo2 in scope
-        scope = [];
-        ws.processConnections();
-        wc1.processConnections();
-        assert.equal(wc1.registry.objects[foo1.wsbSerialNumber], undefined);
-        assert.equal(wc1.registry.objects[foo2.wsbSerialNumber], undefined);
-    });
-
     it('handles prototypal inheritance', function () {
         var bar = new MockWasabi.Bar();
 
@@ -630,5 +607,67 @@ describe('Wasabi', function () {
         wc1.processConnections();
 
         assert.ok(done);
+    });
+
+    it('sends objects in visible groups', function () {
+        var group1 = Wasabi.createGroup();
+        var group2 = Wasabi.createGroup();
+
+        // add the objects to the server
+        ws.addObject(foo1);
+        ws.addObject(foo2);
+
+        // add the first group to both clients
+        clientConn1.addGroup(group1);
+        clientConn2.addGroup(group1);
+
+        // add the group to both connections
+        group1.addObject(foo1);
+
+        ws.processConnections();
+        wc1.processConnections();
+        wc2.processConnections();
+
+        // foo1 will be sent to both connections
+        assert.ok(wc1.registry.getObject(foo1.wsbSerialNumber));
+        assert.ok(wc2.registry.getObject(foo1.wsbSerialNumber));
+
+        // add foo2 to group2, then group2 to wc2
+        group2.addObject(foo2);
+        clientConn2.addGroup(group2);
+
+        ws.processConnections();
+        wc1.processConnections();
+        wc2.processConnections();
+
+        // foo1 will still be there
+        assert.ok(wc1.registry.getObject(foo1.wsbSerialNumber));
+        assert.ok(wc2.registry.getObject(foo1.wsbSerialNumber));
+
+        // foo2 will be on wc2 but not wc1
+        assert.ok(wc2.registry.getObject(foo2.wsbSerialNumber));
+        assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
+
+        // remove foo1 from group1
+        group1.removeObject(foo1);
+
+        ws.processConnections();
+        wc1.processConnections();
+        wc2.processConnections();
+
+        // foo1 will no longer be on either
+        assert.notOk(wc1.registry.getObject(foo1.wsbSerialNumber));
+        assert.notOk(wc2.registry.getObject(foo1.wsbSerialNumber));
+
+        // remove group2 from wc2
+        clientConn2.removeGroup(group2);
+
+        ws.processConnections();
+        wc1.processConnections();
+        wc2.processConnections();
+
+        // foo2 will not be on either
+        assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
+        assert.notOk(wc2.registry.getObject(foo2.wsbSerialNumber));
     });
 });

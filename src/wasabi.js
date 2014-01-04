@@ -1,5 +1,6 @@
 var Bitstream = require('./bitstream');
 var Connection = require('./connection');
+var Group = require('./group');
 var Registry = require('./registry');
 var Rpc = require('./rpc');
 var WasabiError = require('./wasabi_error');
@@ -184,6 +185,15 @@ function makeWasabi() {
                     this._processConnection(this.clients[k]);
                 }
             }
+        },
+
+        /**
+         * Create a new visibility group
+         * @method createGroup
+         * @return {Group} The new group
+         */
+        createGroup: function () {
+            return new Group();
         },
 
         /**
@@ -570,43 +580,46 @@ function makeWasabi() {
             var k;
             var data;
             var newObjects;
-            var newlyInScopeObjects;
-            var newlyOutOfScopeObjects;
+            var newlyVisibleObjects;
+            var newlyInvisibleObjects;
             var oldObjects;
             var section;
 
             // connections with ghostTo set (i.e. clients)
             if (conn._ghostTo) {
 
-                // get list of objects which have come into scope
-                oldObjects = conn._scopeObjects;
-                newObjects = conn._scopeCallback ? conn._scopeCallback() : this._getAllObjects();
-                newlyInScopeObjects = {};
-                newlyOutOfScopeObjects = {};
+                // get list of objects which are visible this frame
+                // if the connection has no groups attached, all objects are visible
+                newObjects = conn._groups.length ? conn.getObjectsInGroups() : this._getAllObjects();
+
+                // list of objects which were visible last frame
+                oldObjects = conn._visibleObjects;
 
                 // an object in newObjects, but not in oldObjects must be newly
-                // in scope this frame
+                // visible this frame
+                newlyVisibleObjects = {};
                 for (k in newObjects) {
                     if (newObjects.hasOwnProperty(k) && oldObjects[k] === undefined) {
-                        newlyInScopeObjects[k] = newObjects[k];
+                        newlyVisibleObjects[k] = newObjects[k];
                     }
                 }
                 // an object in oldObjects, but not in newObjects must be newly
-                // out of scope this frame
+                // invisible this frame
+                newlyInvisibleObjects = {};
                 for (k in oldObjects) {
                     if (oldObjects.hasOwnProperty(k) && newObjects[k] === undefined) {
-                        newlyOutOfScopeObjects[k] = oldObjects[k];
+                        newlyInvisibleObjects[k] = oldObjects[k];
                     }
                 }
 
-                // set the connections new scope object collection
-                conn._scopeObjects = newObjects;
+                // set the connection's visible object collection
+                conn._visibleObjects = newObjects;
 
-                // pack ghosts for newly in-scope objects
+                // pack ghosts for newly visible objects
                 conn._sendBitstream.writeUInt(WSB_SECTION_GHOSTS, 16);
-                this._packGhosts(newlyInScopeObjects, conn._sendBitstream);
+                this._packGhosts(newlyVisibleObjects, conn._sendBitstream);
 
-                // pack updates for all objects in scope this frame
+                // pack updates for all objects visible this frame
                 conn._sendBitstream.writeUInt(WSB_SECTION_UPDATES, 16);
                 this._packUpdates(newObjects, conn._sendBitstream);
             }
@@ -616,9 +629,9 @@ function makeWasabi() {
             conn._rpcQueue = [];
 
             if (conn._ghostTo) {
-                // pack ghost removals for newly out-of-scope objects
+                // pack ghost removals for newly invisible objects
                 conn._sendBitstream.writeUInt(WSB_SECTION_REMOVED_GHOSTS, 16);
-                this._packRemovedGhosts(newlyOutOfScopeObjects, conn._sendBitstream);
+                this._packRemovedGhosts(newlyInvisibleObjects, conn._sendBitstream);
             }
 
             // write a packet terminator
