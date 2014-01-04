@@ -74,13 +74,15 @@ Connection.prototype.removeGroup = function (group) {
  */
 Connection.prototype.getObjectsInGroups = function () {
     var i;
-    var j;
+    var k;
     var obj;
-    var result = {};
+    var result = { };
     for (i = 0; i < this._groups.length; i++) {
-        for (j = 0; j < this._groups[i]._objects.length; j++) {
-            obj = this._groups[i]._objects[j];
-            result[obj.wsbSerialNumber] = obj;
+        for(k in this._groups[i]._objects) {
+            if(this._groups[i]._objects.hasOwnProperty(k)) {
+                obj = this._groups[i]._objects[k];
+                result[obj.wsbSerialNumber] = obj;
+            }
         }
     }
     return result;

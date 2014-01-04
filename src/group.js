@@ -21,31 +21,35 @@ function Group() {
      * @type Array
      * @private
      */
-    this._objects = [];
+    this._objects = {};
 }
 
 /**
- * Add obj to this group
+ * Add an object to this group
  * @method addObject
  * @param {NetObject} obj The NetObject to add to this group. `obj` will be sent
  *     over all connections which have this group.
  */
 Group.prototype.addObject = function (obj) {
-    this._objects.push(obj);
+    this._objects[obj.wsbSerialNumber] = obj;
 };
 
 /**
- * Remove obj from this group
+ * Remove an object from this group
  * @method removeObject
- * @param {NetObject|Number} obj The NetObject or index to remove from this
- *     group. `obj` will be removed from any connection which no longer has it
- *     through any group.
+ * @param {NetObject|Number} obj The NetObject or serial number to remove from
+ *     this group. The object will be removed from any connection which no
+ *     longer has it through any group.
  */
-Group.prototype.removeObject = function (obj) {
-    var i;
-    for (i = this._objects.length - 1; i >= 0; i--) {
-        if (i === obj || this._objects[i] === obj) {
-            this._objects.splice(i, 1);
+Group.prototype.removeObject = function (arg) {
+    var k;
+    if(typeof arg === 'number') {
+        arg = arg.toString();
+    }
+
+    for(k in this._objects) {
+        if(this._objects.hasOwnProperty(k) && (k === arg || this._objects[k] === arg)) {
+            delete this._objects[k];
         }
     }
 };

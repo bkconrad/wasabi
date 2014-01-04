@@ -1,25 +1,36 @@
 var Group = require('../src/group'),
     assert = require('chai').assert;
 
+function sizeof(obj) {
+    var size = 0;
+    var k;
+    for (k in obj) {
+        if (obj.hasOwnProperty(k)) {
+            size++;
+        }
+    }
+    return size; 
+}
+
 describe('Group', function () {
     var obj;
     var group;
     beforeEach(function () {
         group = new Group();
-        obj = {};
+        obj = { wsbSerialNumber: 1 };
         group.addObject(obj);
     });
 
-    it('removes objects by index', function () {
-        assert.strictEqual(group._objects.length, 1);
-        group.removeObject(0);
-        assert.strictEqual(group._objects.length, 0);
+    it('removes objects by serial number', function () {
+        assert.strictEqual(sizeof(group._objects), 1);
+        group.removeObject(obj.wsbSerialNumber);
+        assert.strictEqual(sizeof(group._objects), 0);
     });
 
     it('removes objects by object', function () {
-        assert.strictEqual(group._objects.length, 1);
+        assert.strictEqual(sizeof(group._objects), 1);
         group.removeObject(obj);
-        assert.strictEqual(group._objects.length, 0);
+        assert.strictEqual(sizeof(group._objects), 0);
     });
 
     it('tolerates removing an object it does not have', function () {
