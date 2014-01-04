@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/Connection.html">Connection</a></li>
             
+                <li><a href="../classes/Group.html">Group</a></li>
+            
                 <li><a href="../classes/InDescription.html">InDescription</a></li>
             
                 <li><a href="../classes/OutDescription.html">OutDescription</a></li>
@@ -53,13 +55,13 @@
             
                 <li><a href="../classes/Rpc.html">Rpc</a></li>
             
+                <li><a href="../classes/Types.html">Types</a></li>
+            
                 <li><a href="../classes/Wasabi.html">Wasabi</a></li>
             
             </ul>
 
             <ul id="api-modules" class="apis modules">
-            
-                <li><a href="../modules/Types.html">Types</a></li>
             
             </ul>
         </div>
@@ -102,6 +104,7 @@
     <pre class="code prettyprint linenums">
 var Bitstream = require(&#x27;./bitstream&#x27;);
 var Connection = require(&#x27;./connection&#x27;);
+var Group = require(&#x27;./group&#x27;);
 var Registry = require(&#x27;./registry&#x27;);
 var Rpc = require(&#x27;./rpc&#x27;);
 var WasabiError = require(&#x27;./wasabi_error&#x27;);
@@ -289,6 +292,15 @@ function makeWasabi() {
         },
 
         /**
+         * Create a new visibility group
+         * @method createGroup
+         * @return {Group} The new group
+         */
+        createGroup: function () {
+            return new Group();
+        },
+
+        /**
          * Packs update data for &#x60;obj&#x60; into &#x60;bs&#x60;
          * @method _packUpdate
          * @param {Object} obj The object to pack
@@ -377,11 +389,11 @@ function makeWasabi() {
          * @param {Bitstream} bs The target Bitstream
          */
         _packGhosts: function (objects, bs) {
-            var serial;
+            var i;
             var obj;
-            for (serial in objects) {
-                if (objects.hasOwnProperty(serial)) {
-                    obj = this.registry.getObject(serial);
+            for (i in objects) {
+                if (objects.hasOwnProperty(i)) {
+                    obj = objects[i];
                     this._packGhost(obj, bs);
                 }
             }
@@ -412,10 +424,12 @@ function makeWasabi() {
          * @param {Bitstream} bs The target Bitstream
          */
         _packRemovedGhosts: function (objects, bs) {
-            var serial;
-            for (serial in objects) {
-                if (objects.hasOwnProperty(serial)) {
-                    bs.writeUInt(serial, 16);
+            var k;
+            var obj;
+            for (k in objects) {
+                if (objects.hasOwnProperty(k)) {
+                    obj = objects[k];
+                    bs.writeUInt(obj.wsbSerialNumber, 16);
                 }
             }
 
@@ -523,13 +537,13 @@ function makeWasabi() {
             // after that must be Connections to send the invocation on
             for (i = 0; i &lt; conns.length; i++) {
                 if (!(conns[i] instanceof Connection)) {
-                    throw new WasabiError(&#x27;Expected connection but got &#x27; + conns[i] + &#x27;. Did you pass too many arguments to &#x27; + rpc._fn.name + &#x27;?&#x27;);
+                    throw new WasabiError(&#x27;Expected connection but got &#x27; + conns[i] + &#x27;. Did you pass too many arguments to &#x27; + rpc._fn.wasabiFnName + &#x27;?&#x27;);
                 }
             }
 
             // check for argument underflow
             if (args.length &lt; rpc._fn.length) {
-                throw new WasabiError(&#x27;Too few arguments passed to &#x27; + rpc._fn.name);
+                throw new WasabiError(&#x27;Too few arguments passed to &#x27; + rpc._fn.wasabiFnName);
             }
 
             // if no Connections are specified, send the invocation to either
@@ -670,43 +684,46 @@ function makeWasabi() {
             var k;
             var data;
             var newObjects;
-            var newlyInScopeObjects;
-            var newlyOutOfScopeObjects;
+            var newlyVisibleObjects;
+            var newlyInvisibleObjects;
             var oldObjects;
             var section;
 
             // connections with ghostTo set (i.e. clients)
             if (conn._ghostTo) {
 
-                // get list of objects which have come into scope
-                oldObjects = conn._scopeObjects;
-                newObjects = conn._scopeCallback ? conn._scopeCallback() : this._getAllObjects();
-                newlyInScopeObjects = {};
-                newlyOutOfScopeObjects = {};
+                // get list of objects which are visible this frame
+                // if the connection has no groups attached, all objects are visible
+                newObjects = conn._groups.length ? conn.getObjectsInGroups() : this._getAllObjects();
+
+                // list of objects which were visible last frame
+                oldObjects = conn._visibleObjects;
 
                 // an object in newObjects, but not in oldObjects must be newly
-                // in scope this frame
+                // visible this frame
+                newlyVisibleObjects = {};
                 for (k in newObjects) {
                     if (newObjects.hasOwnProperty(k) &amp;&amp; oldObjects[k] === undefined) {
-                        newlyInScopeObjects[k] = newObjects[k];
+                        newlyVisibleObjects[k] = newObjects[k];
                     }
                 }
                 // an object in oldObjects, but not in newObjects must be newly
-                // out of scope this frame
+                // invisible this frame
+                newlyInvisibleObjects = {};
                 for (k in oldObjects) {
                     if (oldObjects.hasOwnProperty(k) &amp;&amp; newObjects[k] === undefined) {
-                        newlyOutOfScopeObjects[k] = oldObjects[k];
+                        newlyInvisibleObjects[k] = oldObjects[k];
                     }
                 }
 
-                // set the connections new scope object collection
-                conn._scopeObjects = newObjects;
+                // set the connection&#x27;s visible object collection
+                conn._visibleObjects = newObjects;
 
-                // pack ghosts for newly in-scope objects
+                // pack ghosts for newly visible objects
                 conn._sendBitstream.writeUInt(WSB_SECTION_GHOSTS, 16);
-                this._packGhosts(newlyInScopeObjects, conn._sendBitstream);
+                this._packGhosts(newlyVisibleObjects, conn._sendBitstream);
 
-                // pack updates for all objects in scope this frame
+                // pack updates for all objects visible this frame
                 conn._sendBitstream.writeUInt(WSB_SECTION_UPDATES, 16);
                 this._packUpdates(newObjects, conn._sendBitstream);
             }
@@ -716,9 +733,9 @@ function makeWasabi() {
             conn._rpcQueue = [];
 
             if (conn._ghostTo) {
-                // pack ghost removals for newly out-of-scope objects
+                // pack ghost removals for newly invisible objects
                 conn._sendBitstream.writeUInt(WSB_SECTION_REMOVED_GHOSTS, 16);
-                this._packRemovedGhosts(newlyOutOfScopeObjects, conn._sendBitstream);
+                this._packRemovedGhosts(newlyInvisibleObjects, conn._sendBitstream);
             }
 
             // write a packet terminator

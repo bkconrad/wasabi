@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Rpc</title>
+    <title>Group</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -98,7 +98,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>Rpc Class</h1>
+                        <h1>Group Class</h1>
 <div class="box meta">
     
 
@@ -106,7 +106,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/src_rpc.js.html#l1"><code>src&#x2F;rpc.js:1</code></a>
+            Defined in: <a href="../files/src_group.js.html#l1"><code>src&#x2F;group.js:1</code></a>
         </div>
     
 
@@ -118,14 +118,24 @@
 
 
 <div class="box intro">
-    
+    <p>Group of objects used to manage visibility at a per-connection level.
+Connections can have zero or more visibility groups.</p>
+<pre class="code prettyprint"><code>var group = Wasabi.createGroup();
+var conn1 = Wasabi.addClient(socket1);
+var conn2 = Wasabi.addClient(socket2);
+
+conn1.addGroup(group);
+conn2.addGroup(group);
+// foo will be sent to both connections
+group.addObject(foo);</code></pre>
+
 </div>
 
 
     <div class="constructor">
         <h2>Constructor</h2>
-        <div id="method_Rpc" class="method item">
-    <h3 class="name"><code>Rpc</code></h3>
+        <div id="method_Group" class="method item">
+    <h3 class="name"><code>Group</code></h3>
 
     
         <span class="paren">()</span>
@@ -156,7 +166,7 @@
             
         
         
-        <a href="../files/src_rpc.js.html#l1"><code>src&#x2F;rpc.js:1</code></a>
+        <a href="../files/src_group.js.html#l1"><code>src&#x2F;group.js:1</code></a>
         
         </p>
 
@@ -188,6 +198,8 @@
             <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
         
         
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
+        
         
         
     </ul>
@@ -203,23 +215,31 @@
                     <ul class="index-list methods">
                         
                             <li class="index-item method">
-                                <a href="#method__makeDefaultSerialize">_makeDefaultSerialize</a>
-
-                                
-                                    <span class="flag static">static</span>
-                                
-                                
-                            </li>
-                        
-                            <li class="index-item method private">
-                                <a href="#method__populateIndexes">_populateIndexes</a>
+                                <a href="#method_addObject">addObject</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method private">
-                                <a href="#method__populateKeys">_populateKeys</a>
+                            <li class="index-item method">
+                                <a href="#method_removeObject">removeObject</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties">
+                        
+                            <li class="index-item property private">
+                                <a href="#property__objects">_objects</a>
 
                                 
                                 
@@ -232,8 +252,6 @@
             
 
             
-
-            
         </div>
 
         
@@ -241,118 +259,8 @@
                 <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="method__makeDefaultSerialize" class="method item">
-    <h3 class="name"><code>_makeDefaultSerialize</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>nargs</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-        <span class="returns-inline">
-            <span class="type"></span>
-        </span>
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="flag static">static</span>
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/src_rpc.js.html#l65"><code>src&#x2F;rpc.js:65</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Creates a default serialization function for an RPC definition when no args
-function is supplied. The resultant function simply calls <code>desc.any(i, 16)</code>
-the appropriate number of times. This means that by default, RPC arguments
-have 16 bit precision.</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">nargs</code>
-                        <span class="type">Number</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>The number of arguments to serialize</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                
-                    
-                    <p>The serialize function</p>
-
-                
-            </div>
-        </div>
-    
-
-    
-</div>
-
-                
-                    <div id="method__populateIndexes" class="method item private">
-    <h3 class="name"><code>_populateIndexes</code></h3>
+                    <div id="method_addObject" class="method item">
+    <h3 class="name"><code>addObject</code></h3>
 
     
         <div class="args">
@@ -373,8 +281,6 @@ have 16 bit precision.</p>
     
 
     
-        <span class="flag private">private</span>
-    
 
     
 
@@ -395,7 +301,7 @@ have 16 bit precision.</p>
             
         
         
-        <a href="../files/src_rpc.js.html#l48"><code>src&#x2F;rpc.js:48</code></a>
+        <a href="../files/src_group.js.html#l27"><code>src&#x2F;group.js:27</code></a>
         
         </p>
 
@@ -406,9 +312,7 @@ have 16 bit precision.</p>
     </div>
 
     <div class="description">
-        <p>Populate <code>obj</code> with keys corresponding to the names of the argument in the
-nth position of the original function and values from the indexed values in
-<code>obj</code></p>
+        <p>Add obj to this group</p>
 
     </div>
 
@@ -421,13 +325,14 @@ nth position of the original function and values from the indexed values in
                 <li class="param">
                     
                         <code class="param-name">obj</code>
-                        <span class="type">Object</span>
+                        <span class="type">NetObject</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>The target object containing indexed values</p>
+                        <p>The NetObject to add to this group. <code>obj</code> will be sent
+    over all connections which have this group.</p>
 
                     </div>
 
@@ -444,8 +349,8 @@ nth position of the original function and values from the indexed values in
 </div>
 
                 
-                    <div id="method__populateKeys" class="method item private">
-    <h3 class="name"><code>_populateKeys</code></h3>
+                    <div id="method_removeObject" class="method item">
+    <h3 class="name"><code>removeObject</code></h3>
 
     
         <div class="args">
@@ -466,8 +371,6 @@ nth position of the original function and values from the indexed values in
     
 
     
-        <span class="flag private">private</span>
-    
 
     
 
@@ -488,7 +391,7 @@ nth position of the original function and values from the indexed values in
             
         
         
-        <a href="../files/src_rpc.js.html#l33"><code>src&#x2F;rpc.js:33</code></a>
+        <a href="../files/src_group.js.html#l37"><code>src&#x2F;group.js:37</code></a>
         
         </p>
 
@@ -499,9 +402,7 @@ nth position of the original function and values from the indexed values in
     </div>
 
     <div class="description">
-        <p>Populate <code>obj</code> with keys corresponding to the names of the argument in the
-nth position of the original function and values from the indexed values in
-<code>obj</code></p>
+        <p>Remove obj from this group</p>
 
     </div>
 
@@ -514,13 +415,15 @@ nth position of the original function and values from the indexed values in
                 <li class="param">
                     
                         <code class="param-name">obj</code>
-                        <span class="type">Object</span>
+                        <span class="type">NetObject | Number</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>The target object containing indexed values</p>
+                        <p>The NetObject or index to remove from this
+    group. <code>obj</code> will be removed from any connection which no longer has it
+    through any group.</p>
 
                     </div>
 
@@ -540,6 +443,59 @@ nth position of the original function and values from the indexed values in
             </div>
         
 
+        
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
+
+                
+                    <div id="property__objects" class="property item private">
+    <h3 class="name"><code>_objects</code></h3>
+    <span class="type">Array</span>
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_group.js.html#l18"><code>src&#x2F;group.js:18</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The objects contained in this group</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
         
 
         

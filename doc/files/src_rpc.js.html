@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/Connection.html">Connection</a></li>
             
+                <li><a href="../classes/Group.html">Group</a></li>
+            
                 <li><a href="../classes/InDescription.html">InDescription</a></li>
             
                 <li><a href="../classes/OutDescription.html">OutDescription</a></li>
@@ -53,13 +55,13 @@
             
                 <li><a href="../classes/Rpc.html">Rpc</a></li>
             
+                <li><a href="../classes/Types.html">Types</a></li>
+            
                 <li><a href="../classes/Wasabi.html">Wasabi</a></li>
             
             </ul>
 
             <ul id="api-modules" class="apis modules">
-            
-                <li><a href="../modules/Types.html">Types</a></li>
             
             </ul>
         </div>
@@ -114,9 +116,12 @@ function Rpc(fn, klass, serialize) {
     // for server -&gt; client, or c2s for client -&gt; server
     this._toClient = false;
     this._toServer = false;
-    if (/^s2c/.test(fn.name)) {
+
+    var name = fn.name || fn.wasabiFnName;
+
+    if (/^s2c/.test(name)) {
         this._toClient = true;
-    } else if (/^c2s/.test(fn.name)) {
+    } else if (/^c2s/.test(name)) {
         this._toServer = true;
     } else {
         this._toClient = true;

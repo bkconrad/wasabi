@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/Connection.html">Connection</a></li>
             
+                <li><a href="../classes/Group.html">Group</a></li>
+            
                 <li><a href="../classes/InDescription.html">InDescription</a></li>
             
                 <li><a href="../classes/OutDescription.html">OutDescription</a></li>
@@ -53,13 +55,13 @@
             
                 <li><a href="../classes/Rpc.html">Rpc</a></li>
             
+                <li><a href="../classes/Types.html">Types</a></li>
+            
                 <li><a href="../classes/Wasabi.html">Wasabi</a></li>
             
             </ul>
 
             <ul id="api-modules" class="apis modules">
-            
-                <li><a href="../modules/Types.html">Types</a></li>
             
             </ul>
         </div>
@@ -109,10 +111,6 @@
     
 
     
-        
-            Module: <a href="../modules/Types.html">Types</a>
-        
-    
 
     
 </div>
@@ -120,14 +118,20 @@
 
 
 <div class="box intro">
-    <p>Represents a connection to another Wasabi instance</p>
+    <p>Represents a connection to another Wasabi instance.</p>
+<p>Connections are sent objects according to their visibility groups, which can
+be set using <code>addGroup</code> and <code>removeGroup</code>, and created with
+<code>Wasabi.createGroup</code>. Connections start with no visibility groups. A
+connection with zero visibility groups will be sent <strong>all</strong> objects known to
+its Wasabi instance. If you want to send <strong>no</strong> objects to a connection, add
+an empty group to it.</p>
 
 </div>
 
 
     <div class="constructor">
         <h2>Constructor</h2>
-        <div id="method_Connection" class="method item">
+        <div id="method_Connection" class="method item private">
     <h3 class="name"><code>Connection</code></h3>
 
     
@@ -152,12 +156,6 @@
                     
                 </li>
             
-                <li class="arg">
-                    
-                        <code>scopeCallback</code>
-                    
-                </li>
-            
             </ul><span class="paren">)</span>
         </div>
     
@@ -166,6 +164,8 @@
 
     
 
+    
+        <span class="flag private">private</span>
     
 
     
@@ -256,24 +256,6 @@
                     
                 </li>
             
-                <li class="param">
-                    
-                        <code class="param-name">scopeCallback</code>
-                        <span class="type">Function</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>The function to call in order to determine
-    which local objects are in scope for this client. This function takes no
-    parameters and should return an Array of NetObjects in scope.</p>
-
-                    </div>
-
-                    
-                </li>
-            
             </ul>
         </div>
     
@@ -291,6 +273,8 @@
         <li class="api-class-tab index"><a href="#index">Index</a></li>
 
         
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+        
         
         
         
@@ -301,6 +285,35 @@
             <h2 class="off-left">Item Index</h2>
 
             
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods">
+                        
+                            <li class="index-item method">
+                                <a href="#method_addGroup">addGroup</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_getObjectsInGroups">getObjectsInGroups</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_removeGroup">removeGroup</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
 
             
 
@@ -309,6 +322,263 @@
             
         </div>
 
+        
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method_addGroup" class="method item">
+    <h3 class="name"><code>addGroup</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>group</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_connection.js.html#l44"><code>src&#x2F;connection.js:44</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Add a group to this connection</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">group</code>
+                        <span class="type"><a href="../classes/Group.html" class="crosslink">Group</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The group to add</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_getObjectsInGroups" class="method item">
+    <h3 class="name"><code>getObjectsInGroups</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_connection.js.html#l67"><code>src&#x2F;connection.js:67</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Get a collection of all objects in the connection&#39;s groups</p>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    <p>A hash of serial numbers -&gt; objects</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_removeGroup" class="method item">
+    <h3 class="name"><code>removeGroup</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>group</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/src_connection.js.html#l53"><code>src&#x2F;connection.js:53</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Remove a group from this connection</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">group</code>
+                        <span class="type"><a href="../classes/Group.html" class="crosslink">Group</a> | Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The group or index to remove</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
         
 
         

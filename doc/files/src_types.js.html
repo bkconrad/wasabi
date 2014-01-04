@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/Connection.html">Connection</a></li>
             
+                <li><a href="../classes/Group.html">Group</a></li>
+            
                 <li><a href="../classes/InDescription.html">InDescription</a></li>
             
                 <li><a href="../classes/OutDescription.html">OutDescription</a></li>
@@ -53,13 +55,13 @@
             
                 <li><a href="../classes/Rpc.html">Rpc</a></li>
             
+                <li><a href="../classes/Types.html">Types</a></li>
+            
                 <li><a href="../classes/Wasabi.html">Wasabi</a></li>
             
             </ul>
 
             <ul id="api-modules" class="apis modules">
-            
-                <li><a href="../modules/Types.html">Types</a></li>
             
             </ul>
         </div>
@@ -102,14 +104,14 @@
     <pre class="code prettyprint linenums">
 /**
  * An enum of types that are serializable by Wasabi
- * @module Types
+ * @class Types
  */
 var iota = 0;
 var fromString = {
-    sint: ++iota,
-    uint: ++iota,
-    float: ++iota,
-    string: ++iota
+    sint: iota++,
+    uint: iota++,
+    float: iota++,
+    string: iota++
 };
 
 var fromValue = {};
@@ -122,7 +124,10 @@ for (k in fromString) {
 
 var Types = {
     fromString: fromString,
-    fromValue: fromValue
+    fromValue: fromValue,
+    // bits needed to encode the type data
+    // ceiling of log base 2 of the number of types
+    bitsNeeded: Math.ceil(Math.log(iota) / Math.log(2))
 };
 
 module.exports = Types;

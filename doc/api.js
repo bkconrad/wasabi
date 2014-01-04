@@ -3,21 +3,15 @@ YUI.add("yuidoc-meta", function(Y) {
     "classes": [
         "Bitstream",
         "Connection",
+        "Group",
         "InDescription",
         "OutDescription",
         "Registry",
         "Rpc",
+        "Types",
         "Wasabi"
     ],
-    "modules": [
-        "Types"
-    ],
-    "allModules": [
-        {
-            "displayName": "Types",
-            "name": "Types",
-            "description": "An enum of types that are serializable by Wasabi"
-        }
-    ]
+    "modules": [],
+    "allModules": []
 } };
 });

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>InDescription</title>
+    <title>src/group.js</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -98,120 +98,64 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>InDescription Class</h1>
-<div class="box meta">
-    
+                        <h1 class="file-heading">File: src/group.js</h1>
 
-    
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+ * Group of objects used to manage visibility at a per-connection level.
+ * Connections can have zero or more visibility groups.
+ *
+ *     var group = Wasabi.createGroup();
+ *     var conn1 = Wasabi.addClient(socket1);
+ *     var conn2 = Wasabi.addClient(socket2);
+ *
+ *     conn1.addGroup(group);
+ *     conn2.addGroup(group);
+ *     // foo will be sent to both connections
+ *     group.addObject(foo);
+ *
+ * @class Group
+ * @constructor
+ */
+function Group() {
+    /**
+     * The objects contained in this group
+     * @property _objects
+     * @type Array
+     * @private
+     */
+    this._objects = [];
+}
 
-    
-        <div class="foundat">
-            Defined in: <a href="../files/src_in_description.js.html#l4"><code>src&#x2F;in_description.js:4</code></a>
-        </div>
-    
+/**
+ * Add obj to this group
+ * @method addObject
+ * @param {NetObject} obj The NetObject to add to this group. &#x60;obj&#x60; will be sent
+ *     over all connections which have this group.
+ */
+Group.prototype.addObject = function (obj) {
+    this._objects.push(obj);
+};
 
-    
+/**
+ * Remove obj from this group
+ * @method removeObject
+ * @param {NetObject|Number} obj The NetObject or index to remove from this
+ *     group. &#x60;obj&#x60; will be removed from any connection which no longer has it
+ *     through any group.
+ */
+Group.prototype.removeObject = function (obj) {
+    var i;
+    for (i = this._objects.length - 1; i &gt;= 0; i--) {
+        if (i === obj || this._objects[i] === obj) {
+            this._objects.splice(i, 1);
+        }
+    }
+};
 
-    
-</div>
-
-
-
-<div class="box intro">
-    <p>A class which packs an object when passed to its .serialize function</p>
-
-</div>
-
-
-    <div class="constructor">
-        <h2>Constructor</h2>
-        <div id="method_InDescription" class="method item">
-    <h3 class="name"><code>InDescription</code></h3>
-
-    
-        <span class="paren">()</span>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/src_in_description.js.html#l4"><code>src&#x2F;in_description.js:4</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        
-    </div>
-
-    
-
-    
-
-    
-</div>
-
-    </div>
-
-
-<div id="classdocs" class="tabview">
-    <ul class="api-class-tabs">
-        <li class="api-class-tab index"><a href="#index">Index</a></li>
-
-        
-        
-        
-        
-    </ul>
-
-    <div>
-        <div id="index" class="api-class-tabpanel index">
-            <h2 class="off-left">Item Index</h2>
-
-            
-
-            
-
-            
-
-            
-        </div>
-
-        
-
-        
-
-        
-
-        
-    </div>
+module.exports = Group;
+    </pre>
 </div>
 
                     </div>
