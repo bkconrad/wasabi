@@ -18,6 +18,7 @@ var conn = Wasabi.addClient(socket);
 var group = Wasabi.createGroup();
 var player = new Player();
 
+Wasabi.addObject(player);
 group.addObject(player);
 conn.addGroup(group);
 
