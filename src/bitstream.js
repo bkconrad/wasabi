@@ -386,7 +386,6 @@ Bitstream.prototype = {
      * @private
      */
     _serialize: function (desc) {
-        debugger;
         // We'll walk the prototype chain looking for .serialize methods,
         // and call them in order from child-most to parent-most
         var proto = Object.getPrototypeOf(desc._target);

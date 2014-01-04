@@ -153,7 +153,7 @@ describe('Wasabi', function () {
         assert.ok(remoteObj.nonexistantObj);
     });
 
-    it('encodes objects in rpc arguments', function(done) {
+    it('encodes objects in rpc arguments', function (done) {
         var sourceObj = {
             foo: 1,
             subobject: {
@@ -173,7 +173,7 @@ describe('Wasabi', function () {
 
         ws.processConnections();
         wc1.processConnections();
-    })
+    });
 
     it('orchestrates packing/unpacking data automatically in an update function', function () {
         var foo = new MockWasabi.Foo();
