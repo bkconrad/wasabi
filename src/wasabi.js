@@ -563,9 +563,9 @@ function makeWasabi() {
         _getAllObjects: function () {
             var result = {};
             var k;
-            for (k in this.registry.objects) {
-                if (this.registry.objects.hasOwnProperty(k)) {
-                    result[k] = this.registry.objects[k];
+            for (k in this.registry._objects) {
+                if (this.registry._objects.hasOwnProperty(k)) {
+                    result[k] = this.registry._objects[k];
                 }
             }
             return result;

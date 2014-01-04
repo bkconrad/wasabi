@@ -42,17 +42,15 @@ function _parseFunctionName(fn) {
  */
 
 function Registry() {
-    // hash <-> klass
-    this.klassToHash = {};
-    this.hashToKlass = {};
+    // klasses by hash
+    this._klasses = {};
 
-    // hash <-> RPC
-    this.rpcToHash = {};
-    this.hashToRpc = {};
+    // rpcs by hash
+    this._rpcs = {};
 
     // objects by serial number
-    this.objects = {};
-    this.nextSerialNumber = 1;
+    this._objects = {};
+    this._nextSerialNumber = 1;
 }
 
 Registry.prototype = {
@@ -115,13 +113,12 @@ Registry.prototype = {
         hash = this.hash(klass);
 
         // detect hash collisions (library error) or class redefinition (user error)
-        if (this.hashToKlass[hash] !== undefined) {
+        if (this._klasses[hash] !== undefined) {
             throw new WasabiError('Invalid attempt to redefine class ' + klass.name + ' with hash ' + hash);
         }
 
         // add the klass to the hash map
-        this.klassToHash[klass] = hash;
-        this.hashToKlass[hash] = klass;
+        this._klasses[hash] = klass;
 
         // register this class's RPCs
         for (k in klass.prototype) {
@@ -182,16 +179,13 @@ Registry.prototype = {
         }
 
         // detect hash collisions (library error) or class redefinition (user error)
-        if (this.hashToRpc[hash] !== undefined) {
+        if (this._rpcs[hash] !== undefined) {
             throw new WasabiError('Invalid attempt to redefine RPC ' + (klass ? klass.name + '#' : '') + fn.name + ' with hash ' + hash);
         }
 
         // create a new RPC definition
         rpc = new Rpc(fn, klass, serialize);
-
-        // update the hash <-> rpc mapping
-        this.rpcToHash[rpc] = hash;
-        this.hashToRpc[hash] = rpc;
+        this._rpcs[hash] = rpc;
 
         // if klass is truthy, create a method RPC. `this` will refer to the
         // object which the RPC is invoked on locally, and we should send the
@@ -213,12 +207,14 @@ Registry.prototype = {
      * @method addObject
      * @param {NetObject} obj The object to add to the registry
      * @param {Nunmber} serial The serial number to assign to this object. If
-     *     falsy, the nextSerialNumber will be used
+     *     falsy, the next serial number will be used
      */
     addObject: function (obj, serial) {
-        obj.wsbSerialNumber = serial || this.nextSerialNumber;
-        this.nextSerialNumber += 1;
-        this.objects[obj.wsbSerialNumber] = obj;
+        if (!obj.wsbSerialNumber) {
+            obj.wsbSerialNumber = serial || this._nextSerialNumber++;
+        }
+
+        this._objects[obj.wsbSerialNumber] = obj;
     },
 
     /**
@@ -228,41 +224,40 @@ Registry.prototype = {
      *     remove from the registry
      */
     removeObject: function (arg) {
-        var k;
         if (typeof arg === 'number') {
-            delete this.objects[arg];
+            // by serial number
+            delete this._objects[arg];
         } else {
-            for (k in this.objects) {
-                if (this.objects.hasOwnProperty(k) && this.objects[k] === arg) {
-                    delete this.objects[k];
-                    return;
-                }
-            }
+            // by reference
+            delete this._objects[arg.wsbSerialNumber];
         }
     },
 
     /**
      * Get an instance of a klass by serial number
+     * @param {Number} serial The serial number to look up
      * @method getObject
      */
     getObject: function (serial) {
-        return this.objects[serial];
+        return this._objects[serial];
     },
 
     /**
      * Get the function/constructor/klass represented by the given hash
+     * @param {Number} hash The hash number to look up
      * @method getClass
      */
     getClass: function (hash) {
-        return this.hashToKlass[hash];
+        return this._klasses[hash];
     },
 
     /**
      * get the RPC function associated with the hash
+     * @param {Number} hash The hash number to look up
      * @method getRpc
      */
     getRpc: function (hash) {
-        return this.hashToRpc[hash];
+        return this._rpcs[hash];
     }
 };
 

@@ -83,7 +83,7 @@ describe('Wasabi', function () {
         bs._index = 0;
         wc1._unpackGhost(bs);
         wc1._unpackUpdates(bs);
-        assert.ok(wc1.registry.objects[foo.wsbSerialNumber]);
+        assert.ok(wc1.registry._objects[foo.wsbSerialNumber]);
     });
 
     it('packs and unpacks properly to out-of-sync registries', function () {
@@ -95,7 +95,7 @@ describe('Wasabi', function () {
         ws._packGhost(foo, bs);
         bs._index = 0;
         wc1._unpackGhost(bs);
-        assert.ok(wc1.registry.objects[foo.wsbSerialNumber]);
+        assert.ok(wc1.registry._objects[foo.wsbSerialNumber]);
     });
 
     it('calls RPCs from servers to clients on an associated netobject', function () {
@@ -105,8 +105,8 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
-        assert.equal(wc1.registry.objects[foo1.wsbSerialNumber].testval, 1337);
+        assert.ok(wc1.registry._objects[foo1.wsbSerialNumber]);
+        assert.equal(wc1.registry._objects[foo1.wsbSerialNumber].testval, 1337);
     });
 
     it('supports calling RPCs and removing their subject in the same frame', function () {
@@ -115,7 +115,7 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
+        assert.ok(wc1.registry._objects[foo1.wsbSerialNumber]);
 
         foo1.rpcTest(1337);
         ws.removeObject(foo1);
@@ -139,7 +139,7 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        wc1.registry.objects[foo1.wsbSerialNumber].rpcTest(1337);
+        wc1.registry._objects[foo1.wsbSerialNumber].rpcTest(1337);
 
         wc1.processConnections();
         ws.processConnections();
@@ -175,7 +175,7 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        assert.ok(wc1.registry.objects[obj.wsbSerialNumber]);
+        assert.ok(wc1.registry._objects[obj.wsbSerialNumber]);
     });
 
     it('automatically manages ghosting and updates', function () {
@@ -185,11 +185,11 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        var remoteFoo = wc1.registry.objects[foo1.wsbSerialNumber];
+        var remoteFoo = wc1.registry._objects[foo1.wsbSerialNumber];
         assert.ok(remoteFoo.wsbIsGhost);
         assert.notOk(foo1.wsbIsGhost);
         assert.equal(foo1.uintfoo, remoteFoo.uintfoo);
-        assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
+        assert.equal(ws.registry._objects.length, wc1.registry._objects.length);
 
         foo2.uintfoo = 1234;
         ws.addObject(foo2);
@@ -197,9 +197,9 @@ describe('Wasabi', function () {
         ws.processConnections();
         wc1.processConnections();
 
-        assert.ok(wc1.registry.objects[foo2.wsbSerialNumber]);
-        assert.equal(foo2.uintfoo, wc1.registry.objects[foo2.wsbSerialNumber].uintfoo);
-        assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
+        assert.ok(wc1.registry._objects[foo2.wsbSerialNumber]);
+        assert.equal(foo2.uintfoo, wc1.registry._objects[foo2.wsbSerialNumber].uintfoo);
+        assert.equal(ws.registry._objects.length, wc1.registry._objects.length);
     });
 
     it('can handle multiple foreign processConnection calls with a single local processConnection', function () {
@@ -213,13 +213,13 @@ describe('Wasabi', function () {
 
         wc1.processConnections();
 
-        assert.ok(wc1.registry.objects[foo1.wsbSerialNumber]);
-        assert.equal(foo1.uintfoo, wc1.registry.objects[foo1.wsbSerialNumber].uintfoo);
-        assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
+        assert.ok(wc1.registry._objects[foo1.wsbSerialNumber]);
+        assert.equal(foo1.uintfoo, wc1.registry._objects[foo1.wsbSerialNumber].uintfoo);
+        assert.equal(ws.registry._objects.length, wc1.registry._objects.length);
 
-        assert.ok(wc1.registry.objects[foo2.wsbSerialNumber]);
-        assert.equal(foo2.uintfoo, wc1.registry.objects[foo2.wsbSerialNumber].uintfoo);
-        assert.equal(ws.registry.objects.length, wc1.registry.objects.length);
+        assert.ok(wc1.registry._objects[foo2.wsbSerialNumber]);
+        assert.equal(foo2.uintfoo, wc1.registry._objects[foo2.wsbSerialNumber].uintfoo);
+        assert.equal(ws.registry._objects.length, wc1.registry._objects.length);
     });
 
     it('calls static RPCs without any associated object', function (done) {
