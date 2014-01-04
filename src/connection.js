@@ -20,18 +20,20 @@ var Bitstream = require('./bitstream');
  * @private
  */
 
-function Connection(socket, ghostFrom, ghostTo) {
+function Connection(socket, ghostFrom, ghostTo, scopeCallback) {
     var receiveBitstream = new Bitstream();
-
-    this._socket = socket;
-    this._rpcQueue = [];
+    
     this._sendBitstream = new Bitstream();
     this._receiveBitstream = receiveBitstream;
+    this._socket = socket;
+    this._rpcQueue = [];
+
     this._ghostFrom = ghostFrom || false;
     this._ghostTo = ghostTo || false;
 
-    this._visibleObjects = {};
+    this._scopeCallback = scopeCallback;
     this._groups = [];
+    this._visibleObjects = {};
 
     // configure socket to dump received data into the receive bitstream
     // currently assumes that it receives a socket.io socket
@@ -41,6 +43,7 @@ function Connection(socket, ghostFrom, ghostTo) {
 }
 
 Connection.prototype = {};
+
 /**
  * Add a group to this connection
  * @method addGroup

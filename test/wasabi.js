@@ -617,20 +617,61 @@ describe('Wasabi', function () {
         ws.addObject(foo1);
         ws.addObject(foo2);
 
+        ws.processConnections();
+        wc1.processConnections();
+        wc2.processConnections();
+
+        // all objects will be sent to all connections by default
+        assert.ok(wc1.registry.getObject(foo1.wsbSerialNumber));
+        assert.ok(wc2.registry.getObject(foo1.wsbSerialNumber));
+        assert.ok(wc1.registry.getObject(foo2.wsbSerialNumber));
+        assert.ok(wc2.registry.getObject(foo2.wsbSerialNumber));
+
+        // setting a scope callback can be used to control visibility
+        clientConn1._scopeCallback = function() { return {}; };
+        clientConn2._scopeCallback = function() { return {}; };
+
+        ws.processConnections();
+        wc1.processConnections();
+        wc2.processConnections();
+
+        // the callback returns an empty set, so no objects will be visible
+        assert.notOk(wc1.registry.getObject(foo1.wsbSerialNumber));
+        assert.notOk(wc2.registry.getObject(foo1.wsbSerialNumber));
+        assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
+        assert.notOk(wc2.registry.getObject(foo2.wsbSerialNumber));
+
         // add the first group to both clients
         clientConn1.addGroup(group1);
         clientConn2.addGroup(group1);
 
-        // add the group to both connections
+        // add foo1 to the group 
         group1.addObject(foo1);
 
         ws.processConnections();
         wc1.processConnections();
         wc2.processConnections();
 
+        // adding a group will override any scope callback
         // foo1 will be sent to both connections
         assert.ok(wc1.registry.getObject(foo1.wsbSerialNumber));
         assert.ok(wc2.registry.getObject(foo1.wsbSerialNumber));
+
+
+        // unset the scope callbacks
+        delete clientConn1._scopeCallback;
+        delete clientConn2._scopeCallback;
+
+        // remove group2 from wc2
+        clientConn2.removeGroup(group2);
+
+        ws.processConnections();
+        wc1.processConnections();
+        wc2.processConnections();
+
+        // foo2 will not be on either
+        assert.notOk(wc1.registry.getObject(foo2.wsbSerialNumber));
+        assert.notOk(wc2.registry.getObject(foo2.wsbSerialNumber));
 
         // add foo2 to group2, then group2 to wc2
         group2.addObject(foo2);
@@ -655,7 +696,7 @@ describe('Wasabi', function () {
         wc1.processConnections();
         wc2.processConnections();
 
-        // foo1 will no longer be on either
+        // foo1 will no longer be on either instance
         assert.notOk(wc1.registry.getObject(foo1.wsbSerialNumber));
         assert.notOk(wc2.registry.getObject(foo1.wsbSerialNumber));
 

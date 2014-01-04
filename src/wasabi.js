@@ -589,8 +589,16 @@ function makeWasabi() {
             if (conn._ghostTo) {
 
                 // get list of objects which are visible this frame
-                // if the connection has no groups attached, all objects are visible
-                newObjects = conn._groups.length ? conn.getObjectsInGroups() : this._getAllObjects();
+                if(conn._groups.length) {
+                    // use visibility groups if at least one has been defined
+                    newObjects = conn.getObjectsInGroups();
+                } else if(conn._scopeCallback) {
+                    // otherwise look for a scope callback
+                    newObjects = conn._scopeCallback();
+                } else {
+                    // if neither is set, default to sending all objects
+                    newObjects = this._getAllObjects();
+                }
 
                 // list of objects which were visible last frame
                 oldObjects = conn._visibleObjects;
