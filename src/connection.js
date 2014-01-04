@@ -76,10 +76,10 @@ Connection.prototype.getObjectsInGroups = function () {
     var i;
     var k;
     var obj;
-    var result = { };
+    var result = {};
     for (i = 0; i < this._groups.length; i++) {
-        for(k in this._groups[i]._objects) {
-            if(this._groups[i]._objects.hasOwnProperty(k)) {
+        for (k in this._groups[i]._objects) {
+            if (this._groups[i]._objects.hasOwnProperty(k)) {
                 obj = this._groups[i]._objects[k];
                 result[obj.wsbSerialNumber] = obj;
             }

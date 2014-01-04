@@ -13,8 +13,10 @@
  *
  * @class Group
  * @constructor
+ * @param instance {Wasabi} The instance to set as this group's owner
+ * @type Wasabi
  */
-function Group() {
+function Group(instance) {
     /**
      * The objects contained in this group
      * @property _objects
@@ -22,7 +24,19 @@ function Group() {
      * @private
      */
     this._objects = {};
+
+    /**
+     * The instance which owns this Group
+     * @property _instance
+     * @type Wasabi
+     * @private
+     */
+    this._instance = instance;
+
+    this._id = Group.nextIdNumber++;
 }
+
+Group.nextIdNumber = 0;
 
 /**
  * Add an object to this group
@@ -31,6 +45,7 @@ function Group() {
  *     over all connections which have this group.
  */
 Group.prototype.addObject = function (obj) {
+    this._instance.addObject(obj);
     this._objects[obj.wsbSerialNumber] = obj;
 };
 
@@ -42,15 +57,12 @@ Group.prototype.addObject = function (obj) {
  *     longer has it through any group.
  */
 Group.prototype.removeObject = function (arg) {
-    var k;
-    if(typeof arg === 'number') {
-        arg = arg.toString();
-    }
-
-    for(k in this._objects) {
-        if(this._objects.hasOwnProperty(k) && (k === arg || this._objects[k] === arg)) {
-            delete this._objects[k];
-        }
+    if (typeof arg === 'number') {
+        // remove by serial number
+        delete this._objects[arg];
+    } else if (typeof arg === 'object') {
+        // remove by object
+        delete this._objects[arg.wsbSerialNumber];
     }
 };
 

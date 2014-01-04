@@ -1,4 +1,5 @@
 var Group = require('../src/group'),
+    Wasabi = require('../src/wasabi'),
     assert = require('chai').assert;
 
 function sizeof(obj) {
@@ -9,15 +10,19 @@ function sizeof(obj) {
             size++;
         }
     }
-    return size; 
+    return size;
 }
 
 describe('Group', function () {
     var obj;
     var group;
+    var ws = Wasabi.makeWasabi();
+
     beforeEach(function () {
-        group = new Group();
-        obj = { wsbSerialNumber: 1 };
+        group = ws.createGroup();
+        obj = {
+            wsbSerialNumber: 1
+        };
         group.addObject(obj);
     });
 

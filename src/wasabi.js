@@ -47,6 +47,7 @@ function makeWasabi() {
         servers: [],
         clients: [],
         _rpcQueue: [],
+        _groups: {},
 
         /**
          * Register a class with Wasabi, allowing it to transmit instances of
@@ -80,11 +81,19 @@ function makeWasabi() {
         /**
          * Unregister an instance of a klass
          * @method removeObject
-         * @param {mixed} arg Either a NetObject or a serial number to be
-         * removed from the registry
+         * @param {NetObject|Number} arg Either a NetObject or a serial number
+         *     to be removed from the registry
          */
         removeObject: function (arg) {
+            var k;
             this.registry.removeObject(arg);
+
+            // remove object from all groups
+            for (k in this._groups) {
+                if (this._groups.hasOwnProperty(k)) {
+                    this._groups[k].removeObject(arg);
+                }
+            }
         },
 
         /**
@@ -193,7 +202,9 @@ function makeWasabi() {
          * @return {Group} The new group
          */
         createGroup: function () {
-            return new Group();
+            var group = new Group(this);
+            this._groups[group._id] = group;
+            return group;
         },
 
         /**
