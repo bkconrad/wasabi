@@ -73,6 +73,108 @@ describe('Wasabi', function () {
         }
     });
 
+    it('encodes objects', function () {
+        var obj;
+        var remoteObj;
+        var oldRemoteSubobject;
+
+        ws.removeClient(client2);
+
+        function ObjectEncodingTestClass() {
+            this._dummy = true;
+        }
+
+        ObjectEncodingTestClass.prototype.init = function () {
+            // encoded with a serialize callback
+            this.structuredObj = {
+                uintfoo: 1,
+                sintfoo: -1,
+                subobject: {
+                    uintbar: 2,
+                    sintbar: -2
+                }
+            };
+
+            // same as above, but encoded with no callback
+            this.unstructuredObj = {
+                uintfoo: 1,
+                sintfoo: -1,
+                subobject: {
+                    uintbar: 2,
+                    sintbar: -2
+                }
+            };
+        };
+
+        ObjectEncodingTestClass.prototype.serialize = function (desc) {
+            desc.object('structuredObj', function (desc1) {
+                desc1.uint('uintfoo', 8);
+                desc1.sint('sintfoo', 8);
+                desc1.object('subobject', function (desc2) {
+                    desc2.uint('uintbar', 8);
+                    desc2.sint('sintbar', 8);
+                });
+            });
+
+            desc.object('unstructuredObj');
+
+            // never defined, but shouldn't throw an error
+            desc.object('nonexistantObj');
+        };
+
+        ws.addClass(ObjectEncodingTestClass);
+        wc1.addClass(ObjectEncodingTestClass);
+
+        obj = new ObjectEncodingTestClass();
+        obj.init();
+        ws.addObject(obj);
+
+        ws.processConnections();
+        wc1.processConnections();
+
+        remoteObj = wc1.registry.getObject(obj.wsbSerialNumber);
+
+        // the objects should all be deep equal
+        assert.deepEqual(obj.structuredObj, remoteObj.structuredObj);
+        assert.deepEqual(obj.unstructuredObj, remoteObj.unstructuredObj);
+
+        oldRemoteSubobject = remoteObj.unstructuredObj;
+
+        // process again
+        ws.processConnections();
+        wc1.processConnections();
+
+        remoteObj = wc1.registry.getObject(obj.wsbSerialNumber);
+
+        // shouuld reuse the subobject
+        assert.strictEqual(oldRemoteSubobject, remoteObj.unstructuredObj);
+
+        // the undefined object gets created remotely but is empty
+        assert.ok(remoteObj.nonexistantObj);
+    });
+
+    it('encodes objects in rpc arguments', function(done) {
+        var sourceObj = {
+            foo: 1,
+            subobject: {
+                bar: -2
+            }
+        };
+
+        function rpcObjectTest(obj) {
+            assert.deepEqual(sourceObj, obj);
+            done();
+        }
+
+        var rpc = ws.mkRpc(rpcObjectTest);
+        wc1.mkRpc(rpcObjectTest);
+
+        rpc(sourceObj);
+
+        ws.processConnections();
+        wc1.processConnections();
+    })
+
     it('orchestrates packing/unpacking data automatically in an update function', function () {
         var foo = new MockWasabi.Foo();
 

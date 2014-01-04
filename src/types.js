@@ -7,7 +7,8 @@ var fromString = {
     sint: iota++,
     uint: iota++,
     float: iota++,
-    string: iota++
+    string: iota++,
+    object: iota++
 };
 
 var fromValue = {};

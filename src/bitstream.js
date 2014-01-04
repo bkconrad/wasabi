@@ -355,47 +355,54 @@ Bitstream.prototype = {
      * Pack an object with a `.serialize()` method into this bitstream
      * @method pack
      * @param {NetObject} obj The object to serialize
+     * @param {Function} fn Optional serialize function to use. If undefined,
+     *     `obj.serialize` will be used.
      */
-    pack: function (obj) {
-        var description = new InDescription();
-        description._bitStream = this;
-        description._target = obj;
-
-        this._serializeObject(obj, description);
+    pack: function (obj, serialize) {
+        var description = new InDescription(this, obj, serialize);
+        this._serialize(description);
     },
 
     /**
      * Unpack an object with a .serialize() method from this bitstream
      * @method unpack
      * @param {NetObject} obj The object to deserialize to
+     * @param {Function} fn Optional serialize function to use. If undefined,
+     *     `obj.serialize` will be used.
      */
-    unpack: function (obj) {
-        var description = new OutDescription();
-        description._bitStream = this;
-        description._target = obj;
+    unpack: function (obj, serialize) {
+        var description = new OutDescription(this, obj, serialize);
+        this._serialize(description);
 
-        this._serializeObject(obj, description);
-
-        return description._target;
+        return obj;
     },
 
     /**
      * Calls all serialize methods in this object's prototype chain with
      * `description` as its argument. This allows packing and unpacking classes
      * which use prototypal inheritance.
-     * @method _serializeObject
-     * @param {NetObject} obj The object to serialize
-     * @param {Description} description The description to serialize through
+     * @method _serialize
+     * @param {Description} desc The description to serialize
      * @private
      */
-    _serializeObject: function (obj, description) {
+    _serialize: function (desc) {
+        debugger;
         // We'll walk the prototype chain looking for .serialize methods,
         // and call them in order from child-most to parent-most
-        // (arguably backwards, but it's easier to code)
-        var proto = obj.constructor.prototype;
-        var serialize = obj.serialize;
+        var proto = Object.getPrototypeOf(desc._target);
+        var serialize = desc._serialize || desc._target.serialize;
         while (serialize && (typeof serialize === 'function')) {
-            serialize.call(obj, description);
+
+            // pass desc to the given serialize function
+            serialize.call(desc._target, desc);
+
+            // if a description has an explicit serialize function, don't climb
+            // the prototype chain
+            if (desc._serialize) {
+                break;
+            }
+
+            // look for the next serialize method up the chain
             proto = Object.getPrototypeOf(proto);
             serialize = proto ? proto.serialize : false;
         }
