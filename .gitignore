@@ -5,3 +5,6 @@ Gemfile.lock
 node_modules/
 wasabi.sublime-project
 wasabi.sublime-workspace
+*.swp
+.DS_Store
+build/*
