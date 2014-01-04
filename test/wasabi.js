@@ -720,6 +720,20 @@ describe('Wasabi', function () {
         assert.notOk(wc2.registry.getObject(foo2.wsbSerialNumber));
     });
 
+    it('removes groups from all connections when destroyed', function () {
+        var group = ws.createGroup();
+        clientConn1.addGroup(group);
+        clientConn2.addGroup(group);
+
+        assert.ok(clientConn1._groups[group._id]);
+        assert.ok(clientConn2._groups[group._id]);
+
+        ws.destroyGroup(group);
+
+        assert.notOk(clientConn1._groups[group._id]);
+        assert.notOk(clientConn2._groups[group._id]);
+    });
+
     it('implicitly adds an object to Wasabi when adding it to a group', function () {
         var group = ws.createGroup();
         group.addObject(foo1);

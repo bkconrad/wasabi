@@ -208,6 +208,27 @@ function makeWasabi() {
         },
 
         /**
+         * Destroy a visibility group. This removes the group from all
+         * connections as well as the list of all groups known to Wasbi.
+         *
+         * Removes `group`
+         * @method destroyGroup
+         * @param {Group} group The group to destroy
+         */
+        destroyGroup: function (group) {
+            var k;
+            // remove group from all connections
+            for (k in this.clients) {
+                if (this.clients.hasOwnProperty(k)) {
+                    this.clients[k].removeGroup(group);
+                }
+            }
+
+            // release group from the master group list
+            delete this._groups[group._id];
+        },
+
+        /**
          * Packs update data for `obj` into `bs`
          * @method _packUpdate
          * @param {Object} obj The object to pack
