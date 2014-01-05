@@ -305,7 +305,7 @@ Bitstream.prototype = {
     },
 
     /**
-     * Write a normalized float in the range `[0.0, 1.0]` using the specified
+     * Write a normalized float in the range `[-1.0, 1.0]` using the specified
      * number of bits
      * @method writeFloat
      * @param {Number} value Value to write.
