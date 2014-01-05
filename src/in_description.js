@@ -74,7 +74,7 @@ InDescription.prototype = {
      * Describes an entire subobject using an optional `serialize`-like function.
      *
      *     ObjectEncodingTestClass.prototype.serialize = function (desc) {
-     * 
+     *
      *         // a property named 'structuredObj' with explicit structure
      *         // using a supplied serialize function
      *         desc.object('structuredObj', function (desc1) {
@@ -87,7 +87,7 @@ InDescription.prototype = {
      *                 desc2.sint('sintbar', 8);
      *             });
      *         });
-     * 
+     *
      *         // if no serialize function is supplied, Wasabi will recursively
      *         // descend into the object and encode it using InDescription#any
      *         desc.object('unstructuredObj');
@@ -95,11 +95,11 @@ InDescription.prototype = {
      *     };
      *
      * **Note:** Encoding an object with cyclical references is not supported,
-     * and will currently cause Wasabi to recurse infinitely 
+     * and will currently cause Wasabi to recurse infinitely
      *
      * @param {String} name The name of the attribute
      * @param {Function} serialize Optional serialize function to use
-     * @method string
+     * @method object
      */
     object: function (name, serialize) {
         var obj = this._target[name] || {};
@@ -140,7 +140,7 @@ InDescription.prototype = {
      * @param {String} name The name of the attribute
      * @param {Number} bits The number of bits used to encode the data (if
      *     applicable)
-     * @method string
+     * @method any
      */
     any: function (name, bits) {
         var type;
