@@ -7,12 +7,15 @@ var Types = require('./types.js');
  * @param {Object} target The object to write values to
  * @param {Function} serialize Optional serialize function to use. If undefined,
  *     `obj.serialize` will be used.
+ * @param {Wasabi} instance The Wasabi instance used for looking up objects when
+ *     unpacking a reference to a managed object
  * @private
  */
-var OutDescription = function (bs, target, serialize) {
+var OutDescription = function (bs, target, serialize, instance) {
     this._bitStream = bs;
     this._target = target;
     this._serialize = serialize;
+    this._instance = instance;
 };
 
 OutDescription.prototype = {
@@ -47,8 +50,12 @@ OutDescription.prototype = {
 
         // unpack the subobject through the bitstream and assign the result to
         // the target
-        this._bitStream.unpack(obj, serialize);
+        this._bitStream.unpack(obj, serialize, this._instance);
         this._target[name] = obj;
+    },
+
+    reference: function (name) {
+        this._target[name] = this._instance.registry.getObject(this._bitStream.readUInt(16));
     },
 
     any: function (name, bits) {

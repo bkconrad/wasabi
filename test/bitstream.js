@@ -151,15 +151,18 @@ describe('Bitstream', function () {
         b2.writeUInt(1234, 16);
         b2.append(b1);
 
-        // appended data will start at the next cell, so we must align before we
-        // can keep reading
-        b2.align();
+        b2._index = 0;
 
+        assert.equal(1234, b2.readUInt(16));
+
+        // append will pad the existing data to a cell boundary, so we must align
+        // in order to keep reading
+        b2.align();
         assert.equal(1337, b2.readUInt(16));
         assert.equal(4321, b2.readUInt(16));
 
-        // after append will also pad the appended data to a cell boundary, so
-        // align should bring us to the very end of the stream
+        // append will also pad the appended data to a cell boundary, so align
+        // should bring us to the very end of the stream
         b2.align();
         assert.equal(0, b2.bitsLeft());
     });

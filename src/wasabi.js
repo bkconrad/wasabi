@@ -6,6 +6,17 @@ var Rpc = require('./rpc');
 var WasabiError = require('./wasabi_error');
 var events = require('events');
 
+function _isEmpty(val) {
+    var key;
+    for (key in val) {
+        if (val.hasOwnProperty(key)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 /**
  * Named and exported function that would otherwise be an IIFE. Used to
  * instantiate a second Wasabi module for use in tests (to simulate a remote
@@ -233,11 +244,13 @@ function makeWasabi() {
          * @method _packUpdate
          * @param {Object} obj The object to pack
          * @param {BitStream} bs The bitstream to pack into
+         * @param {Object} discoveredObjects A hash of serial numbers ->
+         *     subobject references to update when a subobject is discovered
          * @private
          */
-        _packUpdate: function (obj, bs) {
+        _packUpdate: function (obj, bs, discoveredObjects) {
             bs.writeUInt(obj.wsbSerialNumber, 16);
-            bs.pack(obj);
+            bs.pack(obj, undefined, discoveredObjects);
         },
 
         /**
@@ -252,7 +265,7 @@ function makeWasabi() {
             if (!obj) {
                 throw new WasabiError('Received update for unknown object ' + serial);
             }
-            bs.unpack(obj);
+            bs.unpack(obj, undefined, this);
 
             /**
              * Fired client-side when a ghost (the remote counterpart) of an
@@ -417,15 +430,16 @@ function makeWasabi() {
          * @private
          * @param {Object} list An Array or map of objects to pack updates for
          * @param {Bitstream} bs The target Bitstream
+         * @param {Object} discoveredObjects A hash of serial numbers ->
+         *     subobject references to update when a subobject is discovered
          */
-        _packUpdates: function (list, bs) {
+        _packUpdates: function (list, bs, discoveredObjects) {
             var k;
             for (k in list) {
                 if (list.hasOwnProperty(k)) {
-                    this._packUpdate(list[k], bs);
+                    this._packUpdate(list[k], bs, discoveredObjects);
                 }
             }
-            bs.writeUInt(WSB_SEPARATOR, 16);
         },
 
         /**
@@ -521,14 +535,17 @@ function makeWasabi() {
          * @method _packRpcs
          * @private
          * @param {Connection} conn The connection to pack RPC invocations for
+         * @param {Bitstream} bs The target Bitstream
+         * @param {Object} discoveredObjects A hash of serial numbers ->
+         *     subobject references to update when a subobject is discovered
          */
-        _packRpcs: function (conn) {
+        _packRpcs: function (conn, bs, discoveredObjects) {
             var i;
             var invocation;
             for (i = 0; i < conn._rpcQueue.length; i++) {
                 invocation = conn._rpcQueue[i];
                 conn._sendBitstream.writeUInt(WSB_SECTION_RPC, 16);
-                this._packRpc(invocation.rpc, invocation.args, invocation.obj, invocation.bs);
+                this._packRpc(invocation.rpc, invocation.args, invocation.obj, bs, discoveredObjects);
             }
         },
 
@@ -542,13 +559,15 @@ function makeWasabi() {
          * @param {NetObject} obj The NetObject to apply the RPC to (or falsy
          *     for "static" RPC invocation
          * @param {Bitstream} bs The target Bitstream
+         * @param {Object} discoveredObjects A hash of serial numbers ->
+         *     subobject references to update when a subobject is discovered
          */
-        _packRpc: function (rpc, args, obj, bs) {
+        _packRpc: function (rpc, args, obj, bs, discoveredObjects) {
             rpc._populateKeys(args);
             bs.writeUInt(obj ? obj.wsbSerialNumber : 0, 16);
             bs.writeUInt(this.registry.hash(rpc._klass, rpc._fn), 16);
             args.serialize = rpc._serialize;
-            bs.pack(args);
+            bs.pack(args, discoveredObjects);
         },
 
         /**
@@ -622,7 +641,15 @@ function makeWasabi() {
             var newlyVisibleObjects;
             var newlyInvisibleObjects;
             var oldObjects;
+            var discoveredObjects;
             var section;
+            var updateStream;
+            var rpcStream;
+            var ghostStream;
+            var ghostRemovalStream;
+            var subobjects;
+
+            debugger;
 
             // connections with ghostTo set (i.e. clients)
             if (conn._ghostTo) {
@@ -638,6 +665,60 @@ function makeWasabi() {
                     // if neither is set, default to sending all objects
                     newObjects = this._getAllObjects();
                 }
+
+                /**
+                 * Because objects can contain references to other managed
+                 * objects, we must add these subobjects to the list of visible
+                 * objects to ensure that a ghost is available on the remote end
+                 * during unpacking.
+                 *
+                 * Additionally, RPC invocations can contain references, so they
+                 * must be traversed as well.
+                 *
+                 * Once we have an initial list of *discovered* objects, we must
+                 * descend in to that set, to see if it contains more
+                 * references. We repeat this process on each set of discovered
+                 * objects until no more objects are discovered.
+                 *
+                 * Cyclical references are handled by using newObjects as a
+                 * history of objects which already have ghosts packed.
+                 */
+
+                ghostStream = new Bitstream();
+                updateStream = new Bitstream();
+                rpcStream = new Bitstream();
+                ghostRemovalStream = new Bitstream();
+
+                // pack RPC invocations, put discovered subobjects into the
+                // newObjects list to ensure that a ghost is available
+                this._packRpcs(conn, rpcStream, newObjects);
+                conn._rpcQueue = [];
+
+                discoveredObjects = newObjects;
+                while (!_isEmpty(discoveredObjects)) {
+                    subobjects = {};
+                    // pack updates for all objects that were just discovered
+                    this._packUpdates(discoveredObjects, updateStream, subobjects);
+
+                    // ignore known objects and create ghosts for objects as needed
+                    for (k in subobjects) {
+                        if (subobjects.hasOwnProperty(k)) {
+                            if (newObjects.hasOwnProperty(k)) {
+                                // when k exists in both, the object has already
+                                // been discovered previously
+                                delete subobjects[k];
+                            } else {
+                                // otherwise, it was just discovered in the last
+                                // pass, so it must be added to newObjects to
+                                // ensure that a ghost exists on the remote end
+                                newObjects[k] = subobjects[k];
+                            }
+                        }
+                    }
+
+                    discoveredObjects = subobjects;
+                }
+                updateStream.writeUInt(WSB_SEPARATOR, 16);
 
                 // list of objects which were visible last frame
                 oldObjects = conn._visibleObjects;
@@ -659,27 +740,33 @@ function makeWasabi() {
                     }
                 }
 
+                // pack ghosts for newly visible objects
+                this._packGhosts(newlyVisibleObjects, ghostStream);
+
+                // pack ghost removals for newly invisible objects
+                this._packRemovedGhosts(newlyInvisibleObjects, ghostRemovalStream);
+
+                conn._sendBitstream.writeUInt(WSB_SECTION_GHOSTS, 16);
+                conn._sendBitstream.append(ghostStream);
+
+                conn._sendBitstream.writeUInt(WSB_SECTION_UPDATES, 16);
+                conn._sendBitstream.append(updateStream);
+
+                conn._sendBitstream.append(rpcStream);
+
+                conn._sendBitstream.writeUInt(WSB_SECTION_REMOVED_GHOSTS, 16);
+                conn._sendBitstream.append(ghostRemovalStream);
+
                 // set the connection's visible object collection
                 conn._visibleObjects = newObjects;
 
-                // pack ghosts for newly visible objects
-                conn._sendBitstream.writeUInt(WSB_SECTION_GHOSTS, 16);
-                this._packGhosts(newlyVisibleObjects, conn._sendBitstream);
+            } else {
 
-                // pack updates for all objects visible this frame
-                conn._sendBitstream.writeUInt(WSB_SECTION_UPDATES, 16);
-                this._packUpdates(newObjects, conn._sendBitstream);
+                // pack just the RPC invocations if we don't ghost to this connection
+                this._packRpcs(conn, conn._sendBitstream);
+                conn._rpcQueue = [];
             }
 
-            // pack all rpc invocations sent to this connection
-            this._packRpcs(conn);
-            conn._rpcQueue = [];
-
-            if (conn._ghostTo) {
-                // pack ghost removals for newly invisible objects
-                conn._sendBitstream.writeUInt(WSB_SECTION_REMOVED_GHOSTS, 16);
-                this._packRemovedGhosts(newlyInvisibleObjects, conn._sendBitstream);
-            }
 
             // write a packet terminator
             conn._sendBitstream.writeUInt(WSB_PACKET_STOP, 16);
@@ -702,15 +789,15 @@ function makeWasabi() {
             this.emit('receive', conn, conn._receiveBitstream.toChars());
             while (conn._receiveBitstream.bitsLeft() > 0) {
                 section = conn._receiveBitstream.readUInt(16);
-                if (section === WSB_PACKET_STOP) {
-                    // when a packet is terminated we must consume
-                    // the bit padding from Bitstream#fromChars via
-                    // the Bitstream#align method
-                    conn._receiveBitstream.align();
-                } else {
+                if (section !== WSB_PACKET_STOP) {
                     // otherwise invoke the appropriate unpack
                     // function via the _sectionMap
+                    conn._receiveBitstream.align();
                     this._sectionMap[section].call(this, conn._receiveBitstream, conn);
+                }
+
+                if (section !== WSB_SECTION_RPC) {
+                    conn._receiveBitstream.align();
                 }
             }
 

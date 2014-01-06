@@ -184,6 +184,7 @@ Bitstream.prototype = {
 
         // pad the contents to the end of the current cell
         this._nbits = (Math.ceil(this._nbits / 7) + bs.arr.length) * 7;
+        this._index = this._nbits;
         this.arr = this.arr.concat(bs.arr);
     },
 
@@ -374,9 +375,12 @@ Bitstream.prototype = {
      * @param {NetObject} obj The object to serialize
      * @param {Function} fn Optional serialize function to use. If undefined,
      *     `obj.serialize` will be used.
+     * @param {Object} discoveredObjects Optional hash of discovered objects to
+     *     update.
      */
-    pack: function (obj, serialize) {
+    pack: function (obj, serialize, discoveredObjects) {
         var description = new InDescription(this, obj, serialize);
+        description._discoveredObjects = discoveredObjects || description._discoveredObjects;
         this._serialize(description);
     },
 
@@ -386,9 +390,11 @@ Bitstream.prototype = {
      * @param {NetObject} obj The object to deserialize to
      * @param {Function} fn Optional serialize function to use. If undefined,
      *     `obj.serialize` will be used.
+     * @param {Wasabi} instance The Wasabi instance used for looking up objects
+     *     when unpacking a reference to a managed object
      */
-    unpack: function (obj, serialize) {
-        var description = new OutDescription(this, obj, serialize);
+    unpack: function (obj, serialize, instance) {
+        var description = new OutDescription(this, obj, serialize, instance);
         this._serialize(description);
 
         return obj;

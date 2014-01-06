@@ -15,6 +15,9 @@ var InDescription = function (bs, target, serialize) {
     this._bitStream = bs;
     this._target = target;
     this._serialize = serialize;
+
+    // hash of objects found while encoding the current object
+    this._discoveredObjects = {};
 };
 
 InDescription.prototype = {
@@ -115,8 +118,24 @@ InDescription.prototype = {
             serialize = InDescription._automagicSerialize;
         }
 
-        // pack the subobject through the bitstream
-        this._bitStream.pack(obj, serialize);
+        // pack the subobject through the bitstream, and put any discovered
+        // managed objects in this._discoveredObjects
+        this._bitStream.pack(obj, serialize, this._discoveredObjects);
+    },
+
+    /**
+     * Describes a reference to an object managed by Wasabi.
+     *
+     * **Note:** unlike `object`, `reference` *does* support cyclical references
+     *
+     * @param {String} name The name of the attribute
+     * @method object
+     */
+    reference: function (name) {
+        // Just write the serial number
+        var serial = this._target[name].wsbSerialNumber;
+        this._bitStream.writeUInt(serial, 16);
+        this._discoveredObjects[serial] = this._target[name];
     },
 
     /**
@@ -144,6 +163,8 @@ InDescription.prototype = {
             type = 'sint';
         } else if (+val === val) {
             type = 'float';
+        } else if (val instanceof Object && val.wsbSerialNumber) {
+            type = 'reference';
         } else if (!(val instanceof Array)) {
             type = 'object';
         } else {

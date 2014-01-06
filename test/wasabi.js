@@ -77,6 +77,7 @@ describe('Wasabi', function () {
         var obj;
         var remoteObj;
         var oldRemoteSubobject;
+        var group;
 
         ws.removeClient(client2);
 
@@ -104,6 +105,11 @@ describe('Wasabi', function () {
                     sintbar: -2
                 }
             };
+
+            // two references to the same managed object
+            this.fooReference1 = new MockWasabi.Foo();
+            this.fooReference2 = this.fooReference1;
+            ws.addObject(this.fooReference1);
         };
 
         ObjectEncodingTestClass.prototype.serialize = function (desc) {
@@ -118,16 +124,31 @@ describe('Wasabi', function () {
 
             desc.object('unstructuredObj');
 
+            // managed objects
+            desc.reference('fooReference1');
+            desc.reference('fooReference2');
+
             // never defined, but shouldn't throw an error
             desc.object('nonexistantObj');
         };
 
+        // add our one-off test class
         ws.addClass(ObjectEncodingTestClass);
         wc1.addClass(ObjectEncodingTestClass);
 
+        // create an instance
         obj = new ObjectEncodingTestClass();
         obj.init();
         ws.addObject(obj);
+
+        // set visibility groups so that the ObjectEncodingTestClass object is
+        // ghosted but, the Foo instance inside of it is not.
+        //
+        // Wasabi should realize that this is happening, and add a ghost of the
+        // object implicitly.
+        group = ws.createGroup();
+        group.addObject(obj);
+        clientConn1.addGroup(group);
 
         ws.processConnections();
         wc1.processConnections();
@@ -137,6 +158,7 @@ describe('Wasabi', function () {
         // the objects should all be deep equal
         assert.deepEqual(obj.structuredObj, remoteObj.structuredObj);
         assert.deepEqual(obj.unstructuredObj, remoteObj.unstructuredObj);
+        // assert.deepEqual(obj.fooReference1, remoteObj.fooReference1);
 
         oldRemoteSubobject = remoteObj.unstructuredObj;
 
@@ -146,7 +168,7 @@ describe('Wasabi', function () {
 
         remoteObj = wc1.registry.getObject(obj.wsbSerialNumber);
 
-        // shouuld reuse the subobject
+        // should reuse the subobject
         assert.strictEqual(oldRemoteSubobject, remoteObj.unstructuredObj);
 
         // the undefined object gets created remotely but is empty

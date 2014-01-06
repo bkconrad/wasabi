@@ -7,6 +7,7 @@ var fromString = {
     bool: iota++,
     float: iota++,
     object: iota++,
+    reference: iota++,
     sint: iota++,
     string: iota++,
     uint: iota++
