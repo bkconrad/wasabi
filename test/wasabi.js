@@ -409,18 +409,24 @@ describe('Wasabi', function () {
             destroyDone = false;
 
         function GhostCallbackTest() {
-            this._dummy = 1;
+            this.val = 1;
         }
+
+        GhostCallbackTest.prototype.serialize = function (desc) {
+            desc.uint('val', 8);
+        };
 
         ws.addClass(GhostCallbackTest);
         wc1.addClass(GhostCallbackTest);
 
         var obj = new GhostCallbackTest();
         ws.addObject(obj);
+        obj.val = 100;
 
         wc1.on('clientGhostCreate', function (remoteObj) {
             createDone = true;
             assert.equal(remoteObj.wsbSerialNumber, obj.wsbSerialNumber);
+            assert.equal(remoteObj.val, obj.val);
         });
 
         wc1.on('clientGhostDestroy', function (remoteObj) {
@@ -432,6 +438,13 @@ describe('Wasabi', function () {
         wc1.processConnections();
 
         assert.ok(createDone);
+        createDone = false;
+
+        ws.processConnections();
+        wc1.processConnections();
+
+        // create should only be fired once, since the ghost is never removed
+        assert.notOk(createDone);
 
         ws.removeObject(obj);
 

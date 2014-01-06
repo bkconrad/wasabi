@@ -253,6 +253,31 @@ function makeWasabi() {
                 throw new WasabiError('Received update for unknown object ' + serial);
             }
             bs.unpack(obj);
+
+            /**
+             * Fired client-side when a ghost (the remote counterpart) of an
+             * object is created. This occurs when the scope callback for this
+             * client (on the server) returns an object when it did not
+             * previously.
+             *
+             * The `obj` will be a newly created instance of the class every
+             * time this event is emitted, even when subsequent emissions refer
+             * to the same server-side instance. That is, Wasabi created a brand
+             * new object every time it creates a ghost.
+             *
+             * This event is emitted only after the data has received its
+             * initial data.
+             *
+             * Note that this event can be emitted multiple times per object, if
+             * object comes in and out of scope.
+             *
+             * @event clientGhostCreate
+             * @param {Object} obj The newly created ghost
+             */
+            if (obj.wsbJustGhosted) {
+                this.emit('clientGhostCreate', obj);
+                obj.wsbJustGhosted = false;
+            }
             return obj;
         },
 
@@ -286,26 +311,8 @@ function makeWasabi() {
             obj = new T();
             obj.wsbInstance = this;
             obj.wsbIsGhost = true;
+            obj.wsbJustGhosted = true;
             this.registry.addObject(obj, serial);
-
-            /**
-             * Fired client-side when a ghost (the remote counterpart) of an
-             * object is created. This occurs when the scope callback for this
-             * client (on the server) returns an object when it did not
-             * previously.
-             *
-             * The `obj` will be a newly created instance of the class every
-             * time this event is emitted, even when subsequent emissions refer
-             * to the same server-side instance. That is, Wasabi created a brand
-             * new object every time it creates a ghost.
-             *
-             * Note that this event can be emitted multiple times per object, if
-             * object comes in and out of scope.
-             *
-             * @event clientGhostCreate
-             * @param {Object} obj The newly created ghost
-             */
-            this.emit('clientGhostCreate', obj);
             return obj;
         },
 
