@@ -7,6 +7,7 @@ module.exports = (function () {
         this.sintfoo = -1;
         this.floatfoo = 0.618;
         this.stringfoo = 'test';
+        this.boolfoo = true;
     }
 
     Foo.prototype = {

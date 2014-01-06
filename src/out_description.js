@@ -20,6 +20,10 @@ var OutDescription = function (bs, target, serialize) {
 var WSB_END_OF_OBJECT = 3;
 
 OutDescription.prototype = {
+    bool: function (name) {
+        this._target[name] = this._bitStream.readUInt(1) ? true : false;
+    },
+
     uint: function (name, bits) {
         this._target[name] = this._bitStream.readUInt(bits);
     },

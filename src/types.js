@@ -4,11 +4,12 @@
  */
 var iota = 0;
 var fromString = {
-    sint: iota++,
-    uint: iota++,
+    bool: iota++,
     float: iota++,
+    object: iota++,
+    sint: iota++,
     string: iota++,
-    object: iota++
+    uint: iota++
 };
 
 var fromValue = {};

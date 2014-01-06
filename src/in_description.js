@@ -23,6 +23,15 @@ var InDescription = function (bs, target, serialize) {
 
 InDescription.prototype = {
     /**
+     * Describe a simple boolean value (`true` or `false)
+     * @param {String} name The name of the attribute
+     * @method bool
+     */
+    bool: function (name) {
+        this._bitStream.writeUInt(this._target[name], 1);
+    },
+
+    /**
      * Describe an unsigned integer
      * @param {String} name The name of the attribute
      * @param {Number} bits The number of bits to use when encoding

@@ -186,6 +186,7 @@ describe('Wasabi', function () {
         wc1._unpackGhost(bs);
         wc1._unpackUpdates(bs);
         assert.ok(wc1.registry._objects[foo.wsbSerialNumber]);
+        wc1.registry._objects[foo.wsbSerialNumber].check(foo);
     });
 
     it('packs and unpacks properly to out-of-sync registries', function () {
