@@ -1,10 +1,6 @@
 var Types = require('./types.js');
 var WasabiError = require('./wasabi_error.js');
 
-// ASCII character End Of Text (ETX)
-// non-printable character which really shouldn't be used in the name of a key
-var WSB_END_OF_OBJECT = 3;
-
 /**
  * A class which packs an object when passed to its .serialize function
  * @class InDescription
@@ -80,7 +76,7 @@ InDescription.prototype = {
     },
 
     /**
-     * Describes an entire subobject using an optional `serialize`-like function.
+     * Describes an entire subobject using an optional `serialize` function.
      *
      *     ObjectEncodingTestClass.prototype.serialize = function (desc) {
      *
@@ -114,21 +110,9 @@ InDescription.prototype = {
         var obj = this._target[name] || {};
 
         // if no serialize method is passed, automatically encode the whole
-        // object with InDescription#any
+        // object with _automagicSerialize
         if (typeof serialize !== 'function') {
-            serialize = function (desc) {
-                var k;
-                for (k in this) {
-                    if (this.hasOwnProperty(k)) {
-                        desc._bitStream.writeString(k);
-                        desc.any(k, 16);
-                    }
-                }
-
-                // Write a non-printable ETX character to signal the end of the
-                // object's properties
-                desc._bitStream.writeUInt(WSB_END_OF_OBJECT, 8);
-            };
+            serialize = InDescription._automagicSerialize;
         }
 
         // pack the subobject through the bitstream
@@ -172,5 +156,31 @@ InDescription.prototype = {
         this[type](name, bits);
     }
 };
+
+// ASCII character End Of Text (ETX)
+// non-printable character which really shouldn't be used in the name of a key
+var WSB_END_OF_OBJECT = 3;
+
+/**
+ * Default serialize function used when InDescription#object receives no
+ * serialize function as an argument.
+ *
+ * Recursively traverses and encodes the entire object, possibly resulting in
+ * infinite recursion (be careful!).
+ */
+InDescription._automagicSerialize = function (desc) {
+    var k;
+    for (k in this) {
+        if (this.hasOwnProperty(k)) {
+            desc._bitStream.writeString(k);
+            desc.any(k, 16);
+        }
+    }
+
+    // Write a non-printable ETX character to signal the end of the
+    // object's properties
+    desc._bitStream.writeUInt(WSB_END_OF_OBJECT, 8);
+};
+
 
 module.exports = InDescription;
