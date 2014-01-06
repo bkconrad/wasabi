@@ -22,7 +22,7 @@ module.exports = (function () {
         check: function (that) {
             assert.strictEqual(this.uintfoo, that.uintfoo);
             assert.strictEqual(this.sintfoo, that.sintfoo);
-            assert.closeTo(this.floatfoo, that.floatfoo, .01);
+            assert.closeTo(this.floatfoo, that.floatfoo, 0.01);
             assert.strictEqual(this.stringfoo, that.stringfoo);
             assert.strictEqual(this.boolfoo, that.boolfoo);
         },
