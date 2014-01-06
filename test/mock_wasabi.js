@@ -7,7 +7,8 @@ module.exports = (function () {
         this.sintfoo = -1;
         this.floatfoo = 0.618;
         this.stringfoo = 'test';
-        this.boolfoo = true;
+        this.truefoo = true;
+        this.falsefoo = false;
     }
 
     Foo.prototype = {
@@ -17,14 +18,16 @@ module.exports = (function () {
             desc.sint('sintfoo', 16);
             desc.float('floatfoo', 8);
             desc.string('stringfoo');
-            desc.bool('boolfoo');
+            desc.bool('truefoo');
+            desc.bool('falsefoo');
         },
         check: function (that) {
             assert.strictEqual(this.uintfoo, that.uintfoo);
             assert.strictEqual(this.sintfoo, that.sintfoo);
             assert.closeTo(this.floatfoo, that.floatfoo, 0.01);
             assert.strictEqual(this.stringfoo, that.stringfoo);
-            assert.strictEqual(this.boolfoo, that.boolfoo);
+            assert.strictEqual(this.truefoo, that.truefoo);
+            assert.strictEqual(this.falsefoo, that.falsefoo);
         },
         rpcTest: function rpcTest(val) {
             this.testval = val;
