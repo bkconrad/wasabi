@@ -171,6 +171,23 @@ Bitstream.prototype = {
     },
 
     /**
+     * Append data from another bitstream.
+     *
+     * The current bitstream's contents will be padded to the nearest cell
+     * boundary, then the other bitstream's contents will be appended, and the
+     * final contents will again be padded to the nearest boundary.
+     *
+     * @method append
+     * @param {Bitstream} bs The bitstream to read from
+     */
+    append: function (bs) {
+
+        // pad the contents to the end of the current cell
+        this._nbits = (Math.ceil(this._nbits / 7) + bs.arr.length) * 7;
+        this.arr = this.arr.concat(bs.arr);
+    },
+
+    /**
      * Append data from an ArrayBuffer received over a binary websocket to this
      * Bitstream
      * @method appendData

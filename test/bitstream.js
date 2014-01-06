@@ -142,6 +142,28 @@ describe('Bitstream', function () {
         assert.equal(4321, b2.readUInt(16));
     });
 
+    it('appends bits directly from another bitstream', function () {
+        var b1 = new Bitstream();
+        var b2 = new Bitstream();
+        b1.writeUInt(1337, 16);
+        b1.writeUInt(4321, 16);
+
+        b2.writeUInt(1234, 16);
+        b2.append(b1);
+
+        // appended data will start at the next cell, so we must align before we
+        // can keep reading
+        b2.align();
+
+        assert.equal(1337, b2.readUInt(16));
+        assert.equal(4321, b2.readUInt(16));
+
+        // after append will also pad the appended data to a cell boundary, so
+        // align should bring us to the very end of the stream
+        b2.align();
+        assert.equal(0, b2.bitsLeft());
+    });
+
     it('can be aligned to the next buffer byte', function () {
         var b1 = new Bitstream();
         var start;
