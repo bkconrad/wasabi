@@ -17,12 +17,14 @@ module.exports = (function () {
             desc.sint('sintfoo', 16);
             desc.float('floatfoo', 8);
             desc.string('stringfoo');
+            desc.bool('boolfoo');
         },
         check: function (that) {
-            assert.equal(this.uintfoo, that.uintfoo);
-            assert.equal(this.sintfoo, that.sintfoo);
-            assert.equal(this.floatfoo, that.floatfoo);
-            assert.equal(this.stringfoo, that.stringfoo);
+            assert.strictEqual(this.uintfoo, that.uintfoo);
+            assert.strictEqual(this.sintfoo, that.sintfoo);
+            assert.closeTo(this.floatfoo, that.floatfoo, .01);
+            assert.strictEqual(this.stringfoo, that.stringfoo);
+            assert.strictEqual(this.boolfoo, that.boolfoo);
         },
         rpcTest: function rpcTest(val) {
             this.testval = val;
