@@ -46,6 +46,48 @@ describe('Wasabi', function () {
         foo2 = new MockWasabi.Foo();
     });
 
+    it('only sends updates when data has changed', function() {
+        var obj;
+
+        // incremented when the client unpacks an update
+        var updateCount = 0;
+
+        function DeltaTestClass() {
+            this.val = 1;
+        };
+
+        DeltaTestClass.prototype.serialize = function(desc) {
+
+            if(this.wsbIsGhost) {
+                updateCount++;
+            }
+
+            desc.uint('val', 8);
+        };
+
+        ws.addClass(DeltaTestClass);
+        wc1.addClass(DeltaTestClass);
+
+        obj = new DeltaTestClass();
+        ws.addObject(obj);
+
+        // there should be an initial update
+        ws.processConnections();
+        wc1.processConnections();
+        assert.equal(updateCount, 1);
+
+        // no data has changed, so no update is expected
+        ws.processConnections();
+        wc1.processConnections();
+        assert.equal(updateCount, 1);
+
+        // now modify the data and expect an update
+        obj.val = 2;
+        ws.processConnections();
+        wc1.processConnections();
+        assert.equal(updateCount, 2);
+    });
+
     it('encodes objects', function () {
         var obj;
         var remoteObj;

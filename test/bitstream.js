@@ -36,6 +36,19 @@ describe('Bitstream', function () {
         assert.equal(b._getBits(0, 16), 1337);
     });
 
+    it('calculates hashes of bits', function() {
+        var bs = new Bitstream();
+        bs.writeUInt(1234, 16);
+        bs.writeUInt(1234, 16);
+        bs.writeUInt(4321, 16);
+
+        // the first two hashes should be equal
+        assert.equal(bs.hashBits(0, 16), bs.hashBits(16, 16));
+
+        // the last two hashes should not
+        assert.notEqual(bs.hashBits(16, 16), bs.hashBits(32, 16));
+    });
+
     it('reads/writes unsigned integers', function () {
         var b = new Bitstream();
         var VALUE = 1337;
@@ -49,6 +62,7 @@ describe('Bitstream', function () {
 
         assert.equal(b.readUInt(16), VALUE);
     });
+
     it('reads/writes signed integers', function () {
         var b = new Bitstream();
         var negValue = -1337;
@@ -208,6 +222,31 @@ describe('Bitstream', function () {
 
         b2.writeUInt(4321, 16);
         assert.ok(!b1.equals(b2));
+    });
+
+    it('gets and sets the index position', function() {
+        var bs = new Bitstream();
+        assert.equal(bs.getPos(), 0);
+
+        bs.writeUInt(1, 16);
+        assert.equal(bs.getPos(), 16);
+
+        // will be overwritten
+        bs.writeUInt(0xFFFF, 16);
+        assert.equal(bs.getPos(), 32);
+
+        bs.setPos(16);
+        bs.writeUInt(0, 16);
+
+        // now read back the contents
+        bs.setPos(0);
+        assert.equal(bs.readUInt(16), 1);
+        assert.equal(bs.readUInt(16), 0);
+
+        // set the position back to the start, then to the end
+        bs.setPos(0);
+        bs.setPos();
+        assert.equal(bs.bitsLeft(), 0);
     });
 
     it('writes and reads objects to websockets', function (done) {

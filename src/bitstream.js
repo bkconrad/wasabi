@@ -24,6 +24,28 @@ Bitstream.prototype = {
     constructor: Bitstream,
 
     /**
+     * @method getPos
+     * @return {Number} The zero-based index of the bit which will be read or
+     *     written next.
+     */
+    getPos: function () {
+        return this._index;
+    },
+
+    /**
+     * @method setPos
+     * @param {Number|undefined} pos The zero-based index of the bit to read or
+     *     write next. When undefined, moves to the end of the current data
+     */
+    setPos: function (pos) {
+        if(pos === undefined) {
+            pos = this._nbits;
+        }
+
+        this._index = pos;
+    },
+
+    /**
      * @method bitsLeft
      * @return {Number} the number of bits which can be read without causing an
      *     overread
@@ -54,6 +76,69 @@ Bitstream.prototype = {
             return;
         }
         this._advance(7 - delta);
+    },
+
+    /**
+     * Calculate a 32-bit hash of a set of bits
+     *
+     * @param {Number} start The index to begin hashing at
+     * @param {Number|undefined} n The number of bits to hash. If undefined,
+     *     hash until the end of the stream.
+     * @method hashBits
+     */
+    hashBits: function (start, n) {
+        var result = 0;
+        var sample;
+        var sampleSize;
+        if (n === undefined) {
+            n = this._nbits - start;
+        }
+
+        while(n > 0) {
+            sampleSize = Math.min(32, n);
+            sample = this._getBits(start, sampleSize);
+
+            // save the lowest bit, and wrap it around to the front, and shift
+            // all other bits down by 1, filling with zeros from the left
+            result = ((result & 1) << 31) + (result >>> 1);
+
+            // then XOR the current character into the hash
+            result ^= sample;
+
+            start += sampleSize;
+            n -= sampleSize;
+        }
+
+        return result;
+    },
+
+    /**
+     * Rollback the boundary of the bitstream. Note that the rolled-back cell
+     * data is not cleared, rather the boundary is rolled back to the specified
+     * position, ready to overwrite the old data. To discard excess data before
+     * transmission, you must call `.trim`.
+     *
+     * If the current index is beyond the new (rolled back) boundary, it is
+     * moved to boundary, ready to begin writing at the new end of the
+     * bitstream.
+     *
+     * @param {Number} pos The index to roll back to
+     * @method rollback
+     */
+    rollback: function(pos) {
+        this._nbits = pos;
+        this._index = Math.min(this._index, this._nbits);
+    },
+
+    /**
+     * Discards all data after boundary of the bitstream. Used to trim leftover
+     * data after `rollback`.
+     *
+     * @method trim
+     */
+    trim: function() {
+        var cell = Math.ceil(this._nbits / 7);
+        this.arr.splice(cell, this.arr.length - cell);
     },
 
     /**

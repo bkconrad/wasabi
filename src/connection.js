@@ -62,6 +62,8 @@ function Connection(instance, socket, ghostFrom, ghostTo, scopeCallback) {
     this._groups = false;
     this._visibleObjects = {};
 
+    this._updateHashes = {};
+
     // configure socket to dump received data into the receive bitstream
     // currently assumes that it receives a socket.io socket
     socket.onmessage = function (data) {
@@ -253,8 +255,21 @@ Connection.prototype._unpackUpdates = function (bs) {
  * @private
  */
 Connection.prototype._packUpdate = function (obj, bs, discoveredObjects) {
+    var startPos = bs.getPos();
+    var hash;
+
     bs.writeUInt(obj.wsbSerialNumber, 16);
     bs.pack(obj, undefined, discoveredObjects);
+
+    hash = bs.hashBits(startPos);
+
+    if(hash === this._updateHashes[obj.wsbSerialNumber]) {
+        // no change in data, so we'll roll back the bit stream to where we began
+        bs.rollback(startPos);
+    } else {
+        // otherwise, save the new hash
+        this._updateHashes[obj.wsbSerialNumber] = hash;
+    }
 };
 
 /**
@@ -544,6 +559,7 @@ Connection.prototype.process = function () {
             discoveredObjects = subobjects;
         }
         updateStream.writeUInt(WSB_SEPARATOR, 16);
+        updateStream.trim();
 
         // list of objects which were visible last frame
         oldObjects = this._visibleObjects;
