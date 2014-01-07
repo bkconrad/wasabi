@@ -263,7 +263,7 @@ Connection.prototype._packUpdate = function (obj, bs, discoveredObjects) {
 
     hash = bs.hashBits(startPos);
 
-    if(hash === this._updateHashes[obj.wsbSerialNumber]) {
+    if (hash === this._updateHashes[obj.wsbSerialNumber]) {
         // no change in data, so we'll roll back the bit stream to where we began
         bs.rollback(startPos);
     } else {

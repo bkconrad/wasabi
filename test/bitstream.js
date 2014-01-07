@@ -36,7 +36,7 @@ describe('Bitstream', function () {
         assert.equal(b._getBits(0, 16), 1337);
     });
 
-    it('calculates hashes of bits', function() {
+    it('calculates hashes of bits', function () {
         var bs = new Bitstream();
         bs.writeUInt(1234, 16);
         bs.writeUInt(1234, 16);
@@ -224,7 +224,7 @@ describe('Bitstream', function () {
         assert.ok(!b1.equals(b2));
     });
 
-    it('gets and sets the index position', function() {
+    it('gets and sets the index position', function () {
         var bs = new Bitstream();
         assert.equal(bs.getPos(), 0);
 

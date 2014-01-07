@@ -38,7 +38,7 @@ Bitstream.prototype = {
      *     write next. When undefined, moves to the end of the current data
      */
     setPos: function (pos) {
-        if(pos === undefined) {
+        if (pos === undefined) {
             pos = this._nbits;
         }
 
@@ -94,7 +94,7 @@ Bitstream.prototype = {
             n = this._nbits - start;
         }
 
-        while(n > 0) {
+        while (n > 0) {
             sampleSize = Math.min(32, n);
             sample = this._getBits(start, sampleSize);
 
@@ -125,7 +125,7 @@ Bitstream.prototype = {
      * @param {Number} pos The index to roll back to
      * @method rollback
      */
-    rollback: function(pos) {
+    rollback: function (pos) {
         this._nbits = pos;
         this._index = Math.min(this._index, this._nbits);
     },
@@ -136,7 +136,7 @@ Bitstream.prototype = {
      *
      * @method trim
      */
-    trim: function() {
+    trim: function () {
         var cell = Math.ceil(this._nbits / 7);
         this.arr.splice(cell, this.arr.length - cell);
     },

@@ -46,7 +46,7 @@ describe('Wasabi', function () {
         foo2 = new MockWasabi.Foo();
     });
 
-    it('only sends updates when data has changed', function() {
+    it('only sends updates when data has changed', function () {
         var obj;
 
         // incremented when the client unpacks an update
@@ -54,11 +54,11 @@ describe('Wasabi', function () {
 
         function DeltaTestClass() {
             this.val = 1;
-        };
+        }
 
-        DeltaTestClass.prototype.serialize = function(desc) {
+        DeltaTestClass.prototype.serialize = function (desc) {
 
-            if(this.wsbIsGhost) {
+            if (this.wsbIsGhost) {
                 updateCount++;
             }
 
