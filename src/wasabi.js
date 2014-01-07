@@ -137,8 +137,11 @@ function makeWasabi() {
          * @method addClient
          * @param {Socket} client The socket object used to communicate with the
          *     new client
-         * @param {Function} scopeCallback See {{#crossLink
-         *     "Connection"}}{{/crossLink}}
+         * @param {Function} scopeCallback An optional callback which overrides
+         *     the connection's visibility groups. A scope callback receives no
+         *     arguments, and return a collection of objects to be included in
+         *     this connection's scope. **Note:** This parameter is deprecated,
+         *     and may be removed in a future version.
          * @return {Connection} The newly created Connection object
          */
         addClient: function (client, scopeCallback) {
