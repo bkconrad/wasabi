@@ -183,9 +183,9 @@ Bitstream.prototype = {
     append: function (bs) {
 
         // pad the contents to the end of the current cell
-        this._nbits = (Math.ceil(this._nbits / 7) + bs.arr.length) * 7;
-        this._index = this._nbits;
         this.arr = this.arr.concat(bs.arr);
+        this._nbits = this.arr.length * 7;
+        this._index = this._nbits;
     },
 
     /**

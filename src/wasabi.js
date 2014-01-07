@@ -440,6 +440,10 @@ function makeWasabi() {
                     this._packUpdate(list[k], bs, discoveredObjects);
                 }
             }
+
+            // because _packUpdates can be called multiple times, no separator
+            // is written in the function. It must instead be written during the
+            // processConnections call
         },
 
         /**
@@ -544,9 +548,26 @@ function makeWasabi() {
             var invocation;
             for (i = 0; i < conn._rpcQueue.length; i++) {
                 invocation = conn._rpcQueue[i];
-                conn._sendBitstream.writeUInt(WSB_SECTION_RPC, 16);
                 this._packRpc(invocation.rpc, invocation.args, invocation.obj, bs, discoveredObjects);
             }
+
+            // write a separator
+            bs.writeUInt(WSB_SEPARATOR, 16);
+        },
+
+        /**
+         * Unpack RPC invocations from bs
+         * @method _unpackRpcs
+         * @private
+         * @param {Bitstream} bs The target Bitstream
+         */
+        _unpackRpcs: function (bs, conn) {
+            while (bs.peekUInt(16) !== WSB_SEPARATOR) {
+                this._unpackRpc(bs, conn);
+            }
+
+            // burn off the separator
+            bs.readUInt(16);
         },
 
         /**
@@ -752,6 +773,7 @@ function makeWasabi() {
                 conn._sendBitstream.writeUInt(WSB_SECTION_UPDATES, 16);
                 conn._sendBitstream.append(updateStream);
 
+                conn._sendBitstream.writeUInt(WSB_SECTION_RPC, 16);
                 conn._sendBitstream.append(rpcStream);
 
                 conn._sendBitstream.writeUInt(WSB_SECTION_REMOVED_GHOSTS, 16);
@@ -763,7 +785,12 @@ function makeWasabi() {
             } else {
 
                 // pack just the RPC invocations if we don't ghost to this connection
-                this._packRpcs(conn, conn._sendBitstream);
+                rpcStream = new Bitstream();
+                this._packRpcs(conn, rpcStream);
+
+                conn._sendBitstream.writeUInt(WSB_SECTION_RPC, 16);
+                conn._sendBitstream.append(rpcStream);
+
                 conn._rpcQueue = [];
             }
 
@@ -790,15 +817,13 @@ function makeWasabi() {
             while (conn._receiveBitstream.bitsLeft() > 0) {
                 section = conn._receiveBitstream.readUInt(16);
                 if (section !== WSB_PACKET_STOP) {
-                    // otherwise invoke the appropriate unpack
-                    // function via the _sectionMap
+                    // invoke the appropriate unpack function via the
+                    // _sectionMap
                     conn._receiveBitstream.align();
                     this._sectionMap[section].call(this, conn._receiveBitstream, conn);
                 }
 
-                if (section !== WSB_SECTION_RPC) {
-                    conn._receiveBitstream.align();
-                }
+                conn._receiveBitstream.align();
             }
 
             /**
@@ -847,7 +872,7 @@ function makeWasabi() {
     Wasabi._sectionMap[WSB_SECTION_GHOSTS] = Wasabi._unpackGhosts;
     Wasabi._sectionMap[WSB_SECTION_REMOVED_GHOSTS] = Wasabi._unpackRemovedGhosts;
     Wasabi._sectionMap[WSB_SECTION_UPDATES] = Wasabi._unpackUpdates;
-    Wasabi._sectionMap[WSB_SECTION_RPC] = Wasabi._unpackRpc;
+    Wasabi._sectionMap[WSB_SECTION_RPC] = Wasabi._unpackRpcs;
 
     Wasabi.registry = new Registry();
 
