@@ -50,29 +50,6 @@ describe('Wasabi', function () {
         foo2 = new MockWasabi.Foo();
     });
 
-    it('packs and unpacks ghost data', function () {
-        var objList = [foo1, foo2];
-        var i;
-        for (i = 0; i < objList.length; i++) {
-            ws._packGhost(objList[i], bs);
-        }
-        bs.writeUInt(0, 16);
-        bs._index = 0;
-
-        var newList = [];
-        var obj;
-        while (bs.peekUInt(16) !== 0) {
-            obj = wc1._unpackGhost(bs);
-            newList.push(obj);
-        }
-
-        assert.notEqual(0, newList.length);
-        for (i = 0; i < newList.length; i++) {
-            assert.equal(newList[i].constructor, objList[i].constructor);
-            newList[i].check(objList[i]);
-        }
-    });
-
     it('encodes objects', function () {
         var obj;
         var remoteObj;
@@ -315,18 +292,6 @@ describe('Wasabi', function () {
 
         ws.processConnections();
         wc1.processConnections();
-    });
-
-    it('packs and unpacks properly to out-of-sync registries', function () {
-        var foo = new MockWasabi.Foo();
-
-        ws.registry.nextSerialNumber += 1;
-        ws.addObject(foo);
-
-        ws._packGhost(foo, bs);
-        bs._index = 0;
-        wc1._unpackGhost(bs);
-        assert.ok(wc1.registry._objects[foo.wsbSerialNumber]);
     });
 
     it('calls RPCs from servers to clients on an associated netobject', function () {

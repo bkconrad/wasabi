@@ -7,8 +7,8 @@ describe("Connection", function () {
     // Create some mock sockets to attach the connections to
     var clientSocket = new MockSocket();
     var serverSocket = new MockSocket();
-    var serverConn = new Wasabi.Connection(serverSocket, false, true);
-    var clientConn = new Wasabi.Connection(clientSocket, true, false);
+    var serverConn = new Wasabi.Connection(false, serverSocket, false, true);
+    var clientConn = new Wasabi.Connection(false, clientSocket, true, false);
 
     // link the mock sockets to each other
     clientSocket.link(serverSocket);
