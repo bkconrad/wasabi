@@ -212,6 +212,23 @@ describe('Wasabi', function () {
         wc1.processConnections();
     });
 
+    it('transmit out-of-range floating point numbers as integers', function (done) {
+        var originalVal = 133.7;
+
+        function rpcOutOfRangeFloatTest(val) {
+            assert.closeTo(val, originalVal, 1.0);
+            done();
+        }
+
+        var rpc = ws.mkRpc(rpcOutOfRangeFloatTest);
+        wc1.mkRpc(rpcOutOfRangeFloatTest);
+
+        rpc(originalVal);
+
+        ws.processConnections();
+        wc1.processConnections();
+    });
+
     it('encodes references', function (done) {
         var obj;
         var remoteObj;

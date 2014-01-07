@@ -192,10 +192,20 @@ InDescription.prototype = {
             type = 'bool';
         } else if (typeof val === 'string') {
             type = 'string';
-        } else if ((val | 0) === val) {
-            type = 'sint';
-        } else if (+val === val) {
-            type = 'float';
+        } else if (typeof val === 'number') {
+
+            // anything out of the range [-1.0, 1.0] or without a decimal part
+            // is encoded as an integer
+            if (val < -1 || val > 1 || val % 1 === 0) {
+                if (val >= 0) {
+                    type = 'uint';
+                } else {
+                    type = 'sint';
+                }
+            } else {
+                // otherwise use a float
+                type = 'float';
+            }
         } else if (val instanceof Array) {
             type = 'array';
         } else if (val instanceof Object && val.wsbSerialNumber) {
