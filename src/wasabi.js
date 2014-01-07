@@ -670,8 +670,6 @@ function makeWasabi() {
             var ghostRemovalStream;
             var subobjects;
 
-            debugger;
-
             // connections with ghostTo set (i.e. clients)
             if (conn._ghostTo) {
 
