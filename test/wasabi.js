@@ -586,7 +586,7 @@ describe('Wasabi', function () {
     });
 
     it('serializes arrays', function () {
-        var arr = [1, 2, -123, 'test', {
+        var arr = [1, true, false, -123, 'test', {
                 foo: 'bar',
                 arrayInObject: [1337]
             },

@@ -188,7 +188,9 @@ InDescription.prototype = {
     any: function (name, bits) {
         var type;
         var val = this._target[name];
-        if (typeof val === 'string') {
+        if (val === true || val === false) {
+            type = 'bool';
+        } else if (typeof val === 'string') {
             type = 'string';
         } else if ((val | 0) === val) {
             type = 'sint';
