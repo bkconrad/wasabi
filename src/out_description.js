@@ -19,6 +19,29 @@ var OutDescription = function (bs, target, serialize, instance) {
 };
 
 OutDescription.prototype = {
+    array: function (name, type, arg1, arg2) {
+        var typeFn;
+        var arr = this._target[name] || [];
+        var serialize;
+        arg1 = arg1 || 16;
+
+        type = typeof type === 'string' ? type : 'any';
+        typeFn = this[type];
+
+        serialize = function (desc) {
+            var i;
+            var len = desc._bitStream.readUInt(16);
+            for (i = 0; i < len; i++) {
+                // call the specified type method on each element, passing i
+                // as the name, followed by optional arg1 and arg2
+                typeFn.call(desc, i, arg1, arg2);
+            }
+        };
+
+        this._bitStream.unpack(arr, serialize, this._instance);
+        this._target[name] = arr;
+    },
+
     bool: function (name) {
         this._target[name] = this._bitStream.readUInt(1) ? true : false;
     },

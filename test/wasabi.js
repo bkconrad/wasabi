@@ -589,11 +589,64 @@ describe('Wasabi', function () {
 
     });
 
+    it('serializes arrays', function () {
+        var arr = [1, 2, -123, 'test', {
+                foo: 'bar',
+                arrayInObject: [1337]
+            },
+            ['subarray']
+        ];
+
+        var fn = function s2cTest(arg) {
+            assert.ok(arg);
+            assert.ok(arg instanceof Array);
+            assert.deepEqual(arr, arg);
+        };
+
+        var rpc = ws.mkRpc(fn);
+        wc1.mkRpc(fn);
+
+        rpc(arr);
+
+        ws.processConnections();
+        wc1.processConnections();
+    });
+
+    it('serializes typed arrays', function () {
+        var arr = [100, 222, 255, 300];
+
+        var fn = function s2cTest(arg) {
+            assert.ok(arg);
+            assert.ok(arg instanceof Array);
+
+            // not enough bits, so they should not be equal
+            assert.notEqual(arg[3], arr[3]);
+            delete arg[3];
+            delete arr[3];
+
+            // but should be deeply equal other than that
+            assert.deepEqual(arr, arg);
+
+        };
+
+        var serialize = function s2cTestArgs(desc) {
+            desc.array('arg', 'uint', 8);
+        };
+
+        var rpc = ws.mkRpc(fn, serialize);
+        wc1.mkRpc(fn, serialize);
+
+        rpc(arr);
+
+        ws.processConnections();
+        wc1.processConnections();
+    });
+
     it('complains when asked to serialize an RPC argument of an unsupported type', function () {
         var fn = ws.mkRpc(function testRpc(arg) {
             assert.ok(arg);
         });
-        fn([]);
+        fn(null);
 
         assert.throws(function () {
             ws.processConnections();

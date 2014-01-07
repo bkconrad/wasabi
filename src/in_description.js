@@ -22,6 +22,37 @@ var InDescription = function (bs, target, serialize) {
 
 InDescription.prototype = {
     /**
+     * Describe an (optionally typed) Array
+     * @param {String} name The name of the attribute
+     * @param {String} type The name of the type method to use when serializing
+     *     the contents. Defaults to 'any'.
+     * @param {mixed} arg1 The first argument to pass to the type method.
+     * @param {mixed} arg2 The second argument to pass to the type method.
+     * @method array
+     */
+    array: function (name, type, arg1, arg2) {
+        var typeFn;
+        var arr = this._target[name];
+        var serialize;
+        arg1 = arg1 || 16;
+
+        type = typeof type === 'string' ? type : 'any';
+        typeFn = this[type];
+
+        serialize = function (desc) {
+            var i;
+            desc._bitStream.writeUInt(arr.length, 16);
+            for (i = 0; i < arr.length; i++) {
+                // call the specified type method on each element, passing i
+                // as the name, followed by optional arg1 and arg2
+                typeFn.call(desc, i, arg1, arg2);
+            }
+        };
+
+        this._bitStream.pack(arr, serialize, this._discoveredObjects);
+    },
+
+    /**
      * Describe a simple boolean value (`true` or `false)
      * @param {String} name The name of the attribute
      * @method bool
@@ -159,16 +190,18 @@ InDescription.prototype = {
         var val = this._target[name];
         if (typeof val === 'string') {
             type = 'string';
-        } else if (val | 0 === val) {
+        } else if ((val | 0) === val) {
             type = 'sint';
         } else if (+val === val) {
             type = 'float';
+        } else if (val instanceof Array) {
+            type = 'array';
         } else if (val instanceof Object && val.wsbSerialNumber) {
             type = 'reference';
-        } else if (!(val instanceof Array)) {
+        } else if (val instanceof Object) {
             type = 'object';
         } else {
-            throw new WasabiError('Can not serialize unsupported value ' + val.toString());
+            throw new WasabiError('Can not serialize unsupported value ' + Object.prototype.toString.call(val));
         }
 
         // Write the type specifier to the bitstream

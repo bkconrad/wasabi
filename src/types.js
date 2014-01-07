@@ -4,6 +4,7 @@
  */
 var iota = 0;
 var fromString = {
+    array: iota++,
     bool: iota++,
     float: iota++,
     object: iota++,
