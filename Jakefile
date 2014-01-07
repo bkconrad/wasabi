@@ -108,6 +108,7 @@ task('lint', function () {
         vars: true,
         plusplus: true,
         node: true,
+        white: true,
         predef: ['it', 'describe', 'beforeEach']
     };
 

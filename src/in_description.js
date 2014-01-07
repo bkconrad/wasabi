@@ -236,5 +236,4 @@ InDescription._automagicSerialize = function (desc) {
     desc._bitStream.writeUInt(WSB_END_OF_OBJECT, 8);
 };
 
-
 module.exports = InDescription;

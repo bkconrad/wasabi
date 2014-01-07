@@ -13,16 +13,12 @@ describe('Wasabi', function () {
     var client1;
     var server2;
     var client2;
-    var bs;
     var foo1;
     var foo2;
     var clientConn1;
     var clientConn2;
 
     beforeEach(function () {
-
-        // a simple bitstream
-        bs = new Wasabi.Bitstream();
 
         // a server and two linked clients
         ws = MockWasabi.make();
