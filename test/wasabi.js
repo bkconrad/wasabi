@@ -158,7 +158,7 @@ describe('Wasabi', function () {
         // the objects should all be deep equal
         assert.deepEqual(obj.structuredObj, remoteObj.structuredObj);
         assert.deepEqual(obj.unstructuredObj, remoteObj.unstructuredObj);
-        // assert.deepEqual(obj.fooReference1, remoteObj.fooReference1);
+        obj.fooReference1.check(remoteObj.fooReference1);
 
         oldRemoteSubobject = remoteObj.unstructuredObj;
 
@@ -195,20 +195,6 @@ describe('Wasabi', function () {
 
         ws.processConnections();
         wc1.processConnections();
-    });
-
-    it('orchestrates packing/unpacking data automatically in an update function', function () {
-        var foo = new MockWasabi.Foo();
-
-        ws.addObject(foo);
-
-        ws._packGhost(foo, bs);
-        ws._packUpdates([foo], bs);
-        bs._index = 0;
-        wc1._unpackGhost(bs);
-        wc1._unpackUpdates(bs);
-        assert.ok(wc1.registry._objects[foo.wsbSerialNumber]);
-        wc1.registry._objects[foo.wsbSerialNumber].check(foo);
     });
 
     it('packs and unpacks properly to out-of-sync registries', function () {

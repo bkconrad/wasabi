@@ -588,7 +588,7 @@ function makeWasabi() {
             bs.writeUInt(obj ? obj.wsbSerialNumber : 0, 16);
             bs.writeUInt(this.registry.hash(rpc._klass, rpc._fn), 16);
             args.serialize = rpc._serialize;
-            bs.pack(args, discoveredObjects);
+            bs.pack(args, undefined, discoveredObjects);
         },
 
         /**
@@ -615,7 +615,7 @@ function makeWasabi() {
             // unpack the arguments
             args = [];
             args.serialize = rpc._serialize;
-            bs.unpack(args);
+            bs.unpack(args, undefined, this);
             rpc._populateIndexes(args);
 
             // add the connection this invocation was received through to the
