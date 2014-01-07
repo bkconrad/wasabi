@@ -272,28 +272,6 @@ describe('Wasabi', function () {
         wc1.processConnections();
     });
 
-    it('encodes objects in rpc arguments', function (done) {
-        var sourceObj = {
-            foo: 1,
-            subobject: {
-                bar: -2
-            }
-        };
-
-        function rpcObjectTest(obj) {
-            assert.deepEqual(sourceObj, obj);
-            done();
-        }
-
-        var rpc = ws.mkRpc(rpcObjectTest);
-        wc1.mkRpc(rpcObjectTest);
-
-        rpc(sourceObj);
-
-        ws.processConnections();
-        wc1.processConnections();
-    });
-
     it('calls RPCs from servers to clients on an associated netobject', function () {
         ws.addObject(foo1);
         foo1.rpcTest(1337);
