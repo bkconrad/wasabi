@@ -19,7 +19,7 @@ var WSB_SEPARATOR = iota;
 var WSB_SECTION_GHOSTS = --iota;
 var WSB_SECTION_REMOVED_GHOSTS = --iota;
 var WSB_SECTION_UPDATES = --iota;
-var WSB_SECTION_RPC = --iota;
+var WSB_SECTION_RPCS = --iota;
 var WSB_PACKET_STOP = --iota;
 
 /**
@@ -593,7 +593,7 @@ Connection.prototype.process = function () {
         this._sendBitstream.writeUInt(WSB_SECTION_UPDATES, 16);
         this._sendBitstream.append(updateStream);
 
-        this._sendBitstream.writeUInt(WSB_SECTION_RPC, 16);
+        this._sendBitstream.writeUInt(WSB_SECTION_RPCS, 16);
         this._sendBitstream.append(rpcStream);
 
         this._sendBitstream.writeUInt(WSB_SECTION_REMOVED_GHOSTS, 16);
@@ -608,7 +608,7 @@ Connection.prototype.process = function () {
         rpcStream = new Bitstream();
         this._packRpcs(rpcStream);
 
-        this._sendBitstream.writeUInt(WSB_SECTION_RPC, 16);
+        this._sendBitstream.writeUInt(WSB_SECTION_RPCS, 16);
         this._sendBitstream.append(rpcStream);
 
         this._rpcQueue = [];
@@ -692,6 +692,6 @@ Connection._sectionMap = {};
 Connection._sectionMap[WSB_SECTION_GHOSTS] = Connection.prototype._unpackGhosts;
 Connection._sectionMap[WSB_SECTION_REMOVED_GHOSTS] = Connection.prototype._unpackRemovedGhosts;
 Connection._sectionMap[WSB_SECTION_UPDATES] = Connection.prototype._unpackUpdates;
-Connection._sectionMap[WSB_SECTION_RPC] = Connection.prototype._unpackRpcs;
+Connection._sectionMap[WSB_SECTION_RPCS] = Connection.prototype._unpackRpcs;
 
 module.exports = Connection;
