@@ -27,7 +27,7 @@ function Rpc(fn, klass, serialize) {
     // parse the number and names of the arguments in the function definition
     // this seems ridiculously hacky, but works on any ECMA-compliant platform
     var funStr = fn.toString();
-    this._args =  funStr.slice(funStr.indexOf('(') + 1, funStr.indexOf(')')).match(/([\w]+)/g) || [];
+    this._args = funStr.slice(funStr.indexOf('(') + 1, funStr.indexOf(')')).match(/([\w]+)/g) || [];
 }
 
 /**
